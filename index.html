@@ -960,21 +960,6 @@ function closeUserMenu(){
 }
 document.addEventListener('click',()=>closeUserMenu());
 
-function showLoggedIn(){
-  const name=currentProfile?.full_name||currentUser?.email?.split('@')[0]||'';
-  const email=currentUser?.email||'';
-  const role=currentProfile?.role||currentUser?.user_metadata?.role||'family';
-  document.getElementById('nav-user-label').textContent='👤 '+name;
-  document.getElementById('ud-name').textContent=name;
-  document.getElementById('ud-email').textContent=email;
-  document.getElementById('ud-profile-link').style.display=role==='professional'?'flex':'none';
-  document.getElementById('nav-user').style.display='';
-  document.getElementById('nav-login').style.display='none';
-  document.getElementById('nav-reg').style.display='none';
-  document.getElementById('nav-dash').style.display='';
-  document.getElementById('nav-logout').style.display='none';
-}
-
 // ============ NAVIGATION ============
 let prevPage='home';
 function go(p){
