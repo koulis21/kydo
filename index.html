@@ -307,48 +307,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
   </div>
 </div>
 
-<!-- EDIT NAME -->
-<div class="overlay" id="ov-edit-name">
-  <div class="modal">
-    <button class="close-btn" onclick="closeModal('edit-name')">✕</button>
-    <h2>Αλλαγή ονόματος</h2>
-    <div class="form-row">
-      <div>
-        <label>Όνομα</label>
-        <input type="text" id="en-fname" placeholder="Μαρία"
-          onkeypress="return /[a-zA-Z\u0370-\u03FF\u1F00-\u1FFF\s]/.test(event.key)">
-      </div>
-      <div>
-        <label>Επώνυμο</label>
-        <input type="text" id="en-lname" placeholder="Παπαδάκη"
-          onkeypress="return /[a-zA-Z\u0370-\u03FF\u1F00-\u1FFF\s]/.test(event.key)">
-      </div>
-    </div>
-    <div class="msg" id="en-msg"></div>
-    <button class="submit-btn" id="en-btn" onclick="doEditName()"><span>Αποθήκευση</span></button>
-  </div>
-</div>
-
-<!-- CHANGE PASSWORD -->
-<div class="overlay" id="ov-change-pass">
-  <div class="modal">
-    <button class="close-btn" onclick="closeModal('change-pass')">✕</button>
-    <h2>Αλλαγή κωδικού</h2>
-    <label>Νέος κωδικός</label>
-    <input type="password" id="cp-pass" placeholder="••••••••" oninput="checkCpStrength(this.value)">
-    <div class="pw-rules">
-      <div class="pw-rule" id="cp-len"><div class="dot"></div><span>Τουλάχιστον 8 χαρακτήρες</span></div>
-      <div class="pw-rule" id="cp-upper"><div class="dot"></div><span>Κεφαλαίο γράμμα (A-Z)</span></div>
-      <div class="pw-rule" id="cp-num"><div class="dot"></div><span>Αριθμός (0-9)</span></div>
-      <div class="pw-rule" id="cp-special"><div class="dot"></div><span>Ειδικός χαρακτήρας (!@#$...)</span></div>
-    </div>
-    <label>Επιβεβαίωση νέου κωδικού</label>
-    <input type="password" id="cp-pass2" placeholder="••••••••">
-    <div class="msg" id="cp-msg"></div>
-    <button class="submit-btn" id="cp-btn" onclick="doChangePass()"><span>Αποθήκευση</span></button>
-  </div>
-</div>
-
 <!-- RESET PASSWORD -->
 <div class="overlay" id="ov-reset">
   <div class="modal">
