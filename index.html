@@ -873,6 +873,7 @@ function isPwValid(v){
 }
 
 // LOGIN
+let loginRole='family';
 async function doLogin(){
   const email=document.getElementById('li-email').value.trim();
   const pass=document.getElementById('li-pass').value;
@@ -880,11 +881,56 @@ async function doLogin(){
   if(!email||!pass){showMsg('li-msg',t('errFill'),'error');return;}
   btn.disabled=true;
   btn.innerHTML='<div class="spinner"></div><span>...</span>';
-  const {error}=await sb.auth.signInWithPassword({email,password:pass});
-  btn.disabled=false;
-  btn.innerHTML=`<span>${t('loginBtn')}</span>`;
-  if(error){showMsg('li-msg',t('errEmail'),'error');}
-  else{closeModal('login');await loadProfile();goDash();}
+
+  // Timeout 10 δευτερόλεπτα
+  const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),10000));
+
+  try{
+    const result=await Promise.race([
+      sb.auth.signInWithPassword({email,password:pass}),
+      timeout
+    ]);
+
+    if(result.error){
+      showMsg('li-msg',t('errEmail'),'error');
+      btn.disabled=false;
+      btn.innerHTML=`<span>${t('loginBtn')}</span>`;
+      return;
+    }
+
+    // Φόρτωσε profile και έλεγξε role
+    const {data:profile}=await sb.from('profiles').select('role').eq('id',result.data.user.id).single();
+
+    const expectedRole=loginRole==='pro'?'professional':'family';
+
+    if(profile && profile.role !== expectedRole){
+      // Λάθος role — κάνε logout και δείξε μήνυμα
+      await sb.auth.signOut();
+      const wrongMsg=expectedRole==='family'
+        ? 'Αυτός ο λογαριασμός είναι επαγγελματία. Επιλέξτε την καρτέλα "Επαγγελματίας".'
+        : 'Αυτός ο λογαριασμός είναι οικογένειας. Επιλέξτε την καρτέλα "Οικογένεια".';
+      showMsg('li-msg', wrongMsg, 'error');
+      btn.disabled=false;
+      btn.innerHTML=`<span>${t('loginBtn')}</span>`;
+      return;
+    }
+
+    // Επιτυχία
+    currentProfile=profile;
+    closeModal('login');
+    await loadProfile();
+    showLoggedIn();
+    goDash();
+
+  } catch(err){
+    if(err.message==='timeout'){
+      showMsg('li-msg','Η σύνδεση έληξε. Δοκιμάστε ξανά.','error');
+    } else {
+      showMsg('li-msg',t('errEmail'),'error');
+    }
+    btn.disabled=false;
+    btn.innerHTML=`<span>${t('loginBtn')}</span>`;
+  }
 }
 
 // FORGOT PASSWORD
@@ -932,21 +978,67 @@ async function doRegister(){
   const phone=document.getElementById('rg-phone').value.trim();
   const pass=document.getElementById('rg-pass').value;
   const btn=document.getElementById('rg-btn');
-  if(!fname||!lname||!email||!pass){showMsg('rg-msg',t('errFill'),'error');return;}
-  if(!isPwValid(pass)){showMsg('rg-msg',t('errPw'),'error');return;}
+
+  // Έλεγχος κενών πεδίων
+  if(!fname||!lname||!email||!pass){
+    showMsg('rg-msg',t('errFill'),'error');return;
+  }
+
+  // Έλεγχος email format
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showMsg('rg-msg','Μη έγκυρη μορφή email.','error');return;
+  }
+
+  // Έλεγχος password
+  if(!isPwValid(pass)){
+    showMsg('rg-msg',t('errPw'),'error');return;
+  }
+
   btn.disabled=true;
   btn.innerHTML='<div class="spinner"></div><span>...</span>';
-  const {error}=await sb.auth.signUp({
-    email,password:pass,
-    options:{data:{full_name:fname+' '+lname,role:regRole,phone:'+'+code+phone}}
-  });
-  btn.disabled=false;
-  btn.innerHTML=`<span>${t('createAccount')}</span>`;
-  if(error){
-    showMsg('rg-msg',error.message.includes('already')?t('errExists'):'Error: '+error.message,'error');
-  } else {
-    showMsg('rg-msg',t('successReg'),'success');
-    setTimeout(()=>{closeModal('register');},3000);
+
+  // Έλεγχος αν υπάρχει ήδη το email
+  try{
+    const {data:existing}=await sb.from('profiles')
+      .select('id')
+      .eq('id', (await sb.auth.signInWithPassword({email, password:'__check_only__'}))?.data?.user?.id || '00000000-0000-0000-0000-000000000000')
+      .maybeSingle();
+
+    // Δοκιμάζουμε signup — το Supabase επιστρέφει error αν υπάρχει
+    const {data, error}=await sb.auth.signUp({
+      email, password:pass,
+      options:{data:{full_name:fname+' '+lname, role:regRole, phone:'+'+code+phone}}
+    });
+
+    if(error){
+      if(error.message.toLowerCase().includes('already')||error.message.toLowerCase().includes('registered')){
+        showMsg('rg-msg','⚠️ Αυτό το email χρησιμοποιείται ήδη. Παρακαλώ συνδεθείτε ή χρησιμοποιήστε άλλο email.','error');
+      } else {
+        showMsg('rg-msg','Σφάλμα: '+error.message,'error');
+      }
+      btn.disabled=false;
+      btn.innerHTML=`<span>${t('createAccount')}</span>`;
+      return;
+    }
+
+    // Supabase επιστρέφει user χωρίς error ακόμα και αν υπάρχει το email (security feature)
+    // Ελέγχουμε αν το session είναι null — σημαίνει ότι στάλθηκε confirmation email
+    if(data?.user && !data?.session){
+      // Νέος χρήστης — περιμένει επιβεβαίωση
+      showMsg('rg-msg',t('successReg'),'success');
+      setTimeout(()=>closeModal('register'),3000);
+    } else if(data?.session){
+      // Ήδη υπάρχει και είναι confirmed — δείξε μήνυμα
+      await sb.auth.signOut();
+      showMsg('rg-msg','⚠️ Αυτό το email χρησιμοποιείται ήδη. Παρακαλώ συνδεθείτε.','error');
+      btn.disabled=false;
+      btn.innerHTML=`<span>${t('createAccount')}</span>`;
+    }
+
+  } catch(err){
+    showMsg('rg-msg','Σφάλμα σύνδεσης. Δοκιμάστε ξανά.','error');
+    btn.disabled=false;
+    btn.innerHTML=`<span>${t('createAccount')}</span>`;
   }
 }
 
@@ -1103,10 +1195,74 @@ function showProf(id){
 
 // NAV & HELPERS
 function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');window.scrollTo(0,0)}
-function openModal(t2){document.getElementById('ov-'+t2).classList.add('open')}
-function closeModal(t2){document.getElementById('ov-'+t2).classList.remove('open')}
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
-function switchTab(el){document.querySelectorAll('#ov-login .tab').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
+
+function resetLoginForm(){
+  document.getElementById('li-email').value='';
+  document.getElementById('li-pass').value='';
+  document.getElementById('li-msg').className='msg';
+  document.getElementById('li-msg').textContent='';
+  document.getElementById('li-btn').disabled=false;
+  document.getElementById('li-btn').innerHTML=`<span>${t('loginBtn')}</span>`;
+  // reset tabs to first
+  document.querySelectorAll('#ov-login .tab').forEach((x,i)=>{
+    x.classList.toggle('active',i===0);
+  });
+  loginRole='family';
+}
+
+function resetRegisterForm(){
+  document.getElementById('rg-fname').value='';
+  document.getElementById('rg-lname').value='';
+  document.getElementById('rg-email').value='';
+  document.getElementById('rg-phone').value='';
+  document.getElementById('rg-code').value='30';
+  document.getElementById('rg-pass').value='';
+  document.getElementById('rg-msg').className='msg';
+  document.getElementById('rg-msg').textContent='';
+  document.getElementById('rg-btn').disabled=false;
+  document.getElementById('rg-btn').innerHTML=`<span>${t('createAccount')}</span>`;
+  ['pw-len','pw-upper','pw-num','pw-special'].forEach(id=>document.getElementById(id).classList.remove('ok'));
+  regRole='family';
+  document.getElementById('rc-family').classList.add('sel');
+  document.getElementById('rc-pro').classList.remove('sel');
+}
+
+function resetForgotForm(){
+  document.getElementById('fp-email').value='';
+  document.getElementById('fp-msg').className='msg';
+  document.getElementById('fp-msg').textContent='';
+  document.getElementById('fp-btn').disabled=false;
+  document.getElementById('fp-btn').innerHTML=`<span>${t('forgotBtn')}</span>`;
+}
+
+function openModal(t2){
+  document.getElementById('ov-'+t2).classList.add('open');
+  if(t2==='login') resetLoginForm();
+  if(t2==='register') resetRegisterForm();
+  if(t2==='forgot') resetForgotForm();
+}
+function closeModal(t2){
+  document.getElementById('ov-'+t2).classList.remove('open');
+  if(t2==='login') resetLoginForm();
+  if(t2==='register') resetRegisterForm();
+  if(t2==='forgot') resetForgotForm();
+}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{
+  if(e.target===o){
+    const id=o.id.replace('ov-','');
+    closeModal(id);
+  }
+}));
+function switchTab(el){
+  document.querySelectorAll('#ov-login .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  loginRole=el.textContent.includes('Επαγγελματίας')||el.textContent.includes('Professional')?'pro':'family';
+  // Καθαρισμός πεδίων όταν αλλάζει tab
+  document.getElementById('li-email').value='';
+  document.getElementById('li-pass').value='';
+  document.getElementById('li-msg').className='msg';
+  document.getElementById('li-msg').textContent='';
+}
 function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className='msg '+type}
 
 // INPUT VALIDATION
