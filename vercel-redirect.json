@@ -1,0 +1,34 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "kydocare.gr" }],
+      "destination": "https://kydo.gr/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.kydocare.gr" }],
+      "destination": "https://kydo.gr/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "kydocare.com" }],
+      "destination": "https://kydo.gr/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.kydocare.com" }],
+      "destination": "https://kydo.gr/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.kydo.gr" }],
+      "destination": "https://kydo.gr/$1",
+      "permanent": true
+    }
+  ]
+}
