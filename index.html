@@ -239,6 +239,26 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
   </div>
 </div>
 
+<!-- RESET PASSWORD -->
+<div class="overlay" id="ov-reset">
+  <div class="modal">
+    <h2>Νέος κωδικός</h2>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Εισάγετε τον νέο σας κωδικό πρόσβασης.</p>
+    <label>Νέος κωδικός</label>
+    <input type="password" id="rp-pass" placeholder="••••••••" oninput="checkRpStrength(this.value)">
+    <div class="pw-rules">
+      <div class="pw-rule" id="rp-len"><div class="dot"></div><span>Τουλάχιστον 8 χαρακτήρες</span></div>
+      <div class="pw-rule" id="rp-upper"><div class="dot"></div><span>Κεφαλαίο γράμμα (A-Z)</span></div>
+      <div class="pw-rule" id="rp-num"><div class="dot"></div><span>Αριθμός (0-9)</span></div>
+      <div class="pw-rule" id="rp-special"><div class="dot"></div><span>Ειδικός χαρακτήρας (!@#$...)</span></div>
+    </div>
+    <label>Επιβεβαίωση νέου κωδικού</label>
+    <input type="password" id="rp-pass2" placeholder="••••••••">
+    <div class="msg" id="rp-msg"></div>
+    <button class="submit-btn" id="rp-btn" onclick="doResetPassword()"><span>Αποθήκευση νέου κωδικού</span></button>
+  </div>
+</div>
+
 <!-- FORGOT -->
 <div class="overlay" id="ov-forgot">
   <div class="modal">
@@ -937,7 +957,54 @@ function showMsg(id,text,type){
 function toggleChip(el){el.classList.toggle('on');}
 function toggleLang(){lang=lang==='el'?'en':'el';document.querySelector('.lang-btn').textContent=lang==='el'?'🌐 EN':'🌐 ΕΛ';}
 
-// ============ ENTER KEY SUBMIT ============
+// ============ RESET PASSWORD ============
+function checkRpStrength(v){
+  document.getElementById('rp-len').classList.toggle('ok',v.length>=8);
+  document.getElementById('rp-upper').classList.toggle('ok',/[A-Z]/.test(v));
+  document.getElementById('rp-num').classList.toggle('ok',/[0-9]/.test(v));
+  document.getElementById('rp-special').classList.toggle('ok',/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v));
+}
+
+async function doResetPassword(){
+  const pass=document.getElementById('rp-pass').value;
+  const pass2=document.getElementById('rp-pass2').value;
+  const btn=document.getElementById('rp-btn');
+  if(!isPwValid(pass)){showMsg('rp-msg','Ο κωδικός δεν πληροί τις απαιτήσεις ασφαλείας.','error');return;}
+  if(pass!==pass2){showMsg('rp-msg','Οι κωδικοί δεν ταιριάζουν.','error');return;}
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div><span>...</span>';
+  const{error}=await sb.auth.updateUser({password:pass});
+  btn.disabled=false;btn.innerHTML='<span>Αποθήκευση νέου κωδικού</span>';
+  if(error){showMsg('rp-msg','Σφάλμα: '+error.message,'error');}
+  else{
+    showMsg('rp-msg','✓ Ο κωδικός άλλαξε επιτυχώς!','success');
+    setTimeout(()=>{closeModal('reset');goDash();},2000);
+  }
+}
+
+// ============ URL HASH HANDLER ============
+function handleUrlHash(){
+  const hash=window.location.hash;
+  if(!hash)return;
+  const params=new URLSearchParams(hash.substring(1));
+  const error=params.get('error');
+  const errorDesc=params.get('error_description');
+  const type=params.get('type');
+  // Καθαρισμός URL
+  history.replaceState(null,'',window.location.pathname);
+  if(error){
+    // Εμφάνιση modal login με μήνυμα λήξης
+    openModal('login');
+    showMsg('li-msg','⚠️ Ο σύνδεσμος έχει λήξει. Ζητήστε νέο σύνδεσμο επαναφοράς.','error');
+    return;
+  }
+  if(type==='recovery'){
+    // Το Supabase έχει ήδη κάνει set session — ανοίγουμε το reset modal
+    document.getElementById('ov-reset').classList.add('open');
+  }
+}
+
+// ============ ENTER KEY για reset ============
+// (προστίθεται στο DOMContentLoaded παρακάτω)
 document.addEventListener('DOMContentLoaded',()=>{
   ['li-email','li-pass'].forEach(id=>{
     document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
