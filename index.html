@@ -878,7 +878,50 @@ function showLoggedOut(){
   document.getElementById('nav-logout').style.display='none';
 }
 
-// ============ LOGIN ============
+// ============ LOGIN LOCKOUT ============
+const MAX_ATTEMPTS=5;
+const LOCKOUT_MS=15*60*1000;
+
+function getLockoutData(){
+  try{
+    const d=JSON.parse(localStorage.getItem('kydo_lockout')||'{}');
+    return d;
+  }catch{return{};}
+}
+
+function isLockedOut(){
+  const d=getLockoutData();
+  if(!d.until)return false;
+  if(Date.now()<d.until)return true;
+  localStorage.removeItem('kydo_lockout');
+  return false;
+}
+
+function getRemainingLockout(){
+  const d=getLockoutData();
+  if(!d.until)return 0;
+  return Math.max(0,Math.ceil((d.until-Date.now())/1000));
+}
+
+function recordFailedAttempt(){
+  const d=getLockoutData();
+  const attempts=(d.attempts||0)+1;
+  if(attempts>=MAX_ATTEMPTS){
+    localStorage.setItem('kydo_lockout',JSON.stringify({attempts,until:Date.now()+LOCKOUT_MS}));
+  }else{
+    localStorage.setItem('kydo_lockout',JSON.stringify({attempts,until:d.until||null}));
+  }
+  return attempts;
+}
+
+function clearLockout(){
+  localStorage.removeItem('kydo_lockout');
+}
+
+function fmtTime(s){
+  const m=Math.floor(s/60),sec=s%60;
+  return m>0?m+' λεπτά'+(sec>0?' και '+sec+' δευτ.':''):sec+' δευτερόλεπτα';
+}
 function switchLoginTab(role,el){
   loginRole=role;
   document.querySelectorAll('#ov-login .tab').forEach(t=>t.classList.remove('active'));
@@ -1044,7 +1087,14 @@ function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove(
 function openModal(id){
   closeUserMenu();
   document.getElementById('ov-'+id).classList.add('open');
-  if(id==='login'){resetLoginForm();}
+  if(id==='login'){
+    resetLoginForm();
+    if(isLockedOut()){
+      const secs=getRemainingLockout();
+      showMsg('li-msg',`🔒 Ο λογαριασμός κλειδώθηκε. Δοκιμάστε ξανά σε ${fmtTime(secs)}.`,'error');
+      document.getElementById('li-btn').disabled=true;
+    }
+  }
   if(id==='register'){resetRegForm();}
   if(id==='forgot'){document.getElementById('fp-email').value='';showMsg('fp-msg','','');}
   if(id==='edit-name'){
