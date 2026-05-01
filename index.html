@@ -680,21 +680,26 @@ let manualLogin=false;
 
 // ============ AUTH STATE ============
 sb.auth.onAuthStateChange(async(event,session)=>{
-  if(event==='SIGNED_IN'&&session&&!currentUser){
-    // μόνο για auto-restore session (π.χ. refresh σελίδας)
+  if(event==='TOKEN_REFRESHED'&&session){
+    currentUser=session.user;
+    if(!currentProfile)await loadProfile();
+    showLoggedIn();
+  }else if(event==='SIGNED_OUT'){
+    currentUser=null;currentProfile=null;
+    showLoggedOut();
+  }
+});
+
+// Restore session on page load
+(async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){
     currentUser=session.user;
     await loadProfile();
     showLoggedIn();
     goDash();
-  }else if(event==='SIGNED_OUT'){
-    currentUser=null;currentProfile=null;
-    showLoggedOut();
-  }else if(event==='TOKEN_REFRESHED'&&session){
-    currentUser=session.user;
-    if(!currentProfile)await loadProfile();
-    showLoggedIn();
   }
-});
+})();
 
 async function loadProfile(){
   if(!currentUser)return;
