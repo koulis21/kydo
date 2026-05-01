@@ -712,6 +712,11 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 
 // Restore session on page load
 (async()=>{
+  // Αν είναι recovery link, μην κάνεις redirect — άφησε το handleUrlHash να το χειριστεί
+  const hash=window.location.hash;
+  const params=new URLSearchParams(hash.substring(1));
+  if(params.get('type')==='recovery'){return;}
+
   const{data:{session}}=await sb.auth.getSession();
   if(session){
     currentUser=session.user;
@@ -984,21 +989,19 @@ async function doResetPassword(){
 // ============ URL HASH HANDLER ============
 function handleUrlHash(){
   const hash=window.location.hash;
-  if(!hash)return;
+  if(!hash||hash==='#')return;
   const params=new URLSearchParams(hash.substring(1));
   const error=params.get('error');
-  const errorDesc=params.get('error_description');
   const type=params.get('type');
-  // Καθαρισμός URL
   history.replaceState(null,'',window.location.pathname);
   if(error){
-    // Εμφάνιση modal login με μήνυμα λήξης
     openModal('login');
     showMsg('li-msg','⚠️ Ο σύνδεσμος έχει λήξει. Ζητήστε νέο σύνδεσμο επαναφοράς.','error');
     return;
   }
   if(type==='recovery'){
-    // Το Supabase έχει ήδη κάνει set session — ανοίγουμε το reset modal
+    // Το Supabase έχει ήδη κάνει set session μέσω του hash
+    // Ανοίγουμε το reset modal χωρίς να πάμε στο dashboard
     document.getElementById('ov-reset').classList.add('open');
   }
 }
