@@ -271,7 +271,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
           <div class="ud-name" id="ud-name"></div>
           <div class="ud-email"><span>🔒</span><span id="ud-email"></span></div>
         </div>
-        <div class="ud-item" onclick="closeUserMenu();go('settings')">⚙️ Ρυθμίσεις</div>
+        <div class="ud-item" onclick="closeUserMenu();openSettings()">⚙️ Ρυθμίσεις</div>
         <div class="ud-item danger" onclick="doLogout()">🚪 Έξοδος</div>
       </div>
     </div>
@@ -1017,6 +1017,17 @@ function showLoggedIn(){
   document.getElementById('nav-logout').style.display='none';
 }
 
+// ============ NAVIGATION ============
+let prevPage='home';
+function go(p){
+  const cur=document.querySelector('.page.active');
+  if(cur)prevPage=cur.id.replace('page-','');
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goBack(){go(prevPage||'home');}
+
 // ============ SETTINGS PAGE ============
 function openSettings(){
   if(!currentUser){go('home');return;}
@@ -1036,18 +1047,6 @@ function openSettings(){
   document.getElementById('delete-confirm-input').value='';
   go('settings');
 }
-
-let prevPage='home';
-function go(p){
-  const cur=document.querySelector('.page.active');
-  if(cur)prevPage=cur.id.replace('page-','');
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  window.scrollTo(0,0);
-  if(p==='settings')openSettings();
-}
-
-function goBack(){go(prevPage||'home');}
 
 // ============ EDIT NAME ============
 async function doEditName(){
