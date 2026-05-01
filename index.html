@@ -208,9 +208,56 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
 .save-btn{width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:600;cursor:pointer;margin-top:1rem}
 @media(max-width:768px){.search-layout{grid-template-columns:1fr}.filter-panel{position:static;height:auto;border-right:none;border-bottom:.5px solid var(--border)}.pgrid{grid-template-columns:1fr}}
 @media(max-width:600px){.hero h1{font-size:1.5rem}.form-row{grid-template-columns:1fr}}
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;z-index:1000;flex-wrap:wrap;font-size:13px}
+.cookie-banner a{color:#1d9e75;text-decoration:underline;cursor:pointer}
+.cookie-btns{display:flex;gap:8px;flex-shrink:0}
+.cookie-accept{background:var(--teal);color:#fff;border:none;padding:8px 18px;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer}
+.cookie-decline{background:transparent;color:#aaa;border:1px solid #555;padding:8px 18px;border-radius:var(--rs);font-size:13px;cursor:pointer}
+.terms-check{display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:12px;color:var(--gray);line-height:1.5}
+.terms-check input[type=checkbox]{margin-top:2px;accent-color:var(--teal);flex-shrink:0;width:15px;height:15px;cursor:pointer}
+.terms-check a{color:var(--teal);text-decoration:underline;cursor:pointer}
+.settings-page{max-width:620px;margin:0 auto;padding:2rem 1.5rem}
+.settings-page h1{font-size:1.2rem;font-weight:700;margin-bottom:1.5rem}
+.settings-section{background:var(--white);border:.5px solid var(--border);border-radius:var(--r);margin-bottom:1rem;overflow:hidden}
+.settings-section-title{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;padding:.8rem 1.2rem;border-bottom:.5px solid var(--border);background:var(--gray-l)}
+.settings-row{padding:1rem 1.2rem;border-bottom:.5px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-row label{font-size:12px;color:var(--gray);display:block;margin-bottom:6px;margin-top:0}
+.settings-row .sr-val{font-size:13px;color:#1a1a1a;display:flex;align-items:center;gap:8px}
+.settings-row .sr-val .lock{font-size:11px;color:var(--gray);background:var(--gray-l);padding:2px 7px;border-radius:10px}
+.settings-inline{display:flex;gap:8px;align-items:flex-end}
+.settings-inline input{flex:1}
+.settings-save{padding:8px 18px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.settings-save:disabled{opacity:.5;cursor:not-allowed}
+.danger-zone{background:var(--white);border:.5px solid #f0b0b0;border-radius:var(--r);margin-bottom:1rem;overflow:hidden}
+.danger-zone .settings-section-title{background:#fff5f5;color:var(--red);border-bottom-color:#f0b0b0}
+.danger-zone .settings-row{padding:1.2rem}
+.delete-btn{padding:9px 20px;background:var(--red-l);color:var(--red);border:1px solid #f0b0b0;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer}
+.delete-btn:hover{background:var(--red);color:#fff}
+.confirm-dialog{background:var(--red-l);border:.5px solid #f0b0b0;border-radius:var(--rs);padding:1rem;margin-top:.8rem;display:none}
+.confirm-dialog p{font-size:13px;color:var(--red);margin-bottom:.8rem}
+.confirm-dialog input{margin-bottom:.6rem}
+.confirm-btns{display:flex;gap:8px}
+.confirm-yes{padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer}
+.confirm-no{padding:8px 16px;background:transparent;color:var(--gray);border:.5px solid var(--border);border-radius:var(--rs);font-size:13px;cursor:pointer}
+.legal-page h1{font-size:1.5rem;font-weight:700;margin-bottom:.4rem;color:var(--teal)}
+.legal-page .meta{font-size:12px;color:var(--gray);margin-bottom:2rem}
+.legal-page h2{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem}
+.legal-page p,.legal-page li{font-size:13px;color:#333;line-height:1.8}
+.legal-page ul{padding-left:1.2rem;margin-bottom:.5rem}
+.legal-page .back{font-size:13px;color:var(--teal);cursor:pointer;display:inline-block;margin-bottom:1.5rem}
 </style>
 </head>
 <body>
+
+<!-- COOKIE BANNER -->
+<div id="cookie-banner" class="cookie-banner" style="display:none">
+  <span>Χρησιμοποιούμε cookies για τη λειτουργία του site. Διαβάστε την <a onclick="go('privacy')">Πολιτική Απορρήτου</a> μας.</span>
+  <div class="cookie-btns">
+    <button class="cookie-decline" onclick="setCookieChoice(false)">Μόνο απαραίτητα</button>
+    <button class="cookie-accept" onclick="setCookieChoice(true)">Αποδοχή</button>
+  </div>
+</div>
 
 <nav>
   <div class="logo" onclick="go('home')">kydo<span>.</span><span style="font-size:10px;font-weight:400;color:var(--gray);letter-spacing:.5px;margin-left:2px;vertical-align:middle">care</span></div>
@@ -224,9 +271,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
           <div class="ud-name" id="ud-name"></div>
           <div class="ud-email"><span>🔒</span><span id="ud-email"></span></div>
         </div>
-        <div class="ud-item" onclick="openModal('edit-name')">✏️ Αλλαγή ονόματος</div>
-        <div class="ud-item" onclick="openModal('change-pass')">🔑 Αλλαγή κωδικού</div>
-        <div class="ud-item" id="ud-profile-link" style="display:none" onclick="closeUserMenu();goDash()">📋 Επεξεργασία προφίλ</div>
+        <div class="ud-item" onclick="closeUserMenu();go('settings')">⚙️ Ρυθμίσεις</div>
         <div class="ud-item danger" onclick="doLogout()">🚪 Έξοδος</div>
       </div>
     </div>
@@ -391,8 +436,158 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
     <input type="password" id="rg-pass2" placeholder="••••••••" oninput="checkPassMatch()">
     <div class="field-msg" id="rg-pass2-err">⚠️ Οι κωδικοί δεν ταιριάζουν</div>
     <div class="field-msg" id="rg-pass2-ok" style="color:var(--teal)">✓ Οι κωδικοί ταιριάζουν</div>
+    <div class="terms-check">
+      <input type="checkbox" id="rg-terms">
+      <label for="rg-terms" style="margin:0;font-size:12px;color:var(--gray)">
+        Αποδέχομαι τους <a onclick="closeModal('register');go('terms')">Όρους Χρήσης</a> και την <a onclick="closeModal('register');go('privacy')">Πολιτική Απορρήτου</a> του Kydo.
+      </label>
+    </div>
     <div class="msg" id="rg-msg"></div>
     <button class="submit-btn" id="rg-btn" onclick="doRegister()"><span>Δημιουργία λογαριασμού</span></button>
+  </div>
+</div>
+
+<!-- SETTINGS PAGE -->
+<div id="page-settings" class="page">
+  <div class="settings-page">
+    <span class="back" onclick="goBack()">← Πίσω</span>
+    <h1>⚙️ Ρυθμίσεις λογαριασμού</h1>
+
+    <!-- Πληροφορίες -->
+    <div class="settings-section">
+      <div class="settings-section-title">👤 Στοιχεία λογαριασμού</div>
+      <div class="settings-row">
+        <label>Email</label>
+        <div class="sr-val"><span id="st-email-display"></span><span class="lock">🔒 μη επεξεργάσιμο</span></div>
+      </div>
+      <div class="settings-row">
+        <label>Όνομα</label>
+        <div class="settings-inline">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1">
+            <input type="text" id="st-fname" placeholder="Όνομα"
+              onkeypress="return /[a-zA-Z\u0370-\u03FF\u1F00-\u1FFF\s]/.test(event.key)">
+            <input type="text" id="st-lname" placeholder="Επώνυμο"
+              onkeypress="return /[a-zA-Z\u0370-\u03FF\u1F00-\u1FFF\s]/.test(event.key)">
+          </div>
+          <button class="settings-save" id="st-name-btn" onclick="doEditName()">Αποθήκευση</button>
+        </div>
+        <div class="msg" id="st-name-msg" style="margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- Κωδικός -->
+    <div class="settings-section">
+      <div class="settings-section-title">🔑 Αλλαγή κωδικού</div>
+      <div class="settings-row">
+        <label>Νέος κωδικός</label>
+        <input type="password" id="st-pass" placeholder="••••••••" oninput="checkCpStrength(this.value)">
+        <div class="pw-rules" style="margin-top:6px">
+          <div class="pw-rule" id="cp-len"><div class="dot"></div><span>Τουλάχιστον 8 χαρακτήρες</span></div>
+          <div class="pw-rule" id="cp-upper"><div class="dot"></div><span>Κεφαλαίο γράμμα</span></div>
+          <div class="pw-rule" id="cp-num"><div class="dot"></div><span>Αριθμός</span></div>
+          <div class="pw-rule" id="cp-special"><div class="dot"></div><span>Ειδικός χαρακτήρας</span></div>
+        </div>
+        <label style="margin-top:10px">Επιβεβαίωση νέου κωδικού</label>
+        <div class="settings-inline">
+          <input type="password" id="st-pass2" placeholder="••••••••" style="flex:1">
+          <button class="settings-save" id="st-pass-btn" onclick="doChangePass()">Αποθήκευση</button>
+        </div>
+        <div class="msg" id="st-pass-msg" style="margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- Pro profile link -->
+    <div class="settings-section" id="st-pro-section" style="display:none">
+      <div class="settings-section-title">📋 Επαγγελματικό προφίλ</div>
+      <div class="settings-row" style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;color:var(--gray)">Επεξεργασία του προφίλ σας στην πλατφόρμα</span>
+        <button class="settings-save" onclick="go('prodash')">Επεξεργασία →</button>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="danger-zone">
+      <div class="settings-section-title">🗑️ Επικίνδυνη ζώνη</div>
+      <div class="settings-row">
+        <p style="font-size:13px;color:var(--gray);margin-bottom:.8rem">Η διαγραφή του λογαριασμού σας είναι μόνιμη και δεν μπορεί να αναιρεθεί. Όλα τα δεδομένα σας θα διαγραφούν εντός 30 ημερών σύμφωνα με την πολιτική μας.</p>
+        <button class="delete-btn" onclick="toggleDeleteConfirm()">Διαγραφή λογαριασμού</button>
+        <div class="confirm-dialog" id="delete-confirm">
+          <p>⚠️ Για επιβεβαίωση, πληκτρολογήστε <strong>ΔΙΑΓΡΑΦΗ</strong> παρακάτω:</p>
+          <input type="text" id="delete-confirm-input" placeholder="ΔΙΑΓΡΑΦΗ">
+          <div class="confirm-btns">
+            <button class="confirm-yes" onclick="doDeleteAccount()">Μόνιμη διαγραφή</button>
+            <button class="confirm-no" onclick="toggleDeleteConfirm()">Ακύρωση</button>
+          </div>
+          <div class="msg" id="delete-msg" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TERMS OF USE -->
+<div id="page-terms" class="page">
+  <div class="legal-page">
+    <span class="back" onclick="go('home')">← Πίσω</span>
+    <h1>Όροι Χρήσης</h1>
+    <p class="meta">Τελευταία ενημέρωση: Μάιος 2026</p>
+    <h2>1. Αποδοχή όρων</h2>
+    <p>Με τη χρήση της πλατφόρμας kydo.gr αποδέχεστε πλήρως τους παρόντες όρους. Αν διαφωνείτε, παρακαλούμε μην χρησιμοποιείτε την υπηρεσία.</p>
+    <h2>2. Περιγραφή υπηρεσίας</h2>
+    <p>Το Kydo είναι πλατφόρμα διαμεσολάβησης μεταξύ οικογενειών που αναζητούν επαγγελματίες κατ' οίκον φροντίδας και επαγγελματιών που προσφέρουν τέτοιες υπηρεσίες. Το Kydo δεν αποτελεί εργοδότη και δεν φέρει ευθύνη για τις παρεχόμενες υπηρεσίες.</p>
+    <h2>3. Εγγραφή & Λογαριασμός</h2>
+    <ul>
+      <li>Πρέπει να είστε άνω των 18 ετών για να εγγραφείτε.</li>
+      <li>Υπεύθυνοι για την ασφάλεια του κωδικού σας.</li>
+      <li>Απαγορεύεται η δημιουργία ψευδών λογαριασμών.</li>
+    </ul>
+    <h2>4. Επαγγελματίες</h2>
+    <p>Οι επαγγελματίες δηλώνουν υπεύθυνα ότι τα στοιχεία και τα πτυχία που καταχωρούν είναι αληθή. Ψευδείς δηλώσεις οδηγούν σε άμεση αναστολή λογαριασμού.</p>
+    <h2>5. Πληρωμές</h2>
+    <p>Το Kydo χρεώνει €19 για ξεκλείδωμα στοιχείων επικοινωνίας επαγγελματία. Οι χρεώσεις δεν επιστρέφονται μετά την αποκάλυψη των στοιχείων.</p>
+    <h2>6. Περιορισμός ευθύνης</h2>
+    <p>Το Kydo δεν φέρει ευθύνη για οποιαδήποτε ζημία προκύψει από τη χρήση της πλατφόρμας ή από τις υπηρεσίες των επαγγελματιών.</p>
+    <h2>7. Επικοινωνία</h2>
+    <p>Για οποιοδήποτε ζήτημα: <strong>info@kydo.gr</strong></p>
+  </div>
+</div>
+
+<!-- PRIVACY POLICY -->
+<div id="page-privacy" class="page">
+  <div class="legal-page">
+    <span class="back" onclick="go('home')">← Πίσω</span>
+    <h1>Πολιτική Απορρήτου</h1>
+    <p class="meta">Τελευταία ενημέρωση: Μάιος 2026</p>
+    <h2>1. Υπεύθυνος επεξεργασίας</h2>
+    <p>Kydo — info@kydo.gr. Συμμορφωνόμαστε με τον Κανονισμό (ΕΕ) 2016/679 (GDPR).</p>
+    <h2>2. Δεδομένα που συλλέγουμε</h2>
+    <ul>
+      <li>Στοιχεία εγγραφής: όνομα, email, τηλέφωνο</li>
+      <li>Επαγγελματικά στοιχεία (για επαγγελματίες): κατηγορία, εμπειρία, περιοχή</li>
+      <li>Δεδομένα χρήσης: σελίδες που επισκέφθηκε, αναζητήσεις</li>
+      <li>Cookies λειτουργικά (απαραίτητα για τη σύνδεση)</li>
+    </ul>
+    <h2>3. Σκοπός επεξεργασίας</h2>
+    <ul>
+      <li>Παροχή υπηρεσιών πλατφόρμας</li>
+      <li>Επαλήθευση επαγγελματιών</li>
+      <li>Επικοινωνία σχετικά με τον λογαριασμό σας</li>
+    </ul>
+    <h2>4. Διαμοιρασμός δεδομένων</h2>
+    <p>Δεν πουλάμε ή μοιραζόμαστε τα δεδομένα σας με τρίτους, εκτός αν απαιτείται από το νόμο ή για την παροχή της υπηρεσίας (π.χ. Supabase για αποθήκευση).</p>
+    <h2>5. Δικαιώματά σας (GDPR)</h2>
+    <ul>
+      <li>Δικαίωμα πρόσβασης στα δεδομένα σας</li>
+      <li>Δικαίωμα διόρθωσης ή διαγραφής</li>
+      <li>Δικαίωμα φορητότητας</li>
+      <li>Δικαίωμα εναντίωσης στην επεξεργασία</li>
+    </ul>
+    <p>Για άσκηση δικαιωμάτων: <strong>info@kydo.gr</strong></p>
+    <h2>6. Cookies</h2>
+    <p>Χρησιμοποιούμε μόνο απαραίτητα cookies για τη διατήρηση της σύνδεσής σας. Δεν χρησιμοποιούμε cookies παρακολούθησης ή διαφήμισης.</p>
+    <h2>7. Διατήρηση δεδομένων</h2>
+    <p>Τα δεδομένα σας διατηρούνται όσο ο λογαριασμός είναι ενεργός. Μετά τη διαγραφή λογαριασμού, διαγράφονται εντός 30 ημερών.</p>
   </div>
 </div>
 
@@ -442,7 +637,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
     <p>500+ Kydo Verified επαγγελματίες σε Αθήνα και κύρια αστικά κέντρα.</p>
     <button class="hbw" onclick="go('search')">Ξεκίνα δωρεάν</button>
   </div>
-  <div class="footer"><strong>kydo</strong>από το «κήδομαι» — φροντίζω · kydo.gr · info@kydo.gr</div>
+  <div class="footer"><strong>kydo</strong>από το «κήδομαι» — φροντίζω · kydo.gr · info@kydo.gr<br><span style="cursor:pointer;text-decoration:underline;color:#aaa" onclick="go('terms')">Όροι Χρήσης</span> · <span style="cursor:pointer;text-decoration:underline;color:#aaa" onclick="go('privacy')">Πολιτική Απορρήτου</span></div>
 </div>
 
 <!-- SEARCH -->
@@ -822,30 +1017,52 @@ function showLoggedIn(){
   document.getElementById('nav-logout').style.display='none';
 }
 
-// ============ EDIT NAME ============
-function openEditName(){
+// ============ SETTINGS PAGE ============
+function openSettings(){
+  if(!currentUser){go('home');return;}
   const full=currentProfile?.full_name||'';
   const parts=full.split(' ');
-  document.getElementById('en-fname').value=parts[0]||'';
-  document.getElementById('en-lname').value=parts.slice(1).join(' ')||'';
-  showMsg('en-msg','','');
-  openModal('edit-name');
+  document.getElementById('st-fname').value=parts[0]||'';
+  document.getElementById('st-lname').value=parts.slice(1).join(' ')||'';
+  document.getElementById('st-email-display').textContent=currentUser.email||'';
+  document.getElementById('st-pass').value='';
+  document.getElementById('st-pass2').value='';
+  ['cp-len','cp-upper','cp-num','cp-special'].forEach(i=>document.getElementById(i)?.classList.remove('ok'));
+  showMsg('st-name-msg','','');
+  showMsg('st-pass-msg','','');
+  const role=currentProfile?.role||currentUser?.user_metadata?.role||'family';
+  document.getElementById('st-pro-section').style.display=role==='professional'?'':'none';
+  document.getElementById('delete-confirm').style.display='none';
+  document.getElementById('delete-confirm-input').value='';
+  go('settings');
 }
 
+let prevPage='home';
+function go(p){
+  const cur=document.querySelector('.page.active');
+  if(cur)prevPage=cur.id.replace('page-','');
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  window.scrollTo(0,0);
+  if(p==='settings')openSettings();
+}
+
+function goBack(){go(prevPage||'home');}
+
+// ============ EDIT NAME ============
 async function doEditName(){
-  const fname=document.getElementById('en-fname').value.trim();
-  const lname=document.getElementById('en-lname').value.trim();
-  const btn=document.getElementById('en-btn');
-  if(!fname||!lname){showMsg('en-msg','Συμπληρώστε όνομα και επώνυμο.','error');return;}
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div><span>...</span>';
+  const fname=document.getElementById('st-fname').value.trim();
+  const lname=document.getElementById('st-lname').value.trim();
+  const btn=document.getElementById('st-name-btn');
+  if(!fname||!lname){showMsg('st-name-msg','Συμπληρώστε όνομα και επώνυμο.','error');return;}
+  btn.disabled=true;btn.textContent='...';
   const full=fname+' '+lname;
   const{error}=await sb.from('profiles').update({full_name:full}).eq('id',currentUser.id);
-  btn.disabled=false;btn.innerHTML='<span>Αποθήκευση</span>';
-  if(error){showMsg('en-msg','Σφάλμα: '+error.message,'error');return;}
+  btn.disabled=false;btn.textContent='Αποθήκευση';
+  if(error){showMsg('st-name-msg','Σφάλμα: '+error.message,'error');return;}
   currentProfile={...currentProfile,full_name:full};
   showLoggedIn();
-  showMsg('en-msg','✓ Το όνομα αποθηκεύτηκε!','success');
-  setTimeout(()=>closeModal('edit-name'),1500);
+  showMsg('st-name-msg','✓ Το όνομα αποθηκεύτηκε!','success');
 }
 
 // ============ CHANGE PASSWORD ============
@@ -857,17 +1074,41 @@ function checkCpStrength(v){
 }
 
 async function doChangePass(){
-  const pass=document.getElementById('cp-pass').value;
-  const pass2=document.getElementById('cp-pass2').value;
-  const btn=document.getElementById('cp-btn');
-  if(!isPwValid(pass)){showMsg('cp-msg','Ο κωδικός δεν πληροί τις απαιτήσεις ασφαλείας.','error');return;}
-  if(pass!==pass2){showMsg('cp-msg','Οι κωδικοί δεν ταιριάζουν.','error');return;}
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div><span>...</span>';
+  const pass=document.getElementById('st-pass').value;
+  const pass2=document.getElementById('st-pass2').value;
+  const btn=document.getElementById('st-pass-btn');
+  if(!isPwValid(pass)){showMsg('st-pass-msg','Ο κωδικός δεν πληροί τις απαιτήσεις.','error');return;}
+  if(pass!==pass2){showMsg('st-pass-msg','Οι κωδικοί δεν ταιριάζουν.','error');return;}
+  btn.disabled=true;btn.textContent='...';
   const{error}=await sb.auth.updateUser({password:pass});
-  btn.disabled=false;btn.innerHTML='<span>Αποθήκευση</span>';
-  if(error){showMsg('cp-msg','Σφάλμα: '+error.message,'error');return;}
-  showMsg('cp-msg','✓ Ο κωδικός άλλαξε επιτυχώς!','success');
-  setTimeout(()=>closeModal('change-pass'),1500);
+  btn.disabled=false;btn.textContent='Αποθήκευση';
+  if(error){showMsg('st-pass-msg','Σφάλμα: '+error.message,'error');return;}
+  document.getElementById('st-pass').value='';
+  document.getElementById('st-pass2').value='';
+  ['cp-len','cp-upper','cp-num','cp-special'].forEach(i=>document.getElementById(i)?.classList.remove('ok'));
+  showMsg('st-pass-msg','✓ Ο κωδικός άλλαξε!','success');
+}
+
+// ============ DELETE ACCOUNT ============
+function toggleDeleteConfirm(){
+  const d=document.getElementById('delete-confirm');
+  d.style.display=d.style.display==='none'?'block':'none';
+  document.getElementById('delete-confirm-input').value='';
+  showMsg('delete-msg','','');
+}
+
+async function doDeleteAccount(){
+  const val=document.getElementById('delete-confirm-input').value.trim();
+  if(val!=='ΔΙΑΓΡΑΦΗ'){showMsg('delete-msg','Πληκτρολογήστε ΔΙΑΓΡΑΦΗ για επιβεβαίωση.','error');return;}
+  showMsg('delete-msg','Διαγραφή...','');
+  // Soft delete — mark as deleted, actual deletion via Supabase admin or scheduled job
+  const{error}=await sb.from('profiles').update({deleted_at:new Date().toISOString()}).eq('id',currentUser.id);
+  if(error){showMsg('delete-msg','Σφάλμα: '+error.message,'error');return;}
+  await sb.auth.signOut();
+  currentUser=null;currentProfile=null;
+  showLoggedOut();
+  go('home');
+  alert('Ο λογαριασμός σας έχει επισημανθεί για διαγραφή. Θα διαγραφεί εντός 30 ημερών.');
 }
 
 function showLoggedOut(){
@@ -878,7 +1119,18 @@ function showLoggedOut(){
   document.getElementById('nav-logout').style.display='none';
 }
 
-// ============ LOGIN LOCKOUT ============
+// ============ COOKIES ============
+function initCookieBanner(){
+  if(!localStorage.getItem('kydo_cookie_choice')){
+    document.getElementById('cookie-banner').style.display='flex';
+  }
+}
+function setCookieChoice(accepted){
+  localStorage.setItem('kydo_cookie_choice', accepted?'accepted':'minimal');
+  document.getElementById('cookie-banner').style.display='none';
+}
+
+
 const MAX_ATTEMPTS=5;
 const LOCKOUT_MS=15*60*1000;
 
@@ -1025,6 +1277,7 @@ async function doRegister(){
   const pass2=document.getElementById('rg-pass2').value;
   const btn=document.getElementById('rg-btn');
   if(!fname||!lname||!email||!pass){showMsg('rg-msg','Συμπληρώστε όλα τα υποχρεωτικά πεδία.','error');return;}
+  if(!document.getElementById('rg-terms').checked){showMsg('rg-msg','Πρέπει να αποδεχθείτε τους Όρους Χρήσης.','error');return;}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showMsg('rg-msg','Μη έγκυρη μορφή email.','error');return;}
   if(phone.length>0&&phone.length!==10){showMsg('rg-msg','Το κινητό πρέπει να έχει 10 ψηφία.','error');return;}
   if(!isPwValid(pass)){showMsg('rg-msg','Ο κωδικός δεν πληροί τις απαιτήσεις ασφαλείας.','error');return;}
@@ -1082,8 +1335,6 @@ async function savePro(){
 }
 
 // ============ NAVIGATION ============
-function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');window.scrollTo(0,0);}
-
 function openModal(id){
   closeUserMenu();
   document.getElementById('ov-'+id).classList.add('open');
@@ -1144,6 +1395,7 @@ function resetRegForm(){
   const e=document.getElementById('rg-pass2-err');if(e)e.style.display='none';
   const o=document.getElementById('rg-pass2-ok');if(o)o.style.display='none';
   const pe=document.getElementById('rg-phone-err');if(pe)pe.style.display='none';
+  const tc=document.getElementById('rg-terms');if(tc)tc.checked=false;
   document.getElementById('rg-btn').disabled=false;
   document.getElementById('rg-btn').innerHTML='<span>Δημιουργία λογαριασμού</span>';
 }
@@ -1319,6 +1571,7 @@ function showProf(id){
 
 // INIT
 renderCards(demoPros);
+initCookieBanner();
 </script>
 </body>
 </html>
