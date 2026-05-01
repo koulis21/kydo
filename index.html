@@ -15,7 +15,18 @@ nav{background:var(--white);border-bottom:.5px solid var(--border);padding:0 1.5
 .nav-r{display:flex;gap:8px;align-items:center}
 .nav-link{font-size:13px;color:var(--gray);cursor:pointer;padding:4px 8px;border-radius:6px}
 .nav-link:hover{background:var(--gray-l)}
-.nav-user{font-size:12px;color:var(--teal);font-weight:500;padding:4px 10px;background:var(--teal-l);border-radius:6px}
+.nav-user{font-size:12px;color:var(--teal);font-weight:500;padding:4px 10px;background:var(--teal-l);border-radius:6px;cursor:pointer;position:relative;user-select:none}
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--white);border:.5px solid var(--border);border-radius:var(--r);min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:300;display:none;overflow:hidden}
+.user-dropdown.open{display:block}
+.ud-header{padding:12px 14px;border-bottom:.5px solid var(--border);background:var(--gray-l)}
+.ud-header .ud-name{font-size:13px;font-weight:600;color:#1a1a1a}
+.ud-header .ud-email{font-size:11px;color:var(--gray);margin-top:2px;display:flex;align-items:center;gap:4px}
+.ud-item{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:13px;cursor:pointer;color:#1a1a1a;border-bottom:.5px solid var(--border)}
+.ud-item:last-child{border-bottom:none}
+.ud-item:hover{background:var(--gray-l)}
+.ud-item.danger{color:var(--red)}
+.ud-item.danger:hover{background:var(--red-l)}
+.ud-sep{height:.5px;background:var(--border)}
 .lang-btn{font-size:12px;padding:4px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--white);cursor:pointer;color:var(--gray)}
 .btn{padding:7px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;border:none}
 .btn-p{background:var(--teal);color:#fff}
@@ -206,7 +217,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
   <div class="nav-r">
     <span class="nav-link" onclick="go('search')">Αναζήτηση</span>
     <span class="nav-link" id="nav-dash" style="display:none" onclick="goDash()">Dashboard</span>
-    <span class="nav-user" id="nav-user" style="display:none"></span>
+    <div class="nav-user" id="nav-user" style="display:none" onclick="toggleUserMenu(event)">
+      <span id="nav-user-label">👤</span> ▾
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="ud-header">
+          <div class="ud-name" id="ud-name"></div>
+          <div class="ud-email"><span>🔒</span><span id="ud-email"></span></div>
+        </div>
+        <div class="ud-item" onclick="openModal('edit-name')">✏️ Αλλαγή ονόματος</div>
+        <div class="ud-item" onclick="openModal('change-pass')">🔑 Αλλαγή κωδικού</div>
+        <div class="ud-item" id="ud-profile-link" style="display:none" onclick="closeUserMenu();goDash()">📋 Επεξεργασία προφίλ</div>
+        <div class="ud-item danger" onclick="doLogout()">🚪 Έξοδος</div>
+      </div>
+    </div>
     <button class="lang-btn" onclick="toggleLang()">🌐 EN</button>
     <button class="btn btn-o" id="nav-login" onclick="openModal('login')">Σύνδεση</button>
     <button class="btn btn-p" id="nav-reg" onclick="openModal('register')">Εγγραφή</button>
@@ -236,6 +259,48 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
     <div style="text-align:center;margin-top:6px">
       <button class="link-btn" onclick="closeModal('login');openModal('forgot')">Ξεχάσατε τον κωδικό;</button>
     </div>
+  </div>
+</div>
+
+<!-- EDIT NAME -->
+<div class="overlay" id="ov-edit-name">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('edit-name')">✕</button>
+    <h2>Αλλαγή ονόματος</h2>
+    <div class="form-row">
+      <div>
+        <label>Όνομα</label>
+        <input type="text" id="en-fname" placeholder="Μαρία"
+          onkeypress="return /[a-zA-Z\u0370-\u03FF\u1F00-\u1FFF\s]/.test(event.key)">
+      </div>
+      <div>
+        <label>Επώνυμο</label>
+        <input type="text" id="en-lname" placeholder="Παπαδάκη"
+          onkeypress="return /[a-zA-Z\u0370-\u03FF\u1F00-\u1FFF\s]/.test(event.key)">
+      </div>
+    </div>
+    <div class="msg" id="en-msg"></div>
+    <button class="submit-btn" id="en-btn" onclick="doEditName()"><span>Αποθήκευση</span></button>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD -->
+<div class="overlay" id="ov-change-pass">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('change-pass')">✕</button>
+    <h2>Αλλαγή κωδικού</h2>
+    <label>Νέος κωδικός</label>
+    <input type="password" id="cp-pass" placeholder="••••••••" oninput="checkCpStrength(this.value)">
+    <div class="pw-rules">
+      <div class="pw-rule" id="cp-len"><div class="dot"></div><span>Τουλάχιστον 8 χαρακτήρες</span></div>
+      <div class="pw-rule" id="cp-upper"><div class="dot"></div><span>Κεφαλαίο γράμμα (A-Z)</span></div>
+      <div class="pw-rule" id="cp-num"><div class="dot"></div><span>Αριθμός (0-9)</span></div>
+      <div class="pw-rule" id="cp-special"><div class="dot"></div><span>Ειδικός χαρακτήρας (!@#$...)</span></div>
+    </div>
+    <label>Επιβεβαίωση νέου κωδικού</label>
+    <input type="password" id="cp-pass2" placeholder="••••••••">
+    <div class="msg" id="cp-msg"></div>
+    <button class="submit-btn" id="cp-btn" onclick="doChangePass()"><span>Αποθήκευση</span></button>
   </div>
 </div>
 
@@ -732,14 +797,77 @@ async function loadProfile(){
   currentProfile=data;
 }
 
+// ============ USER MENU ============
+function toggleUserMenu(e){
+  e.stopPropagation();
+  document.getElementById('user-dropdown').classList.toggle('open');
+}
+function closeUserMenu(){
+  document.getElementById('user-dropdown').classList.remove('open');
+}
+document.addEventListener('click',()=>closeUserMenu());
+
 function showLoggedIn(){
   const name=currentProfile?.full_name||currentUser?.email?.split('@')[0]||'';
-  document.getElementById('nav-user').textContent='👤 '+name;
+  const email=currentUser?.email||'';
+  const role=currentProfile?.role||currentUser?.user_metadata?.role||'family';
+  document.getElementById('nav-user-label').textContent='👤 '+name;
+  document.getElementById('ud-name').textContent=name;
+  document.getElementById('ud-email').textContent=email;
+  document.getElementById('ud-profile-link').style.display=role==='professional'?'flex':'none';
   document.getElementById('nav-user').style.display='';
   document.getElementById('nav-login').style.display='none';
   document.getElementById('nav-reg').style.display='none';
   document.getElementById('nav-dash').style.display='';
-  document.getElementById('nav-logout').style.display='';
+  document.getElementById('nav-logout').style.display='none';
+}
+
+// ============ EDIT NAME ============
+function openEditName(){
+  const full=currentProfile?.full_name||'';
+  const parts=full.split(' ');
+  document.getElementById('en-fname').value=parts[0]||'';
+  document.getElementById('en-lname').value=parts.slice(1).join(' ')||'';
+  showMsg('en-msg','','');
+  openModal('edit-name');
+}
+
+async function doEditName(){
+  const fname=document.getElementById('en-fname').value.trim();
+  const lname=document.getElementById('en-lname').value.trim();
+  const btn=document.getElementById('en-btn');
+  if(!fname||!lname){showMsg('en-msg','Συμπληρώστε όνομα και επώνυμο.','error');return;}
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div><span>...</span>';
+  const full=fname+' '+lname;
+  const{error}=await sb.from('profiles').update({full_name:full}).eq('id',currentUser.id);
+  btn.disabled=false;btn.innerHTML='<span>Αποθήκευση</span>';
+  if(error){showMsg('en-msg','Σφάλμα: '+error.message,'error');return;}
+  currentProfile={...currentProfile,full_name:full};
+  showLoggedIn();
+  showMsg('en-msg','✓ Το όνομα αποθηκεύτηκε!','success');
+  setTimeout(()=>closeModal('edit-name'),1500);
+}
+
+// ============ CHANGE PASSWORD ============
+function checkCpStrength(v){
+  document.getElementById('cp-len').classList.toggle('ok',v.length>=8);
+  document.getElementById('cp-upper').classList.toggle('ok',/[A-Z]/.test(v));
+  document.getElementById('cp-num').classList.toggle('ok',/[0-9]/.test(v));
+  document.getElementById('cp-special').classList.toggle('ok',/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v));
+}
+
+async function doChangePass(){
+  const pass=document.getElementById('cp-pass').value;
+  const pass2=document.getElementById('cp-pass2').value;
+  const btn=document.getElementById('cp-btn');
+  if(!isPwValid(pass)){showMsg('cp-msg','Ο κωδικός δεν πληροί τις απαιτήσεις ασφαλείας.','error');return;}
+  if(pass!==pass2){showMsg('cp-msg','Οι κωδικοί δεν ταιριάζουν.','error');return;}
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div><span>...</span>';
+  const{error}=await sb.auth.updateUser({password:pass});
+  btn.disabled=false;btn.innerHTML='<span>Αποθήκευση</span>';
+  if(error){showMsg('cp-msg','Σφάλμα: '+error.message,'error');return;}
+  showMsg('cp-msg','✓ Ο κωδικός άλλαξε επιτυχώς!','success');
+  setTimeout(()=>closeModal('change-pass'),1500);
 }
 
 function showLoggedOut(){
@@ -914,10 +1042,28 @@ async function savePro(){
 function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');window.scrollTo(0,0);}
 
 function openModal(id){
+  closeUserMenu();
   document.getElementById('ov-'+id).classList.add('open');
   if(id==='login'){resetLoginForm();}
   if(id==='register'){resetRegForm();}
   if(id==='forgot'){document.getElementById('fp-email').value='';showMsg('fp-msg','','');}
+  if(id==='edit-name'){
+    const full=currentProfile?.full_name||'';
+    const parts=full.split(' ');
+    document.getElementById('en-fname').value=parts[0]||'';
+    document.getElementById('en-lname').value=parts.slice(1).join(' ')||'';
+    showMsg('en-msg','','');
+    document.getElementById('en-btn').disabled=false;
+    document.getElementById('en-btn').innerHTML='<span>Αποθήκευση</span>';
+  }
+  if(id==='change-pass'){
+    document.getElementById('cp-pass').value='';
+    document.getElementById('cp-pass2').value='';
+    ['cp-len','cp-upper','cp-num','cp-special'].forEach(i=>document.getElementById(i)?.classList.remove('ok'));
+    showMsg('cp-msg','','');
+    document.getElementById('cp-btn').disabled=false;
+    document.getElementById('cp-btn').innerHTML='<span>Αποθήκευση</span>';
+  }
 }
 
 function closeModal(id){
