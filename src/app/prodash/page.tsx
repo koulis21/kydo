@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import PlacesInput from '@/components/PlacesInput'
 
 const SPECS = ['Άνοια / Alzheimer', 'Parkinson', 'Παραπληγικοί', 'Μετεγχειρητική', 'Παιδιά με ΑΝ', 'Διαβήτης', 'CPR / Πρώτες βοήθειες', 'Φροντίδα ηλικιωμένων']
 const DAYS = ['Δε', 'Τρ', 'Τε', 'Πε', 'Πα', 'Σα', 'Κυ']
@@ -22,6 +23,8 @@ export default function ProDashPage() {
   const [rate, setRate] = useState('')
   const [registry, setRegistry] = useState('')
   const [area, setArea] = useState('')
+  const [areaLat, setAreaLat] = useState<number | null>(null)
+  const [areaLng, setAreaLng] = useState<number | null>(null)
   const [maxDist, setMaxDist] = useState(10)
   const [selTypes, setSelTypes] = useState<string[]>([])
   const [selDays, setSelDays] = useState<string[]>([])
@@ -82,6 +85,8 @@ export default function ProDashPage() {
       full_name: fname + ' ' + lname,
       phone: '+30' + phone,
       area,
+      lat: areaLat,
+      lng: areaLng,
     }).eq('id', user.id)
 
     const { error } = await sb.from('professionals').upsert({
@@ -178,7 +183,15 @@ export default function ProDashPage() {
 
       {block('📍 Τοποθεσία', <>
         {field('Περιοχή', true)}
-        <input className="form-input" placeholder="π.χ. Κολωνάκι, Αθήνα" value={area} onChange={e => setArea(e.target.value)} />
+        <PlacesInput
+          value={area}
+          onChange={setArea}
+          onPlaceSelect={(lat, lng, address) => {
+            setArea(address)
+            setAreaLat(lat)
+            setAreaLng(lng)
+          }}
+        />
         {field('Μέγιστη απόσταση μετακίνησης')}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px' }}>
           <input type="range" min={1} max={50} value={maxDist} onChange={e => setMaxDist(+e.target.value)} style={{ flex: 1, accentColor: 'var(--teal)' }} />

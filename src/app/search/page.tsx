@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import type { Professional } from '@/lib/supabase'
 import { strToColor, getInitials, parseDays, calcDist, DAYS } from '@/lib/auth'
+import PlacesInput from '@/components/PlacesInput'
 
 type ProCard = Professional & {
   name: string
@@ -114,8 +115,16 @@ export default function SearchPage() {
     <>
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '.7rem' }}>Περιοχή</div>
-        <input type="text" style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '14px', outline: 'none' }}
-          placeholder="π.χ. Γλυφάδα, Αθήνα" value={area} onChange={e => setArea(e.target.value)} />
+        <PlacesInput
+          value={area}
+          onChange={setArea}
+          onPlaceSelect={(lat, lng, address) => {
+            setArea(address)
+            setAreaLat(lat)
+            setAreaLng(lng)
+          }}
+          style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '14px', outline: 'none' }}
+        />
       </div>
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '.7rem' }}>Μέγιστη απόσταση</div>
