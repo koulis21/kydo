@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { strToColor, getInitials, parseDays, DAYS } from '@/lib/auth'
@@ -13,7 +13,7 @@ type ProFull = Professional & {
   days: number[]
 }
 
-export default function ProfilePage() {
+function ProfileContent() {
   const router = useRouter()
   const params = useSearchParams()
   const id = params.get('id')
@@ -205,5 +205,12 @@ export default function ProfilePage() {
 
       <style>{`@media(max-width:768px){.profile-grid{grid-template-columns:1fr!important}}`}</style>
     </div>
+  )
+}
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center' }}>⏳ Φόρτωση...</div>}>
+      <ProfileContent />
+    </Suspense>
   )
 }
