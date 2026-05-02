@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { isPwValid } from '@/lib/auth'
+import Turnstile from 'react-turnstile'
 
 interface Props {
   onClose: () => void
@@ -19,6 +20,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin }: Props) {
   const [pass, setPass] = useState('')
   const [pass2, setPass2] = useState('')
   const [terms, setTerms] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState<'error' | 'success'>('error')
   const [loading, setLoading] = useState(false)
@@ -35,6 +37,9 @@ export default function RegisterModal({ onClose, onSwitchToLogin }: Props) {
     }
     if (!terms) {
       setMsg('Αποδεχτείτε τους Όρους Χρήσης.'); setMsgType('error'); return
+    }
+    if (!captchaToken) {
+      setMsg('Παρακαλώ ολοκληρώστε το CAPTCHA.'); setMsgType('error'); return
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setMsg('Μη έγκυρο email.'); setMsgType('error'); return
@@ -184,6 +189,14 @@ export default function RegisterModal({ onClose, onSwitchToLogin }: Props) {
             {' '}και την{' '}
             <a href="/privacy" target="_blank" style={{ color: 'var(--teal)', fontWeight: 600 }}>Πολιτική Απορρήτου</a>.
           </span>
+        </div>
+
+        <div style={{ marginTop: '14px' }}>
+          <Turnstile
+            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            onVerify={token => setCaptchaToken(token)}
+            onExpire={() => setCaptchaToken('')}
+          />
         </div>
 
         {msg && (

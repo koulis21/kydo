@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { isLocked, remainingLock, recordFail, clearLock, formatTime } from '@/lib/auth'
+import Turnstile from 'react-turnstile'
 
 interface Props {
   onClose: () => void
@@ -19,6 +20,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState<'error' | 'success'>('error')
   const [loading, setLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
 
   useEffect(() => {
     if (isLocked()) {
@@ -35,6 +37,11 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
     }
     if (!email || !pass) {
       setMsg('Συμπληρώστε email και κωδικό.')
+      setMsgType('error')
+      return
+    }
+    if (!captchaToken) {
+      setMsg('Παρακαλώ ολοκληρώστε το CAPTCHA.')
       setMsgType('error')
       return
     }
@@ -126,6 +133,14 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
         {msg && (
           <div className={`msg ${msgType === 'error' ? 'msg-error' : 'msg-success'}`}>{msg}</div>
         )}
+
+        <div style={{ marginTop: '14px' }}>
+          <Turnstile
+            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            onVerify={token => setCaptchaToken(token)}
+            onExpire={() => setCaptchaToken('')}
+          />
+        </div>
 
         <button className="submit-btn" onClick={doLogin} disabled={loading}>
           {loading ? <><div className="spinner" /><span>Σύνδεση...</span></> : <span>Σύνδεση</span>}
