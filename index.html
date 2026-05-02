@@ -1108,6 +1108,10 @@ async function doLogin(){
   try{
     const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
     if(error){
+      if(error.message?.includes('Email not confirmed')){
+        showMsg('li-msg','⚠️ Παρακαλώ επιβεβαιώστε το email σας πρώτα. Ελέγξτε τα εισερχόμενά σας.','error');
+        btn.disabled=false;btn.innerHTML='<span>Σύνδεση</span>';return;
+      }
       const a=recordFail(),rem=MAX_ATTEMPTS-a;
       if(a>=MAX_ATTEMPTS)showMsg('li-msg','🔒 Κλειδωμένο για '+fmtTime(LOCKOUT_MS/1000)+'.','error');
       else showMsg('li-msg','Λάθος στοιχεία. '+rem+' προσπάθεια'+(rem===1?'':'ες')+' ακόμα.','error');
