@@ -336,17 +336,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
 
 <!-- BOTTOM NAV (mobile only) -->
 <div class="bottom-nav" id="bottom-nav">
-  <button class="bn-item active" id="bn-home" onclick="go('home');setActiveNav('bn-home')">
+  <button class="bn-item active" id="bn-home" onclick="go('home')">
     <span class="bn-icon">🏠</span><span class="bn-label">Αρχική</span>
   </button>
-  <button class="bn-item" id="bn-search" onclick="go('search');setActiveNav('bn-search')">
+  <button class="bn-item" id="bn-search" onclick="go('search')">
     <span class="bn-icon">🔍</span><span class="bn-label">Αναζήτηση</span>
   </button>
-  <button class="bn-item" id="bn-dash" onclick="goDash();setActiveNav('bn-dash')">
+  <button class="bn-item" id="bn-dash" onclick="goDash()">
     <span class="bn-icon">📋</span><span class="bn-label">Πίνακας</span>
-  </button>
-  <button class="bn-item" id="bn-settings" onclick="openSettings();setActiveNav('bn-settings')">
-    <span class="bn-icon">⚙️</span><span class="bn-label">Ρυθμίσεις</span>
   </button>
 </div>
 
@@ -681,7 +678,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal2)}
       <h3>🌐 Άλλα</h3>
       <div class="filter-group"><div class="chips"><div class="chip" onclick="toggleChip(this)">Αγγλικά</div><div class="chip" onclick="toggleChip(this)">Αλβανικά</div><div class="chip" onclick="toggleChip(this)">Γυναίκα</div><div class="chip" onclick="toggleChip(this)">Άνδρας</div><div class="chip" onclick="toggleChip(this)">Μη καπνίστρια</div><div class="chip" onclick="toggleChip(this)">Δίπλωμα</div></div></div>
       <button class="clear-btn" onclick="clearFilters()">↺ Καθαρισμός φίλτρων</button>
-      <button class="apply-btn" onclick="applyFilters()">Εφαρμογή αναζήτησης</button>
+      <button class="apply-btn" onclick="applyFilters();closeMobileFilters()">Εφαρμογή αναζήτησης ✓</button>
     </div>
     <div class="results-area">
       <div class="mobile-filter-bar">
@@ -1131,14 +1128,31 @@ async function savePro(){
 }
 
 // ============ NAVIGATION ============
-function go(p){
-  const cur=document.querySelector('.page.active');
-  if(cur)prevPage=cur.id.replace('page-','');
+const pageMap={'home':'Αρχική','search':'Αναζήτηση','profile':'Προφίλ','dashboard':'Πίνακας','prodash':'Πίνακας','settings':'Ρυθμίσεις','terms':'Όροι','privacy':'Απόρρητο'};
+
+function go(p, pushState=true){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   window.scrollTo(0,0);
+  // Update browser history
+  if(pushState){
+    history.pushState({page:p},'','/'+( p==='home'?'':p));
+  }
+  // Update bottom nav active state
+  const navMap={home:'bn-home',search:'bn-search',dashboard:'bn-dash',prodash:'bn-dash'};
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  if(navMap[p])document.getElementById(navMap[p])?.classList.add('active');
+  // Update page title
+  document.title='Kydo'+(pageMap[p]?' — '+pageMap[p]:'');
 }
-function goBack(){go(prevPage||'home');}
+
+function goBack(){history.back();}
+
+// Handle browser back/forward
+window.addEventListener('popstate',(e)=>{
+  const p=e.state?.page||'home';
+  go(p, false);
+});
 
 // ============ MODALS ============
 function openModal(id){
@@ -1201,12 +1215,6 @@ function closeMobileFilters(){
   document.getElementById('filter-panel').classList.remove('mobile-open');
   document.getElementById('filter-overlay').classList.remove('open');
   document.body.style.overflow='';
-}
-
-// ============ BOTTOM NAV ============
-function setActiveNav(id){
-  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id)?.classList.add('active');
 }
 
 
@@ -1286,6 +1294,7 @@ function showProf(id){
 }
 
 // INIT
+history.replaceState({page:'home'},'','/');
 renderCards(demoPros);
 initCookieBanner();
 </script>
