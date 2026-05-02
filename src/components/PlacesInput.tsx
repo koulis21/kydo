@@ -49,23 +49,20 @@ export default function PlacesInput({ value, onChange, onPlaceSelect, placeholde
       autocompleteRef.current = ac
     }
 
-    // If Google Maps already loaded
     if (window.google) {
       initAutocomplete()
       return
     }
 
-    // Load Google Maps script if not loaded
     if (!document.getElementById('google-maps-script')) {
       const script = document.createElement('script')
       script.id = 'google-maps-script'
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}&libraries=places&language=el&region=GR`
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}&libraries=places,marker&language=el&region=GR&v=beta`
       script.async = true
       script.defer = true
       script.onload = initAutocomplete
       document.head.appendChild(script)
     } else {
-      // Script loading, wait
       const interval = setInterval(() => {
         if (window.google) {
           clearInterval(interval)
