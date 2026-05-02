@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kydo — Φροντίδα με Απόδειξη</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBQlX_zCz--6Kkv4tSWrubwmzglnv1gVk&libraries=places&language=el&region=GR&callback=initGooglePlaces" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -37,7 +38,7 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-m);padding:0 2rem
 .nav-user{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 16px;border:1px solid var(--gray-m);border-radius:24px;cursor:pointer;background:var(--white);transition:box-shadow .15s;position:relative;user-select:none}
 .nav-user:hover{box-shadow:var(--shadow)}
 .nav-user-name{font-size:13px;font-weight:600;color:var(--text)}
-.nav-user-avatar{width:30px;height:30px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.nav-user-avatar{width:30px;height:30px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .user-dropdown{position:absolute;top:calc(100% + 10px);right:0;background:var(--white);border-radius:var(--r);min-width:240px;box-shadow:0 4px 24px rgba(0,0,0,.15);z-index:300;display:none;overflow:hidden}
 .user-dropdown.open{display:block}
 .ud-header{padding:16px;border-bottom:1px solid var(--gray-m)}
@@ -61,7 +62,7 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-m);padding:0 2rem
 .modal{background:var(--white);border-radius:var(--r);padding:2rem;width:min(520px,96vw);max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.18)}
 .modal-title{font-size:1.3rem;font-weight:700;margin-bottom:1.5rem}
 .close-btn{position:absolute;top:16px;right:16px;background:var(--gray-l);border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:center}
-.tabs{display:flex;gap:0;border:1px solid var(--gray-m);border-radius:24px;padding:3px;margin-bottom:1.5rem;background:var(--gray-l)}
+.tabs{display:flex;border:1px solid var(--gray-m);border-radius:24px;padding:3px;margin-bottom:1.5rem;background:var(--gray-l)}
 .tab{flex:1;padding:8px;font-size:14px;cursor:pointer;color:var(--gray);border-radius:20px;text-align:center;font-weight:500;transition:all .15s}
 .tab.active{background:var(--white);color:var(--text);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.1)}
 
@@ -98,11 +99,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal)}
 .terms-check{display:flex;align-items:flex-start;gap:10px;margin-top:14px;font-size:13px;color:var(--gray);line-height:1.5}
 .terms-check input[type=checkbox]{margin-top:2px;accent-color:var(--teal);width:16px;height:16px;cursor:pointer;flex-shrink:0}
 .terms-check a{color:var(--teal);font-weight:600;cursor:pointer}
+.req{color:var(--red);font-weight:700}
 
 /* HOME */
 .hero{padding:5rem 2rem 4rem;text-align:center;max-width:720px;margin:0 auto}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--teal-l);color:var(--teal);font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;margin-bottom:1.5rem}
-.hero h1{font-size:3rem;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:1.2rem;letter-spacing:-1px}
+.hero h1{font-size:3rem;font-weight:800;line-height:1.15;margin-bottom:1.2rem;letter-spacing:-1px}
 .hero h1 span{color:var(--teal)}
 .hero p{font-size:1.1rem;color:var(--gray);max-width:480px;margin:0 auto 2rem;line-height:1.7}
 .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
@@ -143,8 +145,9 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 .sidebar-clear{font-size:12px;color:var(--teal);cursor:pointer;font-weight:600;background:none;border:none;padding:0}
 .filter-section{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-m)}
 .filter-section:last-of-type{border-bottom:none}
-.filter-section-label{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.7rem}
-.filter-section select{width:100%;padding:10px 14px;border:1.5px solid var(--gray-m);border-radius:var(--rs);font-size:14px;background:var(--white);outline:none}
+.filter-section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.7rem}
+.filter-section select,.filter-section input[type=text]{width:100%;padding:10px 14px;border:1.5px solid var(--gray-m);border-radius:var(--rs);font-size:14px;outline:none}
+.filter-section input[type=text]:focus,.filter-section select:focus{border-color:var(--teal)}
 .sidebar-chips{display:flex;flex-wrap:wrap;gap:6px}
 .sidebar-chip{padding:7px 14px;border-radius:20px;font-size:13px;border:1.5px solid var(--gray-m);background:var(--white);cursor:pointer;color:var(--text);font-weight:500;transition:all .15s}
 .sidebar-chip.on{background:var(--text);color:var(--white);border-color:var(--text)}
@@ -152,11 +155,11 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 .sidebar-day-chip.on{background:var(--text);color:var(--white);border-color:var(--text)}
 .filter-apply-btn{width:100%;padding:13px;background:var(--teal);border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;color:#fff;margin-top:1rem}
 .main-results{padding:1.5rem 2rem;overflow-y:auto}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
 .sort-sel{padding:8px 14px;border:1.5px solid var(--gray-m);border-radius:24px;font-size:13px;font-weight:500;background:var(--white);cursor:pointer;outline:none}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
 
-/* FILTER PILLS (mobile) */
-.filter-bar-wrap{display:none;border-bottom:1px solid var(--gray-m);padding:.8rem 1.5rem;background:var(--white);position:sticky;top:54px;z-index:100}
+/* MOBILE FILTER BAR */
+.filter-bar-wrap{display:none;border-bottom:1px solid var(--gray-m);padding:.8rem 1.5rem;background:var(--white);position:sticky;top:54px;z-index:100;overflow-x:auto}
 .filter-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--gray-m);border-radius:24px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--white);color:var(--text);transition:all .15s;flex-shrink:0}
 .filter-pill.active{background:var(--text);color:var(--white);border-color:var(--text)}
 
@@ -205,7 +208,7 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 .sheet-clear{flex:1;padding:14px;background:var(--white);border:1.5px solid var(--gray-m);border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 .sheet-apply{flex:2;padding:14px;background:var(--teal);border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;color:#fff}
 
-/* PROFILE */
+/* PROFILE PAGE */
 .profile-page{max-width:860px;margin:0 auto;padding:1.5rem 2rem}
 .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;padding:8px 0;margin-bottom:1rem}
 .profile-hero{display:flex;gap:1.5rem;flex-wrap:wrap;background:var(--gray-l);border-radius:var(--r);padding:1.5rem;margin-bottom:1.5rem}
@@ -242,7 +245,7 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 .unlock-wall h3{font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
 .unlock-wall p{font-size:13px;color:var(--gray);margin-bottom:1rem}
 
-/* DASHBOARDS */
+/* DASHBOARD */
 .dash-page{max-width:960px;margin:0 auto;padding:2rem 1.5rem}
 .dash-title{font-size:1.5rem;font-weight:800;margin-bottom:.3rem;letter-spacing:-.5px}
 .dash-sub{font-size:14px;color:var(--gray);margin-bottom:1.5rem}
@@ -267,6 +270,7 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 .day-chip{width:38px;height:34px;border-radius:10px;font-size:12px;border:1.5px solid var(--gray-m);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;transition:all .15s}
 .day-chip.on{background:var(--teal);color:#fff;border-color:var(--teal)}
 .save-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer;margin-top:1rem}
+.req-notice{background:var(--amber-l);border:1px solid #e8c97a;border-radius:var(--rs);padding:.9rem 1.2rem;margin-bottom:1rem;font-size:13px;color:var(--amber);display:flex;align-items:flex-start;gap:8px}
 
 /* SETTINGS */
 .settings-page{max-width:620px;margin:0 auto;padding:2rem 1.5rem}
@@ -311,6 +315,11 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 .bn-btn span{font-size:10px;color:var(--gray);font-weight:600}
 .bn-btn.active svg,.bn-btn.active span{color:var(--teal)}
 
+/* GOOGLE PLACES AUTOCOMPLETE */
+.pac-container{z-index:9999!important;border-radius:var(--rs)!important;box-shadow:var(--shadow)!important;border:1px solid var(--gray-m)!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif!important}
+.pac-item{padding:8px 14px!important;font-size:14px!important;cursor:pointer}
+.pac-item:hover{background:var(--gray-l)!important}
+
 /* RESPONSIVE */
 @media(max-width:768px){
   nav{padding:0 1rem;height:54px}
@@ -326,7 +335,7 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
   .cta-section{padding:3rem 1rem}
   .search-page{grid-template-columns:1fr}
   .filter-sidebar{display:none}
-  .filter-bar-wrap{display:block}
+  .filter-bar-wrap{display:flex;gap:8px}
   .main-results{padding:1rem}
   .cards-grid{grid-template-columns:1fr}
   .profile-page{padding:1rem}
@@ -372,15 +381,15 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 <!-- SHEET OVERLAY -->
 <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
 
-<!-- FILTER BOTTOM SHEET (mobile) -->
+<!-- FILTER BOTTOM SHEET -->
 <div class="filter-sheet" id="filter-sheet">
   <div class="sheet-handle"></div>
   <div class="sheet-title">Φίλτρα αναζήτησης</div>
   <div class="sheet-section">
     <div class="sheet-section-label">Περιοχή</div>
-    <select id="f-area-m" style="width:100%;padding:10px 14px;border:1.5px solid var(--gray-m);border-radius:var(--rs);font-size:14px">
-      <option value="">Όλη η Αττική</option><option>Κέντρο Αθήνας</option><option>Βόρεια Προάστια</option><option>Νότια Προάστια</option><option>Δυτικά Προάστια</option><option>Πειραιάς</option><option>Ανατολική Αττική</option><option>Θεσσαλονίκη</option>
-    </select>
+    <input type="text" id="f-area-m" placeholder="π.χ. Γλυφάδα, Αθήνα" autocomplete="off" style="width:100%;padding:10px 14px;border:1.5px solid var(--gray-m);border-radius:var(--rs);font-size:14px;outline:none">
+    <input type="hidden" id="f-area-m-lat">
+    <input type="hidden" id="f-area-m-lng">
   </div>
   <div class="sheet-section">
     <div class="sheet-section-label">Κατηγορία</div>
@@ -390,7 +399,7 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
   </div>
   <div class="sheet-section">
     <div class="sheet-section-label">Εξειδίκευση</div>
-    <div class="sheet-chips" id="chips-spec-m">
+    <div class="sheet-chips">
       <div class="sheet-chip" onclick="toggleChip(this)">Άνοια</div><div class="sheet-chip" onclick="toggleChip(this)">Alzheimer</div><div class="sheet-chip" onclick="toggleChip(this)">Parkinson</div><div class="sheet-chip" onclick="toggleChip(this)">Παραπληγικοί</div><div class="sheet-chip" onclick="toggleChip(this)">Μετεγχειρητική</div><div class="sheet-chip" onclick="toggleChip(this)">Παιδιά ΑΝ</div><div class="sheet-chip" onclick="toggleChip(this)">CPR</div><div class="sheet-chip" onclick="toggleChip(this)">Διαβήτης</div>
     </div>
   </div>
@@ -705,21 +714,26 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 <!-- SEARCH -->
 <div id="page-search" class="page">
   <div class="filter-bar-wrap">
-    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none">
-      <div style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--gray-m);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;background:var(--text);color:var(--white);flex-shrink:0" onclick="openSheet()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>Φίλτρα
-      </div>
-      <div class="filter-pill" id="pill-express" onclick="togglePillFilter('express',this)">⚡ Express</div>
-      <div class="filter-pill" id="pill-verified" onclick="togglePillFilter('verified',this)">✓ Verified</div>
-      <div class="filter-pill" id="pill-live-in" onclick="togglePillFilter('live-in',this)">🏠 Διαμονή εντός</div>
+    <div style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--gray-m);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;background:var(--text);color:var(--white);flex-shrink:0" onclick="openSheet()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>Φίλτρα
     </div>
+    <div class="filter-pill" id="pill-express" onclick="togglePillFilter('express',this)">⚡ Express</div>
+    <div class="filter-pill" id="pill-verified" onclick="togglePillFilter('verified',this)">✓ Verified</div>
+    <div class="filter-pill" id="pill-live-in" onclick="togglePillFilter('live-in',this)">🏠 Διαμονή εντός</div>
   </div>
   <div class="search-page">
+    <!-- DESKTOP SIDEBAR -->
     <div class="filter-sidebar">
       <div class="filter-sidebar-title">Φίλτρα<button class="sidebar-clear" onclick="clearFilters()">Καθαρισμός</button></div>
       <div class="filter-section">
         <div class="filter-section-label">Περιοχή</div>
-        <select id="f-area"><option value="">Όλη η Αττική</option><option>Κέντρο Αθήνας</option><option>Βόρεια Προάστια</option><option>Νότια Προάστια</option><option>Δυτικά Προάστια</option><option>Πειραιάς</option><option>Ανατολική Αττική</option><option>Θεσσαλονίκη</option></select>
+        <input type="text" id="f-area" placeholder="π.χ. Γλυφάδα, Αθήνα" autocomplete="off">
+        <input type="hidden" id="f-area-lat">
+        <input type="hidden" id="f-area-lng">
+      </div>
+      <div class="filter-section">
+        <div class="filter-section-label">Μέγιστη απόσταση</div>
+        <div class="range-row"><input type="range" id="f-dist" min="1" max="50" value="50" oninput="document.getElementById('dist-val').textContent=this.value"><span class="range-val"><span id="dist-val">50</span> χλμ</span></div>
       </div>
       <div class="filter-section">
         <div class="filter-section-label">Κατηγορία</div>
@@ -749,21 +763,23 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
       </div>
       <div class="filter-section">
         <div class="filter-section-label">Μέγιστη ωριαία αμοιβή</div>
-        <div class="range-row"><input type="range" id="f-price" min="7" max="40" value="40" oninput="document.getElementById('price-val').textContent=this.value"><span class="range-val">€<span id="price-val">40</span></span></div>
+        <div class="range-row"><input type="range" id="f-price" min="7" max="60" value="60" oninput="document.getElementById('price-val').textContent=this.value"><span class="range-val">€<span id="price-val">60</span></span></div>
       </div>
       <div class="filter-section">
         <div class="filter-section-label">Επαλήθευση</div>
         <div class="sidebar-chips">
-          <div class="sidebar-chip" onclick="toggleChip(this)">Kydo Verified</div><div class="sidebar-chip" onclick="toggleChip(this)">Ποινικό μητρώο</div><div class="sidebar-chip" onclick="toggleChip(this)">Πτυχίο</div>
+          <div class="sidebar-chip" onclick="toggleChip(this)">Kydo Verified</div><div class="sidebar-chip" onclick="toggleChip(this)">Ποινικό μητρώο</div>
         </div>
       </div>
       <button class="filter-apply-btn" onclick="applyFilters()">Εφαρμογή φίλτρων</button>
     </div>
+    <!-- RESULTS -->
     <div class="main-results">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:8px">
         <div style="font-size:15px;font-weight:700" id="r-meta">Φόρτωση...</div>
         <select class="sort-sel" onchange="sortResults(this.value)">
           <option value="rating">Κορυφαίοι πρώτα</option>
+          <option value="dist">Κοντινότεροι</option>
           <option value="price">Χαμηλότερη τιμή</option>
           <option value="exp">Περισσότερη εμπειρία</option>
         </select>
@@ -821,72 +837,45 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
   <div class="pro-form-page">
     <div class="pro-form-title">Προφίλ Επαγγελματία</div>
     <div class="dash-welcome" id="pro-welcome"></div>
-
-    <!-- Required fields notice -->
-    <div style="background:var(--amber-l);border:1px solid #e8c97a;border-radius:var(--rs);padding:.9rem 1.2rem;margin-bottom:1rem;font-size:13px;color:var(--amber);display:flex;align-items:flex-start;gap:8px">
-      <span style="font-size:1rem;flex-shrink:0">ℹ️</span>
-      <span>Τα πεδία με <span style="color:var(--red);font-weight:700">✱</span> είναι <strong>υποχρεωτικά</strong> για να εμφανιστείτε στην αναζήτηση.</span>
+    <div class="req-notice">
+      <span>ℹ️</span>
+      <span>Τα πεδία με <span class="req">✱</span> είναι <strong>υποχρεωτικά</strong> για να εμφανιστείτε στην αναζήτηση.</span>
     </div>
-
     <div class="form-block">
       <div class="form-block-title">👤 Βασικά στοιχεία</div>
       <div class="form-row">
-        <div>
-          <label>Όνομα <span style="color:var(--red)">✱</span></label>
-          <input type="text" id="p-fname" placeholder="Μαρία">
-        </div>
-        <div>
-          <label>Επώνυμο <span style="color:var(--red)">✱</span></label>
-          <input type="text" id="p-lname" placeholder="Παπαδάκη">
-        </div>
+        <div><label>Όνομα <span class="req">✱</span></label><input type="text" id="p-fname" placeholder="Μαρία" onkeypress="return /[a-zA-Z\u0370-\u03FF\u1F00-\u1FFF\s]/.test(event.key)"></div>
+        <div><label>Επώνυμο <span class="req">✱</span></label><input type="text" id="p-lname" placeholder="Παπαδάκη" onkeypress="return /[a-zA-Z\u0370-\u03FF\u1F00-\u1FFF\s]/.test(event.key)"></div>
       </div>
-      <label>Κινητό <span style="color:var(--red)">✱</span></label>
+      <label>Κινητό <span class="req">✱</span></label>
       <div class="phone-row">
-        <input type="text" class="phone-code" id="p-code" value="+30" maxlength="4">
-        <input type="text" class="phone-num" id="p-phone" placeholder="6912345678" maxlength="10" onblur="validatePhone(this,'p-phone-err')">
+        <input type="text" class="phone-code" id="p-code" value="+30" maxlength="4" onkeypress="return /[0-9+]/.test(event.key)">
+        <input type="text" class="phone-num" id="p-phone" placeholder="6912345678" maxlength="10" onkeypress="return /[0-9]/.test(event.key)" onblur="validatePhone(this,'p-phone-err')">
       </div>
       <div class="field-msg" id="p-phone-err">⚠️ 10 ψηφία απαιτούνται</div>
       <label>Σύντομη περιγραφή</label>
       <textarea id="p-bio" rows="3" placeholder="Πείτε μας λίγα λόγια για εσάς..." style="resize:vertical"></textarea>
     </div>
-
     <div class="form-block">
       <div class="form-block-title">👩‍⚕️ Επαγγελματικά στοιχεία</div>
-      <label>Κατηγορία <span style="color:var(--red)">✱</span></label>
+      <label>Κατηγορία <span class="req">✱</span></label>
       <select id="p-cat"><option value="">Επιλέξτε...</option><option>Αποκλειστική / Νοσοκόμα</option><option>Φυσιοθεραπευτής/τρια</option><option>Οικιακή Βοηθός</option><option>Βοηθός Ασθενών</option><option>Εργοθεραπευτής/τρια</option></select>
       <div class="form-row" style="margin-top:12px">
-        <div>
-          <label>Χρόνια εμπειρίας</label>
-          <input type="number" id="p-exp" min="0" max="50" placeholder="π.χ. 5">
-        </div>
-        <div>
-          <label>Ωριαία αμοιβή (€) <span style="color:var(--red)">✱</span></label>
-          <input type="number" id="p-rate" min="7" max="60" placeholder="π.χ. 15">
-        </div>
+        <div><label>Χρόνια εμπειρίας</label><input type="number" id="p-exp" min="0" max="50" placeholder="π.χ. 5"></div>
+        <div><label>Ωριαία αμοιβή (€) <span class="req">✱</span></label><input type="number" id="p-rate" min="7" max="200" placeholder="π.χ. 15"></div>
       </div>
       <label>Αριθμός μητρώου ΕΦΚΑ / ΕΟΠΠΕΠ</label>
       <input type="text" id="p-registry" placeholder="Για το Kydo Verified badge">
     </div>
     <div class="form-block">
-      <div class="form-block-title">🎯 Εξειδικεύσεις</div>
-      <div class="form-chips" id="spec-chips">
-        <div class="form-chip" onclick="this.classList.toggle('on')">Άνοια / Alzheimer</div>
-        <div class="form-chip" onclick="this.classList.toggle('on')">Parkinson</div>
-        <div class="form-chip" onclick="this.classList.toggle('on')">Παραπληγικοί</div>
-        <div class="form-chip" onclick="this.classList.toggle('on')">Μετεγχειρητική</div>
-        <div class="form-chip" onclick="this.classList.toggle('on')">Παιδιά με ΑΝ</div>
-        <div class="form-chip" onclick="this.classList.toggle('on')">Διαβήτης</div>
-        <div class="form-chip" onclick="this.classList.toggle('on')">CPR / Πρώτες βοήθειες</div>
-        <div class="form-chip" onclick="this.classList.toggle('on')">Φροντίδα ηλικιωμένων</div>
-      </div>
-    </div>
-    <div class="form-block">
       <div class="form-block-title">📍 Τοποθεσία</div>
-      <label>Περιοχή διαμονής <span style="color:var(--red)">✱</span></label>
-      <select id="p-area"><option value="">Επιλέξτε...</option><option>Κέντρο Αθήνας</option><option>Βόρεια Προάστια</option><option>Νότια Προάστια</option><option>Δυτικά Προάστια</option><option>Πειραιάς</option><option>Ανατολική Αττική</option><option>Θεσσαλονίκη</option></select>
+      <label>Περιοχή <span class="req">✱</span></label>
+      <input type="text" id="p-area" placeholder="π.χ. Κολωνάκι, Αθήνα" autocomplete="off">
+      <input type="hidden" id="p-area-lat">
+      <input type="hidden" id="p-area-lng">
       <label>Μέγιστη απόσταση μετακίνησης</label>
       <div class="range-row" style="margin-top:6px">
-        <input type="range" id="p-maxdist" min="1" max="30" value="10" oninput="document.getElementById('p-dist-val').textContent=this.value">
+        <input type="range" id="p-maxdist" min="1" max="50" value="10" oninput="document.getElementById('p-dist-val').textContent=this.value">
         <span class="range-val"><span id="p-dist-val">10</span> χλμ</span>
       </div>
     </div>
@@ -912,6 +901,19 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
       <div class="form-chips"><div class="form-chip" id="express-chip" onclick="this.classList.toggle('on')">⚡ Ενεργοποίηση Express</div></div>
     </div>
     <div class="form-block">
+      <div class="form-block-title">🎯 Εξειδικεύσεις</div>
+      <div class="form-chips" id="spec-chips">
+        <div class="form-chip" onclick="this.classList.toggle('on')">Άνοια / Alzheimer</div>
+        <div class="form-chip" onclick="this.classList.toggle('on')">Parkinson</div>
+        <div class="form-chip" onclick="this.classList.toggle('on')">Παραπληγικοί</div>
+        <div class="form-chip" onclick="this.classList.toggle('on')">Μετεγχειρητική</div>
+        <div class="form-chip" onclick="this.classList.toggle('on')">Παιδιά με ΑΝ</div>
+        <div class="form-chip" onclick="this.classList.toggle('on')">Διαβήτης</div>
+        <div class="form-chip" onclick="this.classList.toggle('on')">CPR / Πρώτες βοήθειες</div>
+        <div class="form-chip" onclick="this.classList.toggle('on')">Φροντίδα ηλικιωμένων</div>
+      </div>
+    </div>
+    <div class="form-block">
       <div class="form-block-title">🌐 Πρόσθετα</div>
       <div class="form-chips">
         <div class="form-chip" onclick="this.classList.toggle('on')">Αγγλικά</div>
@@ -927,17 +929,17 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 </div>
 
 <script>
-// ============ SUPABASE ============
+// ── SUPABASE ──
 const SUPA_URL='https://kqdovhgryckstdnnkpvb.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtxZG92aGdyeWNrc3Rkbm5rcHZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjY1NjQsImV4cCI6MjA5MzE0MjU2NH0.Tl27RTXxYbqQvT3KedW9t9Th91VWRrt1z0q3UCCYbUE';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}});
 
-// ============ STATE ============
+// ── STATE ──
 let currentUser=null,currentProfile=null,loginRole='family',regRole='family',lang='el';
-let currentPros=[];
+let currentPros=[],allPros=[];
 const pillState={};
 
-// ============ AUTH ============
+// ── AUTH ──
 sb.auth.onAuthStateChange(async(event,session)=>{
   if(event==='TOKEN_REFRESHED'&&session){currentUser=session.user;if(!currentProfile)await loadProfile();updateNav();}
   else if(event==='SIGNED_OUT'){currentUser=null;currentProfile=null;updateNav();}
@@ -945,9 +947,9 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 
 (async()=>{
   const hash=window.location.hash;
-  const params=new URLSearchParams(hash.substring(1));
-  if(params.get('type')==='recovery'){history.replaceState(null,'','/');document.getElementById('ov-reset').classList.add('open');return;}
-  if(params.get('error')){history.replaceState(null,'','/');openModal('login');showMsg('li-msg','⚠️ Ο σύνδεσμος έχει λήξει.','error');return;}
+  const p=new URLSearchParams(hash.substring(1));
+  if(p.get('type')==='recovery'){history.replaceState(null,'','/');document.getElementById('ov-reset').classList.add('open');return;}
+  if(p.get('error')){history.replaceState(null,'','/');openModal('login');showMsg('li-msg','⚠️ Ο σύνδεσμος έχει λήξει.','error');return;}
   const{data:{session}}=await sb.auth.getSession();
   if(session){
     currentUser=session.user;await loadProfile();updateNav();
@@ -976,16 +978,16 @@ function updateNav(){
   }
 }
 
-// ============ LOCKOUT ============
-const MAX_ATTEMPTS=5,LOCKOUT_MS=15*60*1000;
-function getLockout(){try{return JSON.parse(localStorage.getItem('kydo_lockout')||'{}')}catch{return{}}}
-function isLockedOut(){const d=getLockout();if(!d.until)return false;if(Date.now()<d.until)return true;localStorage.removeItem('kydo_lockout');return false;}
-function getRemainingLockout(){const d=getLockout();return Math.max(0,Math.ceil((d.until-Date.now())/1000));}
-function recordFail(){const d=getLockout();const a=(d.attempts||0)+1;localStorage.setItem('kydo_lockout',JSON.stringify(a>=MAX_ATTEMPTS?{attempts:a,until:Date.now()+LOCKOUT_MS}:{attempts:a}));return a;}
-function clearLockout(){localStorage.removeItem('kydo_lockout');}
-function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return m>0?m+'λ'+(sec>0?' '+sec+'δ.':''):sec+'δ.';}
+// ── LOCKOUT ──
+const MAX_ATT=5,LOCK_MS=15*60*1000;
+function getLock(){try{return JSON.parse(localStorage.getItem('kydo_lock')||'{}')}catch{return{}}}
+function isLocked(){const d=getLock();if(!d.until)return false;if(Date.now()<d.until)return true;localStorage.removeItem('kydo_lock');return false;}
+function remLock(){const d=getLock();return Math.max(0,Math.ceil((d.until-Date.now())/1000));}
+function recFail(){const d=getLock();const a=(d.attempts||0)+1;localStorage.setItem('kydo_lock',JSON.stringify(a>=MAX_ATT?{attempts:a,until:Date.now()+LOCK_MS}:{attempts:a}));return a;}
+function clrLock(){localStorage.removeItem('kydo_lock');}
+function fmtT(s){const m=Math.floor(s/60);return m>0?m+'λ ':s+'δ.';}
 
-// ============ LOGIN ============
+// ── LOGIN ──
 function switchLoginTab(role,el){
   loginRole=role;
   document.querySelectorAll('#ov-login .tab').forEach(t=>t.classList.remove('active'));
@@ -996,7 +998,7 @@ function switchLoginTab(role,el){
 }
 
 async function doLogin(){
-  if(isLockedOut()){showMsg('li-msg','🔒 Κλειδωμένο για '+fmtTime(getRemainingLockout())+'.','error');return;}
+  if(isLocked()){showMsg('li-msg','🔒 Κλειδωμένο για '+fmtT(remLock())+'.','error');return;}
   const email=document.getElementById('li-email').value.trim();
   const pass=document.getElementById('li-pass').value;
   const btn=document.getElementById('li-btn');
@@ -1005,13 +1007,9 @@ async function doLogin(){
   try{
     const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
     if(error){
-      if(error.message?.includes('Email not confirmed')){
-        showMsg('li-msg','⚠️ Παρακαλώ επιβεβαιώστε το email σας πρώτα. Ελέγξτε τα εισερχόμενά σας.','error');
-        btn.disabled=false;btn.innerHTML='<span>Σύνδεση</span>';return;
-      }
-      const a=recordFail(),rem=MAX_ATTEMPTS-a;
-      if(a>=MAX_ATTEMPTS)showMsg('li-msg','🔒 Κλειδωμένο για '+fmtTime(LOCKOUT_MS/1000)+'.','error');
-      else showMsg('li-msg','Λάθος στοιχεία. '+rem+' προσπάθεια'+(rem===1?'':'ες')+' ακόμα.','error');
+      if(error.message?.includes('Email not confirmed')){showMsg('li-msg','⚠️ Επιβεβαιώστε το email σας πρώτα.','error');btn.disabled=false;btn.innerHTML='<span>Σύνδεση</span>';return;}
+      const a=recFail(),rem=MAX_ATT-a;
+      showMsg('li-msg',a>=MAX_ATT?'🔒 Κλειδωμένο για '+fmtT(LOCK_MS/1000)+'.':'Λάθος στοιχεία. '+rem+' προσπάθεια'+(rem===1?'':'ες')+' ακόμα.','error');
       btn.disabled=false;btn.innerHTML='<span>Σύνδεση</span>';return;
     }
     const{data:profile}=await sb.from('profiles').select('*').eq('id',data.user.id).single();
@@ -1022,11 +1020,11 @@ async function doLogin(){
       showMsg('li-msg','Λάθος tab — επιλέξτε τον σωστό τύπο.','error');
       btn.disabled=false;btn.innerHTML='<span>Σύνδεση</span>';return;
     }
-    clearLockout();currentUser=data.user;updateNav();closeModal('login');goDash();
+    clrLock();currentUser=data.user;updateNav();closeModal('login');goDash();
   }catch(e){showMsg('li-msg','Σφάλμα: '+e.message,'error');btn.disabled=false;btn.innerHTML='<span>Σύνδεση</span>';}
 }
 
-// ============ FORGOT ============
+// ── FORGOT ──
 async function doForgot(){
   const email=document.getElementById('fp-email').value.trim();
   const btn=document.getElementById('fp-btn');
@@ -1038,7 +1036,7 @@ async function doForgot(){
   else showMsg('fp-msg','✓ Στάλθηκε! Ελέγξτε το email σας.','success');
 }
 
-// ============ RESET PASSWORD ============
+// ── RESET PASSWORD ──
 async function doResetPassword(){
   const pass=document.getElementById('rp-pass').value,pass2=document.getElementById('rp-pass2').value;
   const btn=document.getElementById('rp-btn');
@@ -1052,17 +1050,18 @@ async function doResetPassword(){
   setTimeout(()=>{document.getElementById('ov-reset').classList.remove('open');goDash();},2000);
 }
 
-// ============ REGISTER ============
+// ── REGISTER ──
 function pickRole(r){
   regRole=r;
   document.getElementById('rc-family').classList.toggle('sel',r==='family');
   document.getElementById('rc-pro').classList.toggle('sel',r==='pro');
 }
 function checkPwRules(p,v){
-  document.getElementById(p+'-len').classList.toggle('ok',v.length>=8);
-  document.getElementById(p+'-upper').classList.toggle('ok',/[A-Z]/.test(v));
-  document.getElementById(p+'-num').classList.toggle('ok',/[0-9]/.test(v));
-  document.getElementById(p+'-special').classList.toggle('ok',/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v));
+  ['len','upper','num','special'].forEach(k=>document.getElementById(p+'-'+k)?.classList.remove('ok'));
+  if(v.length>=8)document.getElementById(p+'-len')?.classList.add('ok');
+  if(/[A-Z]/.test(v))document.getElementById(p+'-upper')?.classList.add('ok');
+  if(/[0-9]/.test(v))document.getElementById(p+'-num')?.classList.add('ok');
+  if(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v))document.getElementById(p+'-special')?.classList.add('ok');
 }
 function isPwValid(v){return v.length>=8&&/[A-Z]/.test(v)&&/[0-9]/.test(v)&&/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v);}
 function checkPassMatch(){
@@ -1074,7 +1073,6 @@ function validatePhone(el,errId){
   if(el.value.length>0&&el.value.length!==10){el.style.borderColor='var(--red)';err.style.display='block';}
   else{el.style.borderColor=el.value.length===10?'var(--teal)':'';err.style.display='none';}
 }
-
 async function doRegister(){
   const fname=document.getElementById('rg-fname').value.trim(),lname=document.getElementById('rg-lname').value.trim();
   const email=document.getElementById('rg-email').value.trim();
@@ -1099,10 +1097,10 @@ async function doRegister(){
   }catch(e){showMsg('rg-msg','Σφάλμα: '+e.message,'error');btn.disabled=false;btn.innerHTML='<span>Δημιουργία λογαριασμού</span>';}
 }
 
-// ============ LOGOUT ============
+// ── LOGOUT ──
 async function doLogout(){currentUser=null;currentProfile=null;updateNav();go('home');await sb.auth.signOut();}
 
-// ============ DASHBOARD ============
+// ── DASHBOARD ──
 function goDash(){
   if(!currentUser){go('home');return;}
   const role=currentProfile?.role||currentUser?.user_metadata?.role||'family';
@@ -1116,7 +1114,7 @@ function goDash(){
   }
 }
 
-// ============ SETTINGS ============
+// ── SETTINGS ──
 function openSettings(){
   if(!currentUser){go('home');return;}
   const full=currentProfile?.full_name||'';
@@ -1133,7 +1131,6 @@ function openSettings(){
   document.getElementById('delete-confirm-input').value='';
   go('settings');
 }
-
 async function doEditName(){
   const fname=document.getElementById('st-fname').value.trim(),lname=document.getElementById('st-lname').value.trim();
   if(!fname||!lname){showMsg('st-name-msg','Συμπληρώστε όνομα και επώνυμο.','error');return;}
@@ -1143,7 +1140,6 @@ async function doEditName(){
   currentProfile={...currentProfile,full_name:full};updateNav();
   showMsg('st-name-msg','✓ Αποθηκεύτηκε!','success');
 }
-
 async function doChangePass(){
   const pass=document.getElementById('st-pass').value,pass2=document.getElementById('st-pass2').value;
   if(!isPwValid(pass)){showMsg('st-pass-msg','Ο κωδικός δεν πληροί τις απαιτήσεις.','error');return;}
@@ -1154,14 +1150,12 @@ async function doChangePass(){
   ['st-len','st-upper','st-num','st-special'].forEach(i=>document.getElementById(i)?.classList.remove('ok'));
   showMsg('st-pass-msg','✓ Ο κωδικός άλλαξε!','success');
 }
-
 function toggleDeleteConfirm(){
   const d=document.getElementById('delete-confirm');
   d.style.display=d.style.display==='none'?'block':'none';
   document.getElementById('delete-confirm-input').value='';
   showMsg('delete-msg','','');
 }
-
 async function doDeleteAccount(){
   const val=document.getElementById('delete-confirm-input').value.trim();
   if(val!=='ΔΙΑΓΡΑΦΗ'){showMsg('delete-msg','Πληκτρολογήστε ΔΙΑΓΡΑΦΗ.','error');return;}
@@ -1171,7 +1165,7 @@ async function doDeleteAccount(){
   alert('Ο λογαριασμός επισημάνθηκε για διαγραφή εντός 30 ημερών.');
 }
 
-// ============ SAVE PRO ============
+// ── SAVE PRO ──
 async function savePro(){
   if(!currentUser){alert('Πρέπει να είστε συνδεδεμένοι.');return;}
   const fname=document.getElementById('p-fname').value.trim();
@@ -1179,53 +1173,28 @@ async function savePro(){
   const phone=document.getElementById('p-phone').value.trim();
   const cat=document.getElementById('p-cat').value;
   const rate=document.getElementById('p-rate').value;
+  const area=document.getElementById('p-area').value.trim();
   const code=document.getElementById('p-code').value.trim().replace('+','');
-
-  // Validate required fields
+  const lat=parseFloat(document.getElementById('p-area-lat').value)||null;
+  const lng=parseFloat(document.getElementById('p-area-lng').value)||null;
   if(!fname||!lname){showMsg('pro-msg','✱ Συμπληρώστε Όνομα και Επώνυμο.','error');return;}
-  if(!phone||phone.length!==10){showMsg('pro-msg','✱ Συμπληρώστε έγκυρο κινητό τηλέφωνο (10 ψηφία).','error');return;}
-  if(!cat){showMsg('pro-msg','✱ Επιλέξτε κατηγορία επαγγέλματος.','error');return;}
+  if(!phone||phone.length!==10){showMsg('pro-msg','✱ Συμπληρώστε έγκυρο κινητό (10 ψηφία).','error');return;}
+  if(!cat){showMsg('pro-msg','✱ Επιλέξτε κατηγορία.','error');return;}
   if(!rate||parseFloat(rate)<7){showMsg('pro-msg','✱ Συμπληρώστε ωριαία αμοιβή (ελάχιστο €7).','error');return;}
-
+  if(!area){showMsg('pro-msg','✱ Συμπληρώστε την περιοχή σας.','error');return;}
   const specs=[...document.querySelectorAll('#spec-chips .form-chip.on')].map(c=>c.textContent);
   const days=[...document.querySelectorAll('.pro-form-page .day-chip.on')].map(c=>c.textContent);
-
-  const proData={
-    id:currentUser.id,
-    category:cat,
-    specializations:specs,
-    experience_years:parseInt(document.getElementById('p-exp').value)||0,
-    hourly_rate:parseFloat(rate),
-    bio:document.getElementById('p-bio').value,
-    area:document.getElementById('p-area').value,
-    available_days:days,
-    time_from:document.getElementById('p-from').value,
-    time_to:document.getElementById('p-to').value,
-    registry_number:document.getElementById('p-registry').value,
-    is_express:document.getElementById('express-chip').classList.contains('on')
-  };
-
-  await sb.from('profiles').update({
-    full_name:fname+' '+lname,
-    phone:code?'+'+code+phone:phone,
-    area:document.getElementById('p-area').value
-  }).eq('id',currentUser.id);
-
+  const proData={id:currentUser.id,category:cat,specializations:specs,experience_years:parseInt(document.getElementById('p-exp').value)||0,hourly_rate:parseFloat(rate),bio:document.getElementById('p-bio').value,area,lat,lng,available_days:days,time_from:document.getElementById('p-from').value,time_to:document.getElementById('p-to').value,registry_number:document.getElementById('p-registry').value,is_express:document.getElementById('express-chip').classList.contains('on')};
+  await sb.from('profiles').update({full_name:fname+' '+lname,phone:code?'+'+code+phone:phone,area}).eq('id',currentUser.id);
   const{error}=await sb.from('professionals').upsert(proData);
   if(error)showMsg('pro-msg','Σφάλμα: '+error.message,'error');
-  else{
-    showMsg('pro-msg','✓ Το προφίλ αποθηκεύτηκε! Εμφανίζεστε πλέον στην αναζήτηση.','success');
-    currentProfile={...currentProfile,full_name:fname+' '+lname};
-    updateNav();
-  }
+  else{showMsg('pro-msg','✓ Το προφίλ αποθηκεύτηκε! Εμφανίζεστε πλέον στην αναζήτηση.','success');currentProfile={...currentProfile,full_name:fname+' '+lname};updateNav();}
 }
 
-// ============ NAVIGATION ============
+// ── NAVIGATION ──
 const pageLabels={home:'Αρχική',search:'Αναζήτηση',profile:'Προφίλ',dashboard:'Πίνακας',prodash:'Πίνακας',settings:'Ρυθμίσεις',terms:'Όροι',privacy:'Απόρρητο'};
-let prevPage='home';
 
 function go(p,push=true){
-  prevPage=document.querySelector('.page.active')?.id?.replace('page-','')||'home';
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   window.scrollTo(0,0);
@@ -1239,7 +1208,7 @@ function go(p,push=true){
 function goBack(){history.back();}
 window.addEventListener('popstate',e=>go(e.state?.page||'home',false));
 
-// ============ MODALS ============
+// ── MODALS ──
 function openModal(id){
   closeUserMenu();
   document.getElementById('ov-'+id).classList.add('open');
@@ -1247,7 +1216,7 @@ function openModal(id){
     document.getElementById('li-email').value='';document.getElementById('li-pass').value='';
     showMsg('li-msg','','');document.getElementById('li-btn').disabled=false;document.getElementById('li-btn').innerHTML='<span>Σύνδεση</span>';
     loginRole='family';document.getElementById('tab-family').classList.add('active');document.getElementById('tab-pro').classList.remove('active');
-    if(isLockedOut())showMsg('li-msg','🔒 Κλειδωμένο για '+fmtTime(getRemainingLockout())+'.','error');
+    if(isLocked())showMsg('li-msg','🔒 Κλειδωμένο για '+fmtT(remLock())+'.','error');
   }
   if(id==='register'){
     ['rg-fname','rg-lname','rg-email','rg-phone','rg-pass','rg-pass2'].forEach(i=>{const el=document.getElementById(i);if(el){el.value='';el.style.borderColor='';}});
@@ -1262,26 +1231,26 @@ function openModal(id){
 function closeModal(id){document.getElementById('ov-'+id).classList.remove('open');}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id.replace('ov-',''));}));
 
-// ============ USER MENU ============
+// ── USER MENU ──
 function toggleUserMenu(e){e.stopPropagation();document.getElementById('user-dropdown').classList.toggle('open');}
 function closeUserMenu(){document.getElementById('user-dropdown').classList.remove('open');}
 document.addEventListener('click',()=>closeUserMenu());
 
-// ============ BOTTOM SHEET ============
+// ── BOTTOM SHEET ──
 function openSheet(){document.getElementById('filter-sheet').classList.add('open');document.getElementById('sheet-overlay').classList.add('open');document.body.style.overflow='hidden';}
 function closeSheet(){document.getElementById('filter-sheet').classList.remove('open');document.getElementById('sheet-overlay').classList.remove('open');document.body.style.overflow='';}
 
-// ============ PILL FILTERS ============
+// ── PILL FILTERS ──
 function togglePillFilter(key,el){pillState[key]=!pillState[key];el.classList.toggle('active',pillState[key]);applyFilters();}
 
-// ============ MISC ============
+// ── MISC ──
 function showMsg(id,text,type){const el=document.getElementById(id);if(!el)return;el.textContent=text;el.className='msg'+(type?' '+type:'');}
 function toggleChip(el){el.classList.toggle('on');}
 function toggleLang(){lang=lang==='el'?'en':'el';document.getElementById('lang-label').textContent=lang==='el'?'ΕΛ':'EN';}
-function initCookieBanner(){if(!localStorage.getItem('kydo_cookie_choice'))document.getElementById('cookie-banner').style.display='flex';}
-function setCookieChoice(v){localStorage.setItem('kydo_cookie_choice',v?'accepted':'minimal');document.getElementById('cookie-banner').style.display='none';}
+function initCookieBanner(){if(!localStorage.getItem('kydo_cookie'))document.getElementById('cookie-banner').style.display='flex';}
+function setCookieChoice(v){localStorage.setItem('kydo_cookie',v?'ok':'min');document.getElementById('cookie-banner').style.display='none';}
 
-// ============ ENTER KEY ============
+// ── ENTER KEY ──
 document.addEventListener('DOMContentLoaded',()=>{
   ['li-email','li-pass'].forEach(id=>document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();}));
   ['rg-fname','rg-lname','rg-email','rg-phone','rg-pass','rg-pass2'].forEach(id=>document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')doRegister();}));
@@ -1289,66 +1258,106 @@ document.addEventListener('DOMContentLoaded',()=>{
   ['rp-pass','rp-pass2'].forEach(id=>document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')doResetPassword();}));
 });
 
-// ============ SEARCH — LOAD FROM DB ============
+// ── GOOGLE PLACES ──
+function initGooglePlaces(){
+  const opts={componentRestrictions:{country:'gr'},fields:['formatted_address','geometry','name'],types:['geocode']};
+
+  // Pro form
+  const proInput=document.getElementById('p-area');
+  if(proInput){
+    const ac=new google.maps.places.Autocomplete(proInput,opts);
+    ac.addListener('place_changed',()=>{
+      const pl=ac.getPlace();
+      if(pl.geometry){
+        document.getElementById('p-area-lat').value=pl.geometry.location.lat();
+        document.getElementById('p-area-lng').value=pl.geometry.location.lng();
+      }
+    });
+  }
+
+  // Desktop search filter
+  const searchInput=document.getElementById('f-area');
+  if(searchInput){
+    const ac2=new google.maps.places.Autocomplete(searchInput,opts);
+    ac2.addListener('place_changed',()=>{
+      const pl=ac2.getPlace();
+      if(pl.geometry){
+        document.getElementById('f-area-lat').value=pl.geometry.location.lat();
+        document.getElementById('f-area-lng').value=pl.geometry.location.lng();
+        applyFilters();
+      }
+    });
+  }
+
+  // Mobile sheet search filter
+  const mobileInput=document.getElementById('f-area-m');
+  if(mobileInput){
+    const ac3=new google.maps.places.Autocomplete(mobileInput,opts);
+    ac3.addListener('place_changed',()=>{
+      const pl=ac3.getPlace();
+      if(pl.geometry){
+        document.getElementById('f-area-m-lat').value=pl.geometry.location.lat();
+        document.getElementById('f-area-m-lng').value=pl.geometry.location.lng();
+      }
+    });
+  }
+}
+
+// ── DISTANCE ──
+function calcDist(lat1,lng1,lat2,lng2){
+  const R=6371,dL=(lat2-lat1)*Math.PI/180,dG=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dG/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ── SEARCH ──
 const DAYS=['Δε','Τρ','Τε','Πε','Πα','Σα','Κυ'];
 
 async function loadProfessionals(){
   const g=document.getElementById('rgrid');
   g.innerHTML='<div style="padding:3rem;text-align:center;color:var(--gray)"><div style="font-size:2rem;margin-bottom:.5rem">⏳</div><div style="font-weight:600">Φόρτωση...</div></div>';
   try{
-    const{data,error}=await sb
-      .from('professionals')
-      .select('*, profiles!inner(full_name,area,phone)')
-      .not('category','is',null)
-      .neq('category','')
+    const{data,error}=await sb.from('professionals')
+      .select('*,profiles!inner(full_name,area,phone)')
+      .not('category','is',null).neq('category','')
       .order('is_featured',{ascending:false})
       .order('rating',{ascending:false});
     if(error)throw error;
-    currentPros=(data||[])
-      .filter(p=>p.profiles?.full_name&&p.profiles.full_name.trim()!=='')
+    allPros=currentPros=(data||[])
+      .filter(p=>p.profiles?.full_name?.trim())
       .map(p=>({
-        id:p.id,
-        name:p.profiles?.full_name||'Επαγγελματίας',
+        id:p.id,name:p.profiles.full_name,
         role:p.category||'Επαγγελματίας φροντίδας',
-        rating:p.rating||0,
-        rev:p.total_reviews||0,
-        exp:p.experience_years||0,
-        price:p.hourly_rate||0,
-        color:strToColor(p.id),
-        initials:getInitials(p.profiles?.full_name||'?'),
-        top:p.is_featured||false,
-        express:p.is_express||false,
-        verified:p.is_verified||false,
-        criminal:p.has_criminal_check||false,
-        days:parseDays(p.available_days),
-        tags:p.specializations||[],
-        area:p.area||p.profiles?.area||'',
-        bio:p.bio||'',
-        time_from:p.time_from||'',
-        time_to:p.time_to||'',
+        rating:p.rating||0,rev:p.total_reviews||0,
+        exp:p.experience_years||0,price:p.hourly_rate||0,
+        color:strToColor(p.id),initials:getInitials(p.profiles.full_name),
+        top:!!p.is_featured,express:!!p.is_express,
+        verified:!!p.is_verified,criminal:!!p.has_criminal_check,
+        days:parseDays(p.available_days),tags:p.specializations||[],
+        area:p.area||p.profiles.area||'',
+        lat:p.lat||null,lng:p.lng||null,
+        bio:p.bio||'',time_from:p.time_from||'',time_to:p.time_to||'',
       }));
     renderCards(currentPros);
   }catch(e){
     console.error(e);
-    g.innerHTML='<div style="padding:3rem;text-align:center;color:var(--gray)">Σφάλμα φόρτωσης. Δοκιμάστε ξανά.</div>';
+    g.innerHTML='<div style="padding:3rem;text-align:center;color:var(--gray)">Σφάλμα φόρτωσης.</div>';
   }
 }
 
-function strToColor(str){
-  const colors=['#0f6e56','#185fa5','#854f0b','#7a3060','#3b6d11','#6050b0','#b06a00','#2d6a8a'];
-  let hash=0;for(let i=0;i<str.length;i++)hash=str.charCodeAt(i)+((hash<<5)-hash);
-  return colors[Math.abs(hash)%colors.length];
+function strToColor(s){
+  const c=['#0f6e56','#185fa5','#854f0b','#7a3060','#3b6d11','#6050b0','#b06a00','#2d6a8a'];
+  let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);
+  return c[Math.abs(h)%c.length];
 }
-function getInitials(name){return name.split(' ').map(n=>n[0]||'').join('').toUpperCase().substring(0,2)||'?';}
+function getInitials(n){return(n||'').split(' ').map(x=>x[0]||'').join('').toUpperCase().substring(0,2)||'?';}
 function parseDays(days){
-  if(!days||!Array.isArray(days))return[0,0,0,0,0,0,0];
-  const map={'Δε':0,'Τρ':1,'Τε':2,'Πε':3,'Πα':4,'Σα':5,'Κυ':6};
-  const r=[0,0,0,0,0,0,0];
-  days.forEach(d=>{if(map[d]!==undefined)r[map[d]]=1;});
-  return r;
+  if(!Array.isArray(days))return[0,0,0,0,0,0,0];
+  const m={'Δε':0,'Τρ':1,'Τε':2,'Πε':3,'Πα':4,'Σα':5,'Κυ':6},r=[0,0,0,0,0,0,0];
+  days.forEach(d=>{if(m[d]!==undefined)r[m[d]]=1;});return r;
 }
 
-function renderCards(data){
+function renderCards(data,showDist=false){
   const g=document.getElementById('rgrid');
   if(!data.length){
     g.innerHTML='<div style="padding:3rem;text-align:center;color:var(--gray)"><div style="font-size:2rem;margin-bottom:.5rem">🔍</div><div style="font-weight:600;margin-bottom:.3rem">Δεν βρέθηκαν αποτελέσματα</div><div style="font-size:13px">Δοκιμάστε να αλλάξετε τα φίλτρα</div></div>';
@@ -1368,8 +1377,8 @@ function renderCards(data){
       ${p.tags.length?`<div class="card-tags">${p.tags.slice(0,3).map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>`:''}
       <div class="card-sched">${DAYS.map((d,i)=>`<div class="card-day ${p.days[i]?'on':'off'}">${d}</div>`).join('')}</div>
       <div class="card-footer">
-        <div class="card-price">${p.price>0?p.price+'€ <span>/ ώρα</span>':'<span style="font-size:13px;font-weight:400">Κατόπιν συμφωνίας</span>'}</div>
-        <div class="card-avail">${p.area?'📍 '+p.area:''}</div>
+        <div class="card-price">${p.price>0?p.price+'€ <span>/ ώρα</span>':'<span style="font-size:13px;font-weight:400;color:var(--gray)">Κατόπιν συμφωνίας</span>'}</div>
+        <div class="card-avail">${showDist&&p.distFromSearch!=null?'📍 '+p.distFromSearch.toFixed(1)+' χλμ':p.area?'📍 '+p.area:''}</div>
       </div>
     </div>
   </div>`).join('');
@@ -1378,163 +1387,117 @@ function renderCards(data){
 
 function applyFilters(){
   const minExp=parseInt(document.getElementById('f-exp').value)||0;
-  const maxPrice=parseInt(document.getElementById('f-price').value)||40;
+  const maxPrice=parseInt(document.getElementById('f-price').value)||60;
+  const maxDist=parseInt(document.getElementById('f-dist').value)||50;
   const cat=document.getElementById('f-cat').value.toLowerCase();
-  const area=document.getElementById('f-area').value.toLowerCase();
-  const selSpec=[...document.querySelectorAll('#chips-spec .sidebar-chip.on')].map(c=>c.textContent);
-  const selDays=[...document.querySelectorAll('.filter-sidebar .sidebar-day-chip.on')].map(c=>c.textContent);
-  const allChips=[...document.querySelectorAll('.filter-sidebar .sidebar-chip.on')].map(c=>c.textContent);
+  // Get location from desktop or mobile
+  let sLat=parseFloat(document.getElementById('f-area-lat').value)||null;
+  let sLng=parseFloat(document.getElementById('f-area-lng').value)||null;
+  if(!sLat){sLat=parseFloat(document.getElementById('f-area-m-lat').value)||null;sLng=parseFloat(document.getElementById('f-area-m-lng').value)||null;}
+  const selSpec=[...document.querySelectorAll('#chips-spec .sidebar-chip.on,.filter-sheet .sheet-chip.on')].map(c=>c.textContent);
+  const selDays=[...document.querySelectorAll('.filter-sidebar .sidebar-day-chip.on,.filter-sheet .sheet-day-chip.on')].map(c=>c.textContent);
+  const allChips=[...document.querySelectorAll('.filter-sidebar .sidebar-chip.on,.filter-sheet .sheet-chip.on')].map(c=>c.textContent);
   const wantsExpress=pillState['express']||allChips.some(c=>c.includes('Express'));
   const wantsVerified=pillState['verified'];
   const wantsLiveIn=pillState['live-in']||allChips.some(c=>c.includes('εντός'));
-  const filtered=currentPros.filter(p=>{
+
+  const filtered=allPros.filter(p=>{
     if(p.exp<minExp)return false;
     if(p.price>0&&p.price>maxPrice)return false;
     if(cat&&!p.role.toLowerCase().includes(cat))return false;
-    if(area&&p.area&&!p.area.toLowerCase().includes(area))return false;
     if(wantsExpress&&!p.express)return false;
     if(wantsVerified&&!p.verified)return false;
-    if(wantsLiveIn&&!p.tags.some(t=>t.includes('εντός')||t.includes('Διαμονή')))return false;
+    if(wantsLiveIn&&!p.tags.some(t=>t.toLowerCase().includes('εντός')||t.toLowerCase().includes('διαμονή')))return false;
     if(selDays.length>0){const pd=DAYS.filter((_,i)=>p.days[i]);if(!selDays.some(d=>pd.includes(d)))return false;}
     if(selSpec.length>0){if(!selSpec.some(s=>p.tags.some(t=>t.toLowerCase().includes(s.toLowerCase()))))return false;}
+    if(sLat&&sLng&&p.lat&&p.lng){const d=calcDist(sLat,sLng,p.lat,p.lng);p.distFromSearch=d;if(d>maxDist)return false;}
+    else{p.distFromSearch=null;}
     return true;
   });
-  renderCards(filtered);
+
+  if(sLat&&sLng)filtered.sort((a,b)=>(a.distFromSearch??999)-(b.distFromSearch??999));
+  currentPros=filtered;
+  renderCards(filtered,!!(sLat&&sLng));
 }
 
 function clearFilters(){
   document.querySelectorAll('.filter-sidebar .sidebar-chip,.filter-sidebar .sidebar-day-chip,.filter-sheet .sheet-chip,.filter-sheet .sheet-day-chip').forEach(c=>c.classList.remove('on'));
   document.getElementById('f-exp').value=0;document.getElementById('exp-val').textContent=0;
-  document.getElementById('f-price').value=40;document.getElementById('price-val').textContent=40;
-  document.getElementById('f-area').value='';document.getElementById('f-cat').value='';
+  document.getElementById('f-price').value=60;document.getElementById('price-val').textContent=60;
+  document.getElementById('f-dist').value=50;document.getElementById('dist-val').textContent=50;
+  document.getElementById('f-area').value='';document.getElementById('f-area-lat').value='';document.getElementById('f-area-lng').value='';
+  document.getElementById('f-cat').value='';
+  document.getElementById('f-area-m').value='';document.getElementById('f-area-m-lat').value='';document.getElementById('f-area-m-lng').value='';
   Object.keys(pillState).forEach(k=>{pillState[k]=false;document.getElementById('pill-'+k)?.classList.remove('active');});
-  renderCards(currentPros);
+  currentPros=allPros;renderCards(allPros);
 }
 
 function sortResults(by){
   let s=[...currentPros];
   if(by==='rating')s.sort((a,b)=>b.rating-a.rating);
+  else if(by==='dist')s.sort((a,b)=>(a.distFromSearch??999)-(b.distFromSearch??999));
   else if(by==='price')s.sort((a,b)=>a.price-b.price);
   else if(by==='exp')s.sort((a,b)=>b.exp-a.exp);
-  renderCards(s);
+  renderCards(s,s.some(p=>p.distFromSearch!=null));
 }
 
 async function showProf(id){
-  const p=currentPros.find(x=>x.id===id);
+  const p=allPros.find(x=>x.id===id);
   if(!p)return;
-
-  // Load reviews with reviewer name from profiles
-  const{data:rvs}=await sb
-    .from('reviews')
-    .select('*, profiles(full_name)')
-    .eq('professional_id',id)
-    .order('created_at',{ascending:false})
-    .limit(10);
-
-  // Check if current user has already reviewed
+  const{data:rvs}=await sb.from('reviews').select('*,profiles(full_name)').eq('professional_id',id).order('created_at',{ascending:false}).limit(10);
   let userReview=null;
-  if(currentUser){
-    const{data:ur}=await sb.from('reviews').select('*').eq('professional_id',id).eq('family_id',currentUser.id).single();
-    userReview=ur;
-  }
+  if(currentUser){const{data:ur}=await sb.from('reviews').select('*').eq('professional_id',id).eq('family_id',currentUser.id).maybeSingle();userReview=ur;}
 
   document.getElementById('pp-av').textContent=p.initials;
   document.getElementById('pp-av').style.background=p.color;
   document.getElementById('pp-name').textContent=p.name;
-  document.getElementById('pp-role').textContent=p.role+(p.rating>0?' · ★ '+p.rating.toFixed(1)+' ('+p.rev+')':" · Νέος επαγγελματίας")+(p.exp>0?' · '+p.exp+' χρόνια':'')+(p.area?' · 📍 '+p.area:'');
-  document.getElementById('pp-badges').innerHTML=
-    (p.verified?'<span class="pbadge v">✓ Kydo Verified</span>':'')+
-    (p.criminal?'<span class="pbadge b">Ποινικό μητρώο</span>':'')+
-    (p.exp>0?'<span class="pbadge e">'+p.exp+' χρ.</span>':'')+
-    (p.express?'<span class="pbadge ex">⚡ Express</span>':'');
+  document.getElementById('pp-role').textContent=p.role+(p.rating>0?' · ★ '+p.rating.toFixed(1)+' ('+p.rev+')':" · Νέος επαγγελματίας")+(p.exp>0?' · '+p.exp+' χρ.':'')+(p.area?' · 📍 '+p.area:'');
+  document.getElementById('pp-badges').innerHTML=(p.verified?'<span class="pbadge v">✓ Kydo Verified</span>':'')+(p.criminal?'<span class="pbadge b">Ποινικό μητρώο</span>':'')+(p.exp>0?'<span class="pbadge e">'+p.exp+' χρ.</span>':'')+(p.express?'<span class="pbadge ex">⚡ Express</span>':'');
   document.getElementById('pp-tags').innerHTML=p.tags.map(t=>`<span class="card-tag">${t}</span>`).join('');
   document.getElementById('pp-sched').innerHTML=DAYS.map((d,i)=>`<div class="sched-d ${p.days[i]?'on':'off'}">${d}</div>`).join('');
-  document.getElementById('pp-skills').innerHTML=p.tags.length
-    ?p.tags.map(s=>`<div class="skill-item"><div class="skill-dot"></div>${s}</div>`).join('')
-    :'<div style="font-size:13px;color:var(--gray)">Δεν έχουν οριστεί εξειδικεύσεις</div>';
-  document.getElementById('pp-details').innerHTML=[
-    p.area?'📍 '+p.area:'',
-    p.time_from&&p.time_to?'🕐 '+p.time_from+' – '+p.time_to:'',
-    p.bio?'📝 '+p.bio:'',
-  ].filter(Boolean).map(s=>`<div class="skill-item"><div class="skill-dot"></div>${s}</div>`).join('');
-
+  document.getElementById('pp-skills').innerHTML=p.tags.length?p.tags.map(s=>`<div class="skill-item"><div class="skill-dot"></div>${s}</div>`).join(''):'<div style="font-size:13px;color:var(--gray)">Δεν έχουν οριστεί εξειδικεύσεις</div>';
+  document.getElementById('pp-details').innerHTML=[p.area?'📍 '+p.area:'',p.time_from&&p.time_to?'🕐 '+p.time_from+' – '+p.time_to:'',p.bio?'📝 '+p.bio:''].filter(Boolean).map(s=>`<div class="skill-item"><div class="skill-dot"></div>${s}</div>`).join('');
   document.getElementById('pp-actions').innerHTML=!currentUser
     ?`<div class="unlock-wall"><h3>🔒 Ξεκλείδωσε τα στοιχεία επικοινωνίας</h3><p>Συνδεθείτε για να δείτε τηλέφωνο και email.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="profile-btn primary" onclick="openModal('login')">Σύνδεση</button><button class="profile-btn secondary" onclick="openModal('register')">Εγγραφή</button></div></div>`
-    :`<button class="profile-btn primary" onclick="alert('Unlock €19!')">Unlock €19</button>${p.express?'<button class="profile-btn secondary" onclick="alert(\'Kydo Express €44!\')">⚡ Express €44</button>':''}`;
+    :`<button class="profile-btn primary" onclick="alert('Unlock €19!')">Unlock €19</button>${p.express?'<button class="profile-btn secondary">⚡ Express €44</button>':''}`;
 
-  // Reviews section
-  const reviewsHTML=(rvs&&rvs.length)
-    ?rvs.map(r=>`<div class="review-item">
-        <div class="review-head">
-          <span class="review-name">${r.profiles?.full_name||'Ανώνυμος'}</span>
-          <span class="review-date">${new Date(r.created_at).toLocaleDateString('el-GR',{month:'long',year:'numeric'})}</span>
-        </div>
-        <div style="color:#f59e0b;font-size:13px;margin-bottom:4px">${'★'.repeat(r.rating||5)}${'☆'.repeat(5-(r.rating||5))}</div>
-        <div class="review-text">${r.comment||''}</div>
-      </div>`).join('')
-    :'<div style="font-size:13px;color:var(--gray);padding:1rem 0">Δεν υπάρχουν αξιολογήσεις ακόμα.</div>';
+  const reviewsHTML=(rvs&&rvs.length)?rvs.map(r=>`<div class="review-item"><div class="review-head"><span class="review-name">${r.profiles?.full_name||'Ανώνυμος'}</span><span class="review-date">${new Date(r.created_at).toLocaleDateString('el-GR',{month:'long',year:'numeric'})}</span></div><div style="color:#f59e0b;font-size:13px;margin-bottom:4px">${'★'.repeat(r.rating||5)}${'☆'.repeat(5-(r.rating||5))}</div><div class="review-text">${r.comment||''}</div></div>`).join(''):'<div style="font-size:13px;color:var(--gray);padding:1rem 0">Δεν υπάρχουν αξιολογήσεις ακόμα.</div>';
 
-  // Review form (only for logged-in family users who haven't reviewed yet)
   const role=currentProfile?.role||currentUser?.user_metadata?.role||'family';
   const canReview=currentUser&&role==='family'&&!userReview;
-  const reviewFormHTML=canReview?`
-    <div id="review-form" style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--gray-m)">
-      <div style="font-size:14px;font-weight:700;margin-bottom:.8rem">Αφήστε την αξιολόγησή σας</div>
-      <div style="display:flex;gap:6px;margin-bottom:.8rem" id="star-picker">
-        ${[1,2,3,4,5].map(i=>`<span onclick="setStars(${i})" style="font-size:1.8rem;cursor:pointer;color:#ddd" id="star-${i}">★</span>`).join('')}
-      </div>
-      <input type="hidden" id="review-rating" value="0">
-      <textarea id="review-comment" rows="3" placeholder="Πείτε μας την εμπειρία σας..." style="width:100%;padding:12px;border:1.5px solid var(--gray-m);border-radius:var(--rs);font-size:14px;font-family:inherit;resize:vertical;outline:none;margin-bottom:.8rem"></textarea>
-      <button onclick="submitReview('${id}')" style="padding:11px 24px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer">Υποβολή αξιολόγησης</button>
-      <div class="msg" id="review-msg" style="margin-top:8px"></div>
-    </div>`
+  const reviewForm=canReview?`<div style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--gray-m)"><div style="font-size:14px;font-weight:700;margin-bottom:.8rem">Αφήστε την αξιολόγησή σας</div><div style="display:flex;gap:6px;margin-bottom:.8rem">${[1,2,3,4,5].map(i=>`<span onclick="setStars(${i})" style="font-size:1.8rem;cursor:pointer;color:#ddd;transition:color .1s" id="star-${i}">★</span>`).join('')}</div><input type="hidden" id="review-rating" value="0"><textarea id="review-comment" rows="3" placeholder="Πείτε μας την εμπειρία σας..." style="width:100%;padding:12px;border:1.5px solid var(--gray-m);border-radius:var(--rs);font-size:14px;font-family:inherit;resize:vertical;outline:none;margin-bottom:.8rem"></textarea><button onclick="submitReview('${id}')" style="padding:11px 24px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer">Υποβολή αξιολόγησης</button><div class="msg" id="review-msg" style="margin-top:8px"></div></div>`
     :(currentUser&&userReview?'<div style="font-size:13px;color:var(--teal);margin-top:1rem;padding:.8rem;background:var(--teal-l);border-radius:var(--rs)">✓ Έχετε ήδη αξιολογήσει αυτόν τον επαγγελματία.</div>':'');
 
-  document.getElementById('pp-reviews').innerHTML=reviewsHTML+reviewFormHTML;
+  document.getElementById('pp-reviews').innerHTML=reviewsHTML+reviewForm;
   go('profile');
 }
 
 function setStars(n){
   document.getElementById('review-rating').value=n;
-  for(let i=1;i<=5;i++){
-    const s=document.getElementById('star-'+i);
-    if(s)s.style.color=i<=n?'#f59e0b':'#ddd';
-  }
+  for(let i=1;i<=5;i++){const s=document.getElementById('star-'+i);if(s)s.style.color=i<=n?'#f59e0b':'#ddd';}
 }
 
 async function submitReview(proId){
   const rating=parseInt(document.getElementById('review-rating').value);
   const comment=document.getElementById('review-comment').value.trim();
-  if(!rating){showMsg('review-msg','Επιλέξτε αριθμό αστεριών.','error');return;}
+  if(!rating){showMsg('review-msg','Επιλέξτε αστέρια.','error');return;}
   if(!comment){showMsg('review-msg','Γράψτε ένα σχόλιο.','error');return;}
-
-  const{error}=await sb.from('reviews').insert({
-    professional_id:proId,
-    family_id:currentUser.id,
-    rating,
-    comment,
-  });
+  const{error}=await sb.from('reviews').insert({professional_id:proId,family_id:currentUser.id,rating,comment});
   if(error){showMsg('review-msg','Σφάλμα: '+error.message,'error');return;}
-
-  // Update rating average on professionals table
-  const{data:allRvs}=await sb.from('reviews').select('rating').eq('professional_id',proId);
-  if(allRvs&&allRvs.length){
-    const avg=allRvs.reduce((s,r)=>s+r.rating,0)/allRvs.length;
-    await sb.from('professionals').update({rating:Math.round(avg*10)/10,total_reviews:allRvs.length}).eq('id',proId);
-  }
-
-  showMsg('review-msg','✓ Η αξιολόγησή σας υποβλήθηκε!','success');
-  // Reload reviews after 1.5s
+  const{data:all}=await sb.from('reviews').select('rating').eq('professional_id',proId);
+  if(all?.length){const avg=all.reduce((s,r)=>s+r.rating,0)/all.length;await sb.from('professionals').update({rating:Math.round(avg*10)/10,total_reviews:all.length}).eq('id',proId);}
+  showMsg('review-msg','✓ Η αξιολόγηση υποβλήθηκε!','success');
   setTimeout(()=>showProf(proId),1500);
 }
 
-// INIT
+// ── INIT ──
 history.replaceState({page:'home'},'','/');
 loadProfessionals();
 initCookieBanner();
 const bnav=document.getElementById('bottom-nav');
-if(window.innerWidth>768){bnav.style.display='none';}else{bnav.style.display='flex';}
-window.addEventListener('resize',()=>{bnav.style.display=window.innerWidth>768?'none':'flex';});
+function updateBottomNav(){bnav.style.display=window.innerWidth>768?'none':'flex';}
+updateBottomNav();
+window.addEventListener('resize',updateBottomNav);
 </script>
 </body>
 </html>
