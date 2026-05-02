@@ -1049,7 +1049,14 @@ sb.auth.onAuthStateChange(async(event,session)=>{
   if(params.get('type')==='recovery'){history.replaceState(null,'','/');document.getElementById('ov-reset').classList.add('open');return;}
   if(params.get('error')){history.replaceState(null,'','/');openModal('login');showMsg('li-msg','⚠️ Ο σύνδεσμος έχει λήξει.','error');return;}
   const{data:{session}}=await sb.auth.getSession();
-  if(session){currentUser=session.user;await loadProfile();updateNav();goDash();}
+  if(session){
+    currentUser=session.user;
+    await loadProfile();
+    updateNav();
+    // Restore the page the user was on, or stay on home
+    const savedPage=sessionStorage.getItem('kydo_page');
+    if(savedPage&&savedPage!=='home'){go(savedPage,false);}
+  }
 })();
 
 async function loadProfile(){
@@ -1293,6 +1300,8 @@ function go(p,push=true){
   const nm={home:'bn-home',search:'bn-search',dashboard:'bn-dash',prodash:'bn-dash'};
   document.querySelectorAll('.bn-btn').forEach(b=>b.classList.remove('active'));
   if(nm[p])document.getElementById(nm[p])?.classList.add('active');
+  // Save current page
+  sessionStorage.setItem('kydo_page',p);
 }
 
 function goBack(){history.back();}
