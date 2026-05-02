@@ -821,13 +821,26 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
   <div class="pro-form-page">
     <div class="pro-form-title">Προφίλ Επαγγελματία</div>
     <div class="dash-welcome" id="pro-welcome"></div>
+
+    <!-- Required fields notice -->
+    <div style="background:var(--amber-l);border:1px solid #e8c97a;border-radius:var(--rs);padding:.9rem 1.2rem;margin-bottom:1rem;font-size:13px;color:var(--amber);display:flex;align-items:flex-start;gap:8px">
+      <span style="font-size:1rem;flex-shrink:0">ℹ️</span>
+      <span>Τα πεδία με <span style="color:var(--red);font-weight:700">✱</span> είναι <strong>υποχρεωτικά</strong> για να εμφανιστείτε στην αναζήτηση.</span>
+    </div>
+
     <div class="form-block">
       <div class="form-block-title">👤 Βασικά στοιχεία</div>
       <div class="form-row">
-        <div><label>Όνομα</label><input type="text" id="p-fname" placeholder="Μαρία"></div>
-        <div><label>Επώνυμο</label><input type="text" id="p-lname" placeholder="Παπαδάκη"></div>
+        <div>
+          <label>Όνομα <span style="color:var(--red)">✱</span></label>
+          <input type="text" id="p-fname" placeholder="Μαρία">
+        </div>
+        <div>
+          <label>Επώνυμο <span style="color:var(--red)">✱</span></label>
+          <input type="text" id="p-lname" placeholder="Παπαδάκη">
+        </div>
       </div>
-      <label>Κινητό</label>
+      <label>Κινητό <span style="color:var(--red)">✱</span></label>
       <div class="phone-row">
         <input type="text" class="phone-code" id="p-code" value="+30" maxlength="4">
         <input type="text" class="phone-num" id="p-phone" placeholder="6912345678" maxlength="10" onblur="validatePhone(this,'p-phone-err')">
@@ -836,13 +849,20 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
       <label>Σύντομη περιγραφή</label>
       <textarea id="p-bio" rows="3" placeholder="Πείτε μας λίγα λόγια για εσάς..." style="resize:vertical"></textarea>
     </div>
+
     <div class="form-block">
       <div class="form-block-title">👩‍⚕️ Επαγγελματικά στοιχεία</div>
-      <label>Κατηγορία</label>
+      <label>Κατηγορία <span style="color:var(--red)">✱</span></label>
       <select id="p-cat"><option value="">Επιλέξτε...</option><option>Αποκλειστική / Νοσοκόμα</option><option>Φυσιοθεραπευτής/τρια</option><option>Οικιακή Βοηθός</option><option>Βοηθός Ασθενών</option><option>Εργοθεραπευτής/τρια</option></select>
       <div class="form-row" style="margin-top:12px">
-        <div><label>Χρόνια εμπειρίας</label><input type="number" id="p-exp" min="0" max="50" placeholder="π.χ. 5"></div>
-        <div><label>Ωριαία αμοιβή (€)</label><input type="number" id="p-rate" min="7" max="60" placeholder="π.χ. 15"></div>
+        <div>
+          <label>Χρόνια εμπειρίας</label>
+          <input type="number" id="p-exp" min="0" max="50" placeholder="π.χ. 5">
+        </div>
+        <div>
+          <label>Ωριαία αμοιβή (€) <span style="color:var(--red)">✱</span></label>
+          <input type="number" id="p-rate" min="7" max="60" placeholder="π.χ. 15">
+        </div>
       </div>
       <label>Αριθμός μητρώου ΕΦΚΑ / ΕΟΠΠΕΠ</label>
       <input type="text" id="p-registry" placeholder="Για το Kydo Verified badge">
@@ -862,7 +882,7 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
     </div>
     <div class="form-block">
       <div class="form-block-title">📍 Τοποθεσία</div>
-      <label>Περιοχή διαμονής</label>
+      <label>Περιοχή διαμονής <span style="color:var(--red)">✱</span></label>
       <select id="p-area"><option value="">Επιλέξτε...</option><option>Κέντρο Αθήνας</option><option>Βόρεια Προάστια</option><option>Νότια Προάστια</option><option>Δυτικά Προάστια</option><option>Πειραιάς</option><option>Ανατολική Αττική</option><option>Θεσσαλονίκη</option></select>
       <label>Μέγιστη απόσταση μετακίνησης</label>
       <div class="range-row" style="margin-top:6px">
@@ -1154,16 +1174,50 @@ async function doDeleteAccount(){
 // ============ SAVE PRO ============
 async function savePro(){
   if(!currentUser){alert('Πρέπει να είστε συνδεδεμένοι.');return;}
+  const fname=document.getElementById('p-fname').value.trim();
+  const lname=document.getElementById('p-lname').value.trim();
+  const phone=document.getElementById('p-phone').value.trim();
+  const cat=document.getElementById('p-cat').value;
+  const rate=document.getElementById('p-rate').value;
+  const code=document.getElementById('p-code').value.trim().replace('+','');
+
+  // Validate required fields
+  if(!fname||!lname){showMsg('pro-msg','✱ Συμπληρώστε Όνομα και Επώνυμο.','error');return;}
+  if(!phone||phone.length!==10){showMsg('pro-msg','✱ Συμπληρώστε έγκυρο κινητό τηλέφωνο (10 ψηφία).','error');return;}
+  if(!cat){showMsg('pro-msg','✱ Επιλέξτε κατηγορία επαγγέλματος.','error');return;}
+  if(!rate||parseFloat(rate)<7){showMsg('pro-msg','✱ Συμπληρώστε ωριαία αμοιβή (ελάχιστο €7).','error');return;}
+
   const specs=[...document.querySelectorAll('#spec-chips .form-chip.on')].map(c=>c.textContent);
   const days=[...document.querySelectorAll('.pro-form-page .day-chip.on')].map(c=>c.textContent);
-  const code=document.getElementById('p-code').value.trim().replace('+','');
-  const phone=document.getElementById('p-phone').value.trim();
-  if(phone.length>0&&phone.length!==10){showMsg('pro-msg','10 ψηφία απαιτούνται.','error');return;}
-  const proData={id:currentUser.id,category:document.getElementById('p-cat').value,specializations:specs,experience_years:parseInt(document.getElementById('p-exp').value)||0,hourly_rate:parseFloat(document.getElementById('p-rate').value)||0,bio:document.getElementById('p-bio').value,area:document.getElementById('p-area').value,available_days:days,time_from:document.getElementById('p-from').value,time_to:document.getElementById('p-to').value,registry_number:document.getElementById('p-registry').value,is_express:document.getElementById('express-chip').classList.contains('on')};
-  await sb.from('profiles').update({full_name:document.getElementById('p-fname').value+' '+document.getElementById('p-lname').value,phone:code?'+'+code+phone:phone,area:document.getElementById('p-area').value}).eq('id',currentUser.id);
+
+  const proData={
+    id:currentUser.id,
+    category:cat,
+    specializations:specs,
+    experience_years:parseInt(document.getElementById('p-exp').value)||0,
+    hourly_rate:parseFloat(rate),
+    bio:document.getElementById('p-bio').value,
+    area:document.getElementById('p-area').value,
+    available_days:days,
+    time_from:document.getElementById('p-from').value,
+    time_to:document.getElementById('p-to').value,
+    registry_number:document.getElementById('p-registry').value,
+    is_express:document.getElementById('express-chip').classList.contains('on')
+  };
+
+  await sb.from('profiles').update({
+    full_name:fname+' '+lname,
+    phone:code?'+'+code+phone:phone,
+    area:document.getElementById('p-area').value
+  }).eq('id',currentUser.id);
+
   const{error}=await sb.from('professionals').upsert(proData);
   if(error)showMsg('pro-msg','Σφάλμα: '+error.message,'error');
-  else showMsg('pro-msg','✓ Το προφίλ αποθηκεύτηκε!','success');
+  else{
+    showMsg('pro-msg','✓ Το προφίλ αποθηκεύτηκε! Εμφανίζεστε πλέον στην αναζήτηση.','success');
+    currentProfile={...currentProfile,full_name:fname+' '+lname};
+    updateNav();
+  }
 }
 
 // ============ NAVIGATION ============
