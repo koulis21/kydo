@@ -18,7 +18,12 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--white);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 
-/* ── NAV ── */
+.bn-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:8px 16px;border-radius:12px;flex:1;background:none;border:none;transition:background .1s}
+.bn-btn svg{width:24px;height:24px;color:var(--gray);transition:color .15s}
+.bn-btn span{font-size:10px;color:var(--gray);font-weight:600;transition:color .15s}
+.bn-btn.active svg,.bn-btn.active span{color:var(--teal)}
+
+
 nav{background:var(--white);border-bottom:1px solid var(--gray-m);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:200}
 .logo{font-size:22px;font-weight:800;color:var(--teal);cursor:pointer;letter-spacing:-1px;display:flex;align-items:center;gap:2px}
 .logo-dot{color:var(--amber)}
@@ -144,21 +149,36 @@ footer{background:#111;color:#888;padding:2rem;text-align:center;font-size:12px;
 footer strong{color:#fff;font-size:15px;font-weight:800;display:block;margin-bottom:.3rem;letter-spacing:-.5px}
 footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 
-/* ── SEARCH ── */
-.search-page{min-height:calc(100vh - 64px)}
-.filter-bar-wrap{border-bottom:1px solid var(--gray-m);padding:.8rem 1.5rem;background:var(--white);position:sticky;top:64px;z-index:100}
-.filter-pills-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.filter-pills-row::-webkit-scrollbar{display:none}
-.filter-pill{display:flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--gray-m);border-radius:24px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--white);color:var(--text);transition:all .15s;flex-shrink:0}
-.filter-pill:hover{border-color:var(--text)}
-.filter-pill.active{background:var(--text);color:var(--white);border-color:var(--text)}
-.filter-pill svg{width:14px;height:14px}
-.filter-pill-all{background:var(--text);color:var(--white);border-color:var(--text)}
-.results-wrap{padding:1.5rem 2rem;max-width:1200px;margin:0 auto}
-.results-meta-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:8px}
-.results-count{font-size:14px;font-weight:700;color:var(--text)}
-.sort-sel{padding:8px 14px;border:1.5px solid var(--gray-m);border-radius:24px;font-size:13px;font-weight:500;background:var(--white);cursor:pointer;outline:none}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
+/* ── SEARCH LAYOUT ── */
+.search-page{min-height:calc(100vh - 64px);display:grid;grid-template-columns:300px 1fr}
+.filter-sidebar{background:var(--white);border-right:1px solid var(--gray-m);padding:1.5rem;overflow-y:auto;height:calc(100vh - 64px);position:sticky;top:64px}
+.filter-sidebar-title{font-size:16px;font-weight:700;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between}
+.sidebar-clear{font-size:12px;color:var(--teal);cursor:pointer;font-weight:600;background:none;border:none;padding:0}
+.filter-section{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-m)}
+.filter-section:last-of-type{border-bottom:none}
+.filter-section-label{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.7rem}
+.filter-section select{width:100%;padding:10px 14px;border:1.5px solid var(--gray-m);border-radius:var(--rs);font-size:14px;background:var(--white);outline:none}
+.filter-section select:focus{border-color:var(--teal)}
+.sidebar-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sidebar-chip{padding:7px 14px;border-radius:20px;font-size:13px;border:1.5px solid var(--gray-m);background:var(--white);cursor:pointer;color:var(--text);font-weight:500;transition:all .15s}
+.sidebar-chip.on{background:var(--text);color:var(--white);border-color:var(--text)}
+.sidebar-day-chip{width:36px;height:32px;border-radius:8px;font-size:11px;border:1.5px solid var(--gray-m);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;transition:all .15s}
+.sidebar-day-chip.on{background:var(--text);color:var(--white);border-color:var(--text)}
+.filter-apply-btn{width:100%;padding:13px;background:var(--teal);border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;color:#fff;margin-top:1rem;transition:opacity .15s}
+.filter-apply-btn:hover{opacity:.9}
+.main-results{padding:1.5rem 2rem;overflow-y:auto}
+
+/* MOBILE: hide sidebar, show sheet */
+@media(max-width:768px){
+  .search-page{grid-template-columns:1fr}
+  .filter-sidebar{display:none}
+  .filter-bar-wrap{display:block}
+  .main-results{padding:1rem}
+}
+@media(min-width:769px){
+  .filter-bar-wrap{display:none}
+  .filter-sheet,.sheet-overlay{display:none!important}
+}
 
 /* PRO CARD */
 .pro-card{border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;background:var(--white);border:1px solid var(--gray-m)}
@@ -466,7 +486,9 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
     <button class="btn btn-p" id="nav-reg" onclick="openModal('register')">Εγγραφή</button>
     <div class="nav-user" id="nav-user" style="display:none" onclick="toggleUserMenu(event)">
       <span class="nav-user-name" id="nav-user-label"></span>
-      <div class="nav-user-avatar" id="nav-user-av">?</div>
+      <div class="nav-user-avatar" id="nav-user-av">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="0"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       <div class="user-dropdown" id="user-dropdown">
         <div class="ud-header">
@@ -753,10 +775,11 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
 
 <!-- SEARCH -->
 <div id="page-search" class="page">
-  <div class="filter-bar-wrap">
-    <div class="filter-pills-row">
-      <div class="filter-pill filter-pill-all" onclick="openSheet()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+  <!-- Mobile filter bar -->
+  <div class="filter-bar-wrap" style="border-bottom:1px solid var(--gray-m);padding:.8rem 1.5rem;background:var(--white);position:sticky;top:54px;z-index:100">
+    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px">
+      <div style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--gray-m);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;background:var(--text);color:var(--white);flex-shrink:0" onclick="openSheet()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
         Φίλτρα
       </div>
       <div class="filter-pill" id="pill-express" onclick="togglePillFilter('express',this)">⚡ Express</div>
@@ -765,17 +788,98 @@ footer a{color:#aaa;cursor:pointer;text-decoration:underline}
       <div class="filter-pill" id="pill-night" onclick="togglePillFilter('night',this)">🌙 Νυχτερινή</div>
     </div>
   </div>
-  <div class="results-wrap">
-    <div class="results-meta-row">
-      <div class="results-count" id="r-meta">6 επαγγελματίες</div>
-      <select class="sort-sel" onchange="sortResults(this.value)">
-        <option value="rating">Κορυφαίοι πρώτα</option>
-        <option value="dist">Κοντινότεροι</option>
-        <option value="price">Χαμηλότερη τιμή</option>
-        <option value="exp">Περισσότερη εμπειρία</option>
-      </select>
+
+  <div class="search-page">
+    <!-- Desktop sidebar -->
+    <div class="filter-sidebar">
+      <div class="filter-sidebar-title">
+        Φίλτρα
+        <button class="sidebar-clear" onclick="clearFilters()">Καθαρισμός</button>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Περιοχή</div>
+        <select id="f-area"><option value="">Όλη η Αττική</option><option>Κέντρο Αθήνας</option><option>Βόρεια Προάστια</option><option>Νότια Προάστια</option><option>Δυτικά Προάστια</option><option>Πειραιάς</option><option>Ανατολική Αττική</option><option>Θεσσαλονίκη</option></select>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Μέγιστη απόσταση</div>
+        <div class="range-row"><input type="range" id="f-dist" min="1" max="30" value="30" oninput="document.getElementById('dist-val').textContent=this.value"><span class="range-val"><span id="dist-val">30</span> χλμ</span></div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Κατηγορία</div>
+        <select id="f-cat"><option value="">Όλες</option><option>Νοσοκόμος/α</option><option>Αποκλειστική</option><option>Οικιακή βοηθός</option><option>Φυσιοθεραπευτής</option><option>Εργοθεραπευτής</option><option>Βοηθός Ασθενών</option></select>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Εξειδίκευση</div>
+        <div class="sidebar-chips" id="chips-spec">
+          <div class="sidebar-chip" onclick="toggleChip(this)">Άνοια</div><div class="sidebar-chip" onclick="toggleChip(this)">Alzheimer</div><div class="sidebar-chip" onclick="toggleChip(this)">Parkinson</div><div class="sidebar-chip" onclick="toggleChip(this)">Παραπληγικοί</div><div class="sidebar-chip" onclick="toggleChip(this)">Μετεγχειρητική</div><div class="sidebar-chip" onclick="toggleChip(this)">Παιδιά ΑΝ</div><div class="sidebar-chip" onclick="toggleChip(this)">CPR</div><div class="sidebar-chip" onclick="toggleChip(this)">Διαβήτης</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Τύπος απασχόλησης</div>
+        <div class="sidebar-chips">
+          <div class="sidebar-chip" onclick="toggleChip(this)">Πλήρης</div><div class="sidebar-chip" onclick="toggleChip(this)">Μερική</div><div class="sidebar-chip" onclick="toggleChip(this)">Διαμονή εντός</div><div class="sidebar-chip" onclick="toggleChip(this)">Νυχτερινή</div><div class="sidebar-chip" onclick="toggleChip(this)">⚡ Express</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Διαθέσιμες ημέρες</div>
+        <div style="display:flex;gap:5px">
+          <div class="sidebar-day-chip" onclick="toggleChip(this)">Δε</div><div class="sidebar-day-chip" onclick="toggleChip(this)">Τρ</div><div class="sidebar-day-chip" onclick="toggleChip(this)">Τε</div><div class="sidebar-day-chip" onclick="toggleChip(this)">Πε</div><div class="sidebar-day-chip" onclick="toggleChip(this)">Πα</div><div class="sidebar-day-chip" onclick="toggleChip(this)">Σα</div><div class="sidebar-day-chip" onclick="toggleChip(this)">Κυ</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Ελάχιστη αξιολόγηση</div>
+        <div class="sidebar-chips">
+          <div class="sidebar-chip" onclick="toggleChip(this)">★★★★★ 5</div><div class="sidebar-chip" onclick="toggleChip(this)">★★★★ 4+</div><div class="sidebar-chip" onclick="toggleChip(this)">★★★ 3+</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Χρόνια εμπειρίας (ελάχιστο)</div>
+        <div class="range-row"><input type="range" id="f-exp" min="0" max="20" value="0" oninput="document.getElementById('exp-val').textContent=this.value"><span class="range-val"><span id="exp-val">0</span>+ χρ</span></div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Μέγιστη ωριαία αμοιβή</div>
+        <div class="range-row"><input type="range" id="f-price" min="7" max="40" value="40" oninput="document.getElementById('price-val').textContent=this.value"><span class="range-val">€<span id="price-val">40</span></span></div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Επαλήθευση</div>
+        <div class="sidebar-chips">
+          <div class="sidebar-chip" onclick="toggleChip(this)">Kydo Verified</div><div class="sidebar-chip" onclick="toggleChip(this)">Ποινικό μητρώο</div><div class="sidebar-chip" onclick="toggleChip(this)">Πτυχίο</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-label">Άλλα</div>
+        <div class="sidebar-chips">
+          <div class="sidebar-chip" onclick="toggleChip(this)">Αγγλικά</div><div class="sidebar-chip" onclick="toggleChip(this)">Αλβανικά</div><div class="sidebar-chip" onclick="toggleChip(this)">Γυναίκα</div><div class="sidebar-chip" onclick="toggleChip(this)">Άνδρας</div><div class="sidebar-chip" onclick="toggleChip(this)">Μη καπνίστρια</div><div class="sidebar-chip" onclick="toggleChip(this)">Δίπλωμα</div>
+        </div>
+      </div>
+
+      <button class="filter-apply-btn" onclick="applyFilters()">Εφαρμογή φίλτρων</button>
     </div>
-    <div class="cards-grid" id="rgrid"></div>
+
+    <!-- Results -->
+    <div class="main-results">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:8px">
+        <div style="font-size:15px;font-weight:700" id="r-meta">6 επαγγελματίες</div>
+        <select class="sort-sel" onchange="sortResults(this.value)">
+          <option value="rating">Κορυφαίοι πρώτα</option>
+          <option value="dist">Κοντινότεροι</option>
+          <option value="price">Χαμηλότερη τιμή</option>
+          <option value="exp">Περισσότερη εμπειρία</option>
+        </select>
+      </div>
+      <div class="cards-grid" id="rgrid"></div>
+    </div>
   </div>
 </div>
 
@@ -957,14 +1061,12 @@ async function loadProfile(){
 function updateNav(){
   const on=!!currentUser;
   const name=currentProfile?.full_name||currentUser?.email?.split('@')[0]||'';
-  const initials=name.split(' ').map(n=>n[0]||'').join('').toUpperCase().substring(0,2)||'?';
   document.getElementById('nav-user').style.display=on?'':'none';
   document.getElementById('nav-login').style.display=on?'none':'';
   document.getElementById('nav-reg').style.display=on?'none':'';
   document.getElementById('nav-dash').style.display=on?'':'none';
   if(on){
     document.getElementById('nav-user-label').textContent=name.split(' ')[0];
-    document.getElementById('nav-user-av').textContent=initials;
     document.getElementById('ud-name').textContent=name;
     document.getElementById('ud-email').textContent=currentUser.email||'';
   }
