@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       includedRegionCodes: ['gr'],
       languageCode: 'el',
       includedPrimaryTypes: ['geocode', 'postal_code', 'neighborhood', 'sublocality'],
+      maxResultCount: 8,
     }),
   })
 
