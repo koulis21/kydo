@@ -16,7 +16,6 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       input,
       includedRegionCodes: ['gr'],
-      maxResultCount: 8,
     }),
   })
 
