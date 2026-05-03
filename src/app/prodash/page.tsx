@@ -25,6 +25,7 @@ export default function ProDashPage() {
   const [area, setArea] = useState('')
   const [areaLat, setAreaLat] = useState<number | null>(null)
   const [areaLng, setAreaLng] = useState<number | null>(null)
+  const [postalCode, setPostalCode] = useState('')
   const [maxDist, setMaxDist] = useState(10)
   const [selTypes, setSelTypes] = useState<string[]>([])
   const [selDays, setSelDays] = useState<string[]>([])
@@ -40,7 +41,6 @@ export default function ProDashPage() {
     sb.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/'); return }
       setUser(session.user)
-      // Load existing profile
       const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single()
       if (profile?.full_name) {
         const parts = profile.full_name.split(' ')
@@ -49,7 +49,6 @@ export default function ProDashPage() {
         setPhone(profile.phone?.replace('+30', '') || '')
         setArea(profile.area || '')
       }
-      // Load existing pro data
       const { data: pro } = await sb.from('professionals').select('*').eq('id', session.user.id).single()
       if (pro) {
         setCat(pro.category || '')
@@ -57,6 +56,9 @@ export default function ProDashPage() {
         setRate(pro.hourly_rate?.toString() || '')
         setRegistry(pro.registry_number || '')
         setArea(pro.area || '')
+        setAreaLat(pro.lat || null)
+        setAreaLng(pro.lng || null)
+        setPostalCode(pro.postal_code || '')
         setMaxDist(pro.max_distance || 10)
         setSelTypes(pro.employment_types || [])
         setSelDays(pro.available_days || [])
@@ -85,8 +87,6 @@ export default function ProDashPage() {
       full_name: fname + ' ' + lname,
       phone: '+30' + phone,
       area,
-      lat: areaLat,
-      lng: areaLng,
     }).eq('id', user.id)
 
     const { error } = await sb.from('professionals').upsert({
@@ -97,6 +97,9 @@ export default function ProDashPage() {
       hourly_rate: parseFloat(rate),
       bio,
       area,
+      lat: areaLat,
+      lng: areaLng,
+      postal_code: postalCode,
       max_distance: maxDist,
       employment_types: selTypes,
       available_days: selDays,
@@ -112,16 +115,13 @@ export default function ProDashPage() {
   }
 
   const chip = (label: string, list: string[], setList: (v: string[]) => void, teal = false) => (
-    <div key={label}
-      onClick={() => toggleItem(label, list, setList)}
-      style={{
-        padding: '8px 16px', borderRadius: '24px', fontSize: '13px', cursor: 'pointer',
-        fontWeight: 500, transition: 'all .15s', display: 'inline-block',
-        border: `1.5px solid ${list.includes(label) ? (teal ? 'var(--teal)' : 'var(--text)') : 'var(--gray-m)'}`,
-        background: list.includes(label) ? (teal ? 'var(--teal)' : 'var(--text)') : '#fff',
-        color: list.includes(label) ? '#fff' : 'var(--text)',
-      }}
-    >{label}</div>
+    <div key={label} onClick={() => toggleItem(label, list, setList)} style={{
+      padding: '8px 16px', borderRadius: '24px', fontSize: '13px', cursor: 'pointer',
+      fontWeight: 500, transition: 'all .15s', display: 'inline-block',
+      border: `1.5px solid ${list.includes(label) ? (teal ? 'var(--teal)' : 'var(--text)') : 'var(--gray-m)'}`,
+      background: list.includes(label) ? (teal ? 'var(--teal)' : 'var(--text)') : '#fff',
+      color: list.includes(label) ? '#fff' : 'var(--text)',
+    }}>{label}</div>
   )
 
   const block = (title: string, children: React.ReactNode) => (
@@ -182,7 +182,7 @@ export default function ProDashPage() {
       </>)}
 
       {block('📍 Τοποθεσία', <>
-        {field('Περιοχή', true)}
+        {field('Περιοχή κατοικίας', true)}
         <PlacesInput
           value={area}
           onChange={setArea}
@@ -191,6 +191,14 @@ export default function ProDashPage() {
             setAreaLat(lat)
             setAreaLng(lng)
           }}
+        />
+        {field('Ταχυδρομικός Κώδικας (ΤΚ)')}
+        <input
+          className="form-input"
+          placeholder="π.χ. 11521"
+          maxLength={5}
+          value={postalCode}
+          onChange={e => setPostalCode(e.target.value.replace(/\D/g, ''))}
         />
         {field('Μέγιστη απόσταση μετακίνησης')}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px' }}>
