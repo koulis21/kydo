@@ -16,8 +16,6 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       input,
       includedRegionCodes: ['gr'],
-      languageCode: 'el',
-      includedPrimaryTypes: ['geocode', 'postal_code', 'neighborhood', 'sublocality'],
       maxResultCount: 8,
     }),
   })
