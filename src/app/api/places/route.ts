@@ -21,6 +21,7 @@ export async function POST(request: Request) {
   })
 
   const data = await res.json()
+  console.log('Places API response:', JSON.stringify(data))
   return NextResponse.json({ suggestions: data.suggestions || [] })
 }
 
