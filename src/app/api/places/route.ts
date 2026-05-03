@@ -11,12 +11,13 @@ export async function POST(request: Request) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Goog-Api-Key': process.env.GOOGLE_MAPS_KEY!,
+      'X-Goog-Api-Key': process.env.GOOGLE_MAPS_SERVER_KEY!,
     },
     body: JSON.stringify({
       input,
       includedRegionCodes: ['gr'],
       languageCode: 'el',
+      includedPrimaryTypes: ['geocode', 'postal_code', 'neighborhood', 'sublocality'],
     }),
   })
 
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
 
   const res = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
     headers: {
-      'X-Goog-Api-Key': process.env.GOOGLE_MAPS_KEY!,
+      'X-Goog-Api-Key': process.env.GOOGLE_MAPS_SERVER_KEY!,
       'X-Goog-FieldMask': 'location',
     },
   })
