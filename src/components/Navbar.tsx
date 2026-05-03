@@ -105,7 +105,10 @@ export default function Navbar() {
             <>
               {/* Mobile: μόνο Σύνδεση */}
               {isMobile ? (
-                <button className="btn btn-o" style={{ padding: '8px 14px', fontSize: '13px' }} onClick={() => setShowLogin(true)}>Σύνδεση</button>
+                <>
+                  <button className="btn btn-o" style={{ padding: '8px 14px', fontSize: '13px' }} onClick={() => setShowLogin(true)}>Σύνδεση</button>
+                  <button className="btn btn-p" style={{ padding: '8px 14px', fontSize: '13px' }} onClick={() => setShowRegister(true)}>Εγγραφή</button>
+                </>
               ) : (
                 <>
                   <button className="btn btn-o" onClick={() => setShowLogin(true)}>Σύνδεση</button>

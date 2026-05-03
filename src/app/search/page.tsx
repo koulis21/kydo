@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import type { Professional } from '@/lib/supabase'
 import { strToColor, getInitials, parseDays, calcDist, DAYS } from '@/lib/auth'
-import PlacesInput from '@/components/PlacesInput'
+import FilterContent from '@/components/search/FilterContent'
 
 type ProCard = Professional & {
   name: string
@@ -14,8 +14,6 @@ type ProCard = Professional & {
   days: number[]
   distFromSearch?: number | null
 }
-
-const specs = ['Άνοια', 'Alzheimer', 'Parkinson', 'Παραπληγικοί', 'Μετεγχειρητική', 'Παιδιά ΑΝ', 'CPR', 'Διαβήτης']
 
 export default function SearchPage() {
   const router = useRouter()
@@ -101,66 +99,14 @@ export default function SearchPage() {
     ...selDays, ...selSpec,
   ].filter(Boolean).length
 
-  const FiltersContent = () => (
-    <>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>Περιοχή</div>
-        <PlacesInput value={area} onChange={setArea} onPlaceSelect={(lat, lng, address) => { setArea(address); setAreaLat(lat); setAreaLng(lng) }}
-          style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '14px', outline: 'none' }} />
-      </div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>Μέγιστη απόσταση</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <input type="range" min={1} max={50} value={maxDist} onChange={e => setMaxDist(+e.target.value)} style={{ flex: 1, accentColor: 'var(--teal)' }} />
-          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--teal)', minWidth: '48px' }}>{maxDist} χλμ</span>
-        </div>
-      </div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>Κατηγορία</div>
-        <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '14px', outline: 'none' }}>
-          <option value="">Όλες</option>
-          <option>Νοσοκόμος/α</option><option>Αποκλειστική</option>
-          <option>Οικιακή βοηθός</option><option>Φυσιοθεραπευτής</option>
-          <option>Εργοθεραπευτής</option><option>Βοηθός Ασθενών</option>
-        </select>
-      </div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>Εξειδίκευση</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
-          {specs.map(s => <div key={s} className={`chip ${selSpec.includes(s) ? 'on' : ''}`} onClick={() => toggleSpec(s)}>{s}</div>)}
-        </div>
-      </div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>Διαθέσιμες ημέρες</div>
-        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' as const }}>
-          {DAYS.map(d => (
-            <div key={d} onClick={() => toggleDay(d)} style={{ width: '36px', height: '32px', borderRadius: '8px', fontSize: '11px', border: `1.5px solid ${selDays.includes(d) ? 'var(--text)' : 'var(--gray-m)'}`, background: selDays.includes(d) ? 'var(--text)' : '#fff', color: selDays.includes(d) ? '#fff' : 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, cursor: 'pointer' }}>{d}</div>
-          ))}
-        </div>
-      </div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>Χρόνια εμπειρίας (ελάχιστο)</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <input type="range" min={0} max={20} value={minExp} onChange={e => setMinExp(+e.target.value)} style={{ flex: 1, accentColor: 'var(--teal)' }} />
-          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--teal)', minWidth: '48px' }}>{minExp}+ χρ</span>
-        </div>
-      </div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>Μέγιστη ωριαία αμοιβή</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <input type="range" min={7} max={60} value={maxPrice} onChange={e => setMaxPrice(+e.target.value)} style={{ flex: 1, accentColor: 'var(--teal)' }} />
-          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--teal)', minWidth: '48px' }}>€{maxPrice}</span>
-        </div>
-      </div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>Επαλήθευση</div>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
-          <div className={`chip ${wantExpress ? 'on' : ''}`} onClick={() => setWantExpress(v => !v)}>⚡ Express</div>
-          <div className={`chip ${wantVerified ? 'on' : ''}`} onClick={() => setWantVerified(v => !v)}>✓ Verified</div>
-        </div>
-      </div>
-    </>
-  )
+  const filterProps = {
+    area, setArea, setAreaLat, setAreaLng,
+    maxDist, setMaxDist, cat, setCat,
+    selSpec, toggleSpec, selDays, toggleDay,
+    minExp, setMinExp, maxPrice, setMaxPrice,
+    wantExpress, setWantExpress,
+    wantVerified, setWantVerified,
+  }
 
   return (
     <>
@@ -195,7 +141,7 @@ export default function SearchPage() {
             Φίλτρα
             <button onClick={clearFilters} style={{ fontSize: '12px', color: 'var(--teal)', cursor: 'pointer', background: 'none', border: 'none', fontWeight: 600 }}>Καθαρισμός</button>
           </div>
-          <FiltersContent />
+          <FilterContent {...filterProps} />
           <button onClick={applyFilters} style={{ width: '100%', padding: '13px', background: 'var(--teal)', border: 'none', borderRadius: 'var(--rs)', fontSize: '14px', fontWeight: 700, cursor: 'pointer', color: '#fff' }}>
             Εφαρμογή φίλτρων
           </button>
@@ -273,7 +219,7 @@ export default function SearchPage() {
           }}>
             <div style={{ width: '40px', height: '4px', background: 'var(--gray-m)', borderRadius: '2px', margin: '0 auto 1rem' }} />
             <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '1.2rem', textAlign: 'center' }}>Φίλτρα αναζήτησης</div>
-            <FiltersContent />
+            <FilterContent {...filterProps} />
             <div style={{ display: 'flex', gap: '10px', paddingTop: '1rem', borderTop: '1px solid var(--gray-m)' }}>
               <button onClick={() => { clearFilters(); setSheetOpen(false) }} style={{ flex: 1, padding: '14px', background: '#fff', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
                 ↺ Καθαρισμός
