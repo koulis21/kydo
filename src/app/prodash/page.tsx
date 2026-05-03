@@ -252,13 +252,14 @@ export default function ProDashPage() {
         </div>
       </>)}
 
-      {msg && <div className={`msg ${msgType === 'error' ? 'msg-error' : 'msg-success'}`}>{msg}</div>}
+      {msg && <div className={`msg ${msgType === 'error' ? 'msg-error' : 'msg-success'}`} style={{ marginBottom: '1rem' }}>{msg}</div>}
 
       <button onClick={savePro} style={{
         width: '100%', padding: '15px',
         background: 'linear-gradient(135deg,var(--teal),var(--teal2))',
         color: '#fff', border: 'none', borderRadius: 'var(--rs)',
-        fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '1rem',
+        fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '0',
+        marginBottom: '2rem',
       }}>
         💾 Αποθήκευση προφίλ
       </button>
