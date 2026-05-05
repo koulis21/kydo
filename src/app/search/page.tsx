@@ -70,11 +70,15 @@ export default function SearchPage() {
       if (selSpec.length > 0) {
         if (!selSpec.some(s => p.specializations?.some((t: string) => t.toLowerCase().includes(s.toLowerCase())))) return false
       }
-      if (areaLat && areaLng && p.lat && p.lng) {
+      if (areaLat != null && areaLng != null) {
+        // Αν ο χρήστης έχει επιλέξει περιοχή αλλά ο επαγγελματίας δεν έχει coordinates → εξαίρεση
+        if (!p.lat || !p.lng) return false
         const d = calcDist(areaLat, areaLng, p.lat, p.lng)
         p.distFromSearch = d
         if (d > maxDist) return false
-      } else { p.distFromSearch = null }
+      } else {
+        p.distFromSearch = null
+      }
       return true
     })
     if (sort === 'rating') result.sort((a, b) => b.rating - a.rating)
