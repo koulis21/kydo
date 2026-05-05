@@ -146,9 +146,7 @@ export default function SearchPage() {
             <button onClick={clearFilters} style={{ fontSize: '12px', color: 'var(--teal)', cursor: 'pointer', background: 'none', border: 'none', fontWeight: 600 }}>Καθαρισμός</button>
           </div>
           <FilterContent {...filterProps} />
-          <button onClick={applyFilters} style={{ width: '100%', padding: '13px', background: 'var(--teal)', border: 'none', borderRadius: 'var(--rs)', fontSize: '14px', fontWeight: 700, cursor: 'pointer', color: '#fff' }}>
-            Εφαρμογή φίλτρων
-          </button>
+          {/* Desktop: φίλτρα εφαρμόζονται αυτόματα — το button υπάρχει μόνο στο mobile sheet */}
         </div>
 
         {/* Results */}
