@@ -33,12 +33,12 @@ export async function GET(req: NextRequest) {
 
   if (!unlock) return NextResponse.json({ error: 'Not unlocked' }, { status: 403 })
 
-  // Επέστρεψε phone μόνο αν υπάρχει unlock
-  const { data: profile } = await sbAdmin
-    .from('profiles')
+  // Επέστρεψε phone μόνο αν υπάρχει unlock (από profile_phones)
+  const { data: phoneRecord } = await sbAdmin
+    .from('profile_phones')
     .select('phone')
     .eq('id', professionalId)
     .single()
 
-  return NextResponse.json({ phone: profile?.phone || null })
+  return NextResponse.json({ phone: phoneRecord?.phone || null })
 }

@@ -46,9 +46,11 @@ export default function ProDashPage() {
         const parts = profile.full_name.split(' ')
         setFname(parts[0] || '')
         setLname(parts.slice(1).join(' ') || '')
-        setPhone(profile.phone?.replace('+30', '') || '')
         setArea(profile.area || '')
       }
+      // Phone από ξεχωριστό πίνακα με RLS
+      const { data: phoneData } = await sb.from('profile_phones').select('phone').eq('id', session.user.id).maybeSingle()
+      setPhone(phoneData?.phone?.replace('+30', '') || '')
       const { data: pro } = await sb.from('professionals').select('*').eq('id', session.user.id).single()
       if (pro) {
         setCat(pro.category || '')
@@ -85,9 +87,14 @@ export default function ProDashPage() {
 
     await sb.from('profiles').update({
       full_name: fname + ' ' + lname,
-      phone: '+30' + phone,
       area,
     }).eq('id', user.id)
+
+    // Phone αποθηκεύεται σε ξεχωριστό πίνακα με strict RLS
+    await sb.from('profile_phones').upsert({
+      id: user.id,
+      phone: '+30' + phone,
+    })
 
     const { error } = await sb.from('professionals').upsert({
       id: user.id,
