@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { strToColor, getInitials, parseDays, DAYS } from '@/lib/auth'
+import { strToColor, getInitials, parseDays, DAYS, maskName } from '@/lib/auth'
 import type { Professional, Review } from '@/lib/supabase'
 
 type ProFull = Professional & {
@@ -24,6 +24,8 @@ function ProfileContent() {
   const [user, setUser] = useState<any>(null)
   const [userRole, setUserRole] = useState('')
   const [userReview, setUserReview] = useState<any>(null)
+  const [isUnlocked, setIsUnlocked] = useState(false)
+  const [proPhone, setProPhone] = useState<string | null>(null)
   const [stars, setStars] = useState(0)
   const [comment, setComment] = useState('')
   const [reviewMsg, setReviewMsg] = useState('')
@@ -44,6 +46,14 @@ function ProfileContent() {
       setUserRole(profile?.role || 'family')
       const { data: ur } = await sb.from('reviews').select('*').eq('professional_id', id).eq('family_id', session.user.id).maybeSingle()
       setUserReview(ur)
+
+      // Έλεγξε αν έχει ήδη ξεκλειδώσει αυτόν τον επαγγελματία
+      const { data: unlock } = await sb.from('unlocks')
+        .select('id')
+        .eq('family_id', session.user.id)
+        .eq('professional_id', id)
+        .maybeSingle()
+      setIsUnlocked(!!unlock)
     }
 
     const { data: proData } = await sb.from('professionals')
@@ -59,6 +69,15 @@ function ProfileContent() {
         initials: getInitials((proData as any).profiles.full_name),
         days: parseDays(proData.available_days || []),
       })
+      // Τηλέφωνο μόνο αν ξεκλείδωτο
+      if (session?.user) {
+        const { data: ul } = await sb.from('unlocks')
+          .select('id')
+          .eq('family_id', session.user.id)
+          .eq('professional_id', id)
+          .maybeSingle()
+        if (ul) setProPhone((proData as any).profiles.phone || null)
+      }
     }
 
     const { data: rvs } = await sb.from('reviews')
@@ -102,7 +121,9 @@ function ProfileContent() {
           {pro.initials}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px' }}>{pro.name}</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px' }}>
+            {isUnlocked ? pro.name : maskName(pro.name)}
+          </div>
           <div style={{ fontSize: '14px', color: 'var(--gray)', marginBottom: '8px' }}>
             {pro.category}
             {pro.rating > 0 && ` · ★ ${pro.rating.toFixed(1)} (${pro.total_reviews})`}
@@ -121,24 +142,49 @@ function ProfileContent() {
             ))}
           </div>
 
-          {/* Actions */}
-          {!user ? (
-            <div style={{ background: 'var(--gray-l)', borderRadius: 'var(--r)', padding: '1.5rem', textAlign: 'center' }}>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '.5rem' }}>🔒 Ξεκλείδωσε τα στοιχεία επικοινωνίας</div>
-              <div style={{ fontSize: '13px', color: 'var(--gray)', marginBottom: '1rem' }}>Συνδεθείτε για να δείτε τηλέφωνο και email.</div>
+          {/* Contact info & unlock CTA */}
+          {isUnlocked && proPhone ? (
+            <div style={{ background: 'var(--teal-l)', border: '1px solid #b8e8d8', borderRadius: 'var(--rs)', padding: '1rem 1.2rem', marginBottom: '8px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '6px' }}>Στοιχεία επικοινωνίας</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', fontWeight: 700 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6.29 6.29l.95-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                {proPhone}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--teal)', marginTop: '4px' }}>✓ Επαφή ξεκλειδωμένη</div>
             </div>
-          ) : (
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <button onClick={() => alert('Unlock €19!')} style={{ padding: '12px 24px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: 'pointer', background: 'var(--teal)', color: '#fff' }}>
-                Unlock €19
-              </button>
-              {pro.is_express && (
-                <button style={{ padding: '12px 24px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: 'pointer', background: 'var(--blue)', color: '#fff' }}>
-                  ⚡ Express €44
+          ) : !user ? (
+            <div style={{ border: '1.5px dashed var(--gray-m)', borderRadius: 'var(--rs)', padding: '1rem 1.2rem' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '8px' }}>Στοιχεία επικοινωνίας</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: '#999', filter: 'blur(4px)', userSelect: 'none', letterSpacing: '2px' }}>69X XXX XXXX</div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--gray)', marginBottom: '10px' }}>Συνδεθείτε ή εγγραφείτε για να δείτε τα στοιχεία επικοινωνίας.</div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn btn-p" style={{ fontSize: '13px', padding: '8px 18px' }} onClick={() => router.push('/')}>
+                  Εγγραφή / Σύνδεση
                 </button>
-              )}
+              </div>
             </div>
-          )}
+          ) : userRole === 'family' ? (
+            <div style={{ border: '1.5px dashed var(--gray-m)', borderRadius: 'var(--rs)', padding: '1rem 1.2rem' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '8px' }}>Στοιχεία επικοινωνίας</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: '#999', filter: 'blur(4px)', userSelect: 'none', letterSpacing: '2px' }}>69X XXX XXXX</div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button onClick={() => alert('Unlock €1.99 — Stripe coming soon')} style={{ padding: '10px 20px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: 'pointer', background: 'var(--teal)', color: '#fff' }}>
+                  🔓 Ξεκλείδωσε €1.99
+                </button>
+                {pro.is_express && (
+                  <button onClick={() => alert('Express €44 — Stripe coming soon')} style={{ padding: '10px 20px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: 'pointer', background: 'var(--blue)', color: '#fff' }}>
+                    ⚡ Express €44
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
 

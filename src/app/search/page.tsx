@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import type { Professional } from '@/lib/supabase'
-import { strToColor, getInitials, parseDays, calcDist, DAYS } from '@/lib/auth'
+import { strToColor, getInitials, parseDays, calcDist, DAYS, maskName } from '@/lib/auth'
 import FilterContent from '@/components/search/FilterContent'
 
 type ProCard = Professional & {
@@ -175,7 +175,12 @@ export default function SearchPage() {
                     <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 800, color: '#fff', border: '3px solid #fff', boxShadow: '0 2px 10px rgba(0,0,0,.15)' }}>{p.initials}</div>
                   </div>
                   <div style={{ padding: '1rem' }}>
-                    <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '2px' }}>{p.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 700 }}>{maskName(p.name)}</span>
+                      <span style={{ fontSize: '10px', color: 'var(--gray)', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      </span>
+                    </div>
                     <div style={{ fontSize: '13px', color: 'var(--gray)', marginBottom: '6px' }}>{p.category}</div>
                     {p.rating > 0 ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>

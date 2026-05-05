@@ -3,12 +3,38 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { isLocked, remainingLock, recordFail, clearLock, formatTime } from '@/lib/auth'
+import { formatTime } from '@/lib/auth'
 import Turnstile from 'react-turnstile'
 
 interface Props {
   onClose: () => void
   onSwitchToRegister: () => void
+}
+
+async function checkLock(email: string): Promise<{ locked: boolean; remaining?: number; attempts?: number }> {
+  const res = await fetch('/api/auth-check', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'check', email }),
+  })
+  return res.json()
+}
+
+async function recordFail(email: string): Promise<{ locked: boolean; attempts: number }> {
+  const res = await fetch('/api/auth-check', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'fail', email }),
+  })
+  return res.json()
+}
+
+async function clearLock(email: string) {
+  await fetch('/api/auth-check', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'clear', email }),
+  })
 }
 
 export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
@@ -22,19 +48,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
   const [loading, setLoading] = useState(false)
   const [captchaToken, setCaptchaToken] = useState('')
 
-  useEffect(() => {
-    if (isLocked()) {
-      setMsg('🔒 Κλειδωμένο για ' + formatTime(remainingLock()) + '.')
-      setMsgType('error')
-    }
-  }, [])
-
   async function doLogin() {
-    if (isLocked()) {
-      setMsg('🔒 Κλειδωμένο για ' + formatTime(remainingLock()) + '.')
-      setMsgType('error')
-      return
-    }
     if (!email || !pass) {
       setMsg('Συμπληρώστε email και κωδικό.')
       setMsgType('error')
@@ -45,6 +59,15 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
       setMsgType('error')
       return
     }
+
+    // Server-side lockout check
+    const lockState = await checkLock(email)
+    if (lockState.locked) {
+      setMsg('🔒 Κλειδωμένο για ' + formatTime(lockState.remaining ?? 0) + '.')
+      setMsgType('error')
+      return
+    }
+
     setLoading(true)
     try {
       const { data, error } = await sb.auth.signInWithPassword({ email, password: pass })
@@ -55,9 +78,9 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
           setLoading(false)
           return
         }
-        const attempts = recordFail()
-        const rem = 5 - attempts
-        setMsg(attempts >= 5
+        const result = await recordFail(email)
+        const rem = 5 - result.attempts
+        setMsg(result.locked
           ? '🔒 Κλειδωμένο για 15 λεπτά.'
           : `Λάθος στοιχεία. ${rem} προσπάθεια${rem === 1 ? '' : 'ες'} ακόμα.`
         )
@@ -74,7 +97,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
         setLoading(false)
         return
       }
-      clearLock()
+      await clearLock(email)
       onClose()
       const role = profile?.role || data.user.user_metadata?.role
       router.push(role === 'professional' ? '/prodash' : '/dashboard')

@@ -65,6 +65,14 @@ export function getInitials(n: string): string {
   return (n || '').split(' ').map(x => x[0] || '').join('').toUpperCase().substring(0, 2) || '?'
 }
 
+// Εμφανίζει "Μαρία Π." αντί για το πλήρες όνομα στα public listings
+export function maskName(n: string): string {
+  const parts = (n || '').trim().split(' ').filter(Boolean)
+  if (parts.length === 0) return '—'
+  if (parts.length === 1) return parts[0]
+  return parts[0] + ' ' + parts[1][0].toUpperCase() + '.'
+}
+
 // Distance calculation
 export function calcDist(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371
