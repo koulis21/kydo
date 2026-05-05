@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import type { Profile } from '@/lib/supabase'
 import LoginModal from '@/components/modals/LoginModal'
@@ -90,9 +91,9 @@ export default function Navbar() {
           {/* Desktop only links */}
           {!isMobile && (
             <>
-              <span onClick={() => router.push('/search')} style={{ fontSize: '14px', color: 'var(--text)', cursor: 'pointer', padding: '8px 12px', borderRadius: '24px', fontWeight: 500 }}>
+              <Link href="/search" style={{ fontSize: '14px', color: 'var(--text)', padding: '8px 12px', borderRadius: '24px', fontWeight: 500, textDecoration: 'none' }}>
                 Αναζήτηση
-              </span>
+              </Link>
               {user && (
                 <span onClick={goDash} style={{ fontSize: '14px', color: 'var(--text)', cursor: 'pointer', padding: '8px 12px', borderRadius: '24px', fontWeight: 500 }}>
                   Πίνακας

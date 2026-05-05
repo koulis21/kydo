@@ -1,9 +1,15 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import RegisterModal from '@/components/modals/RegisterModal'
 
 export default function HomePage() {
   const router = useRouter()
+  const [showRegister, setShowRegister] = useState(false)
+  const [registerRole, setRegisterRole] = useState<'family' | 'pro'>('family')
+
+  function openRegisterAsPro() { setRegisterRole('pro'); setShowRegister(true) }
 
   return (
     <>
@@ -38,12 +44,11 @@ export default function HomePage() {
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => router.push('/search')} style={{
             background: 'var(--teal)', color: '#fff', padding: '14px 28px',
-            borderRadius: '24px', fontWeight: 700, fontSize: '15px',
-            cursor: 'pointer', border: 'none',
+            borderRadius: '24px', fontWeight: 700, fontSize: '15px', cursor: 'pointer', border: 'none',
           }}>
             Ξεκίνα δωρεάν
           </button>
-          <button onClick={() => router.push('/search')} style={{
+          <button onClick={openRegisterAsPro} style={{
             background: '#fff', color: 'var(--teal)', padding: '14px 28px',
             borderRadius: '24px', fontSize: '15px', cursor: 'pointer',
             border: '2px solid var(--teal)', fontWeight: 600,
@@ -56,10 +61,9 @@ export default function HomePage() {
       {/* Trust bar */}
       <div style={{
         borderTop: '1px solid var(--gray-m)', borderBottom: '1px solid var(--gray-m)',
-        padding: '1rem 2rem', display: 'flex', gap: '2rem',
-        justifyContent: 'center', flexWrap: 'wrap',
+        padding: '1rem 2rem', display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap',
       }}>
-        {['Kydo Verified', 'Ελεγμένο ποινικό μητρώο', 'Πιστοποιημένα πτυχία', '⚡ Express 2–4 ώρες', '€19 — Όχι €700'].map(t => (
+        {['Kydo Verified', 'Ελεγμένο ποινικό μητρώο', 'Πιστοποιημένα πτυχία', '⚡ Express 2–4 ώρες', 'από €1.99'].map(t => (
           <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--gray)', fontWeight: 500 }}>
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--teal2)', flexShrink: 0 }} />
             {t}
@@ -69,25 +73,18 @@ export default function HomePage() {
 
       {/* Features */}
       <div style={{ padding: '4rem 2rem', maxWidth: '1100px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, textAlign: 'center', marginBottom: '.5rem', letterSpacing: '-.5px' }}>
-          Γιατί Kydo;
-        </h2>
-        <p style={{ textAlign: 'center', color: 'var(--gray)', fontSize: '14px', marginBottom: '3rem' }}>
-          Το TripAdvisor της κατ' οίκον φροντίδας
-        </p>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, textAlign: 'center', marginBottom: '.5rem', letterSpacing: '-.5px' }}>Γιατί Kydo;</h2>
+        <p style={{ textAlign: 'center', color: 'var(--gray)', fontSize: '14px', marginBottom: '3rem' }}>Το TripAdvisor της κατ' οίκον φροντίδας</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1.5rem' }}>
           {[
             { icon: '✓', title: 'Kydo Verified', desc: 'Επαλήθευση ταυτότητας, πτυχίων και ποινικού μητρώου.' },
             { icon: '📍', title: 'Τοποθεσία & Απόσταση', desc: 'Αναζήτηση με βάση περιοχή και μέγιστη απόσταση.' },
-            { icon: '🗓', title: 'Ωράριο & Ημέρες', desc: 'Φίλτρα για ημέρες, βάρδιες, διαμονή εντός.' },
+            { icon: '📅', title: 'Ωράριο & Ημέρες', desc: 'Φίλτρα για ημέρες, βάρδιες, διαμονή εντός.' },
             { icon: '⚡', title: 'Kydo Express', desc: 'Επείγον; Επαγγελματίας εντός 2–4 ωρών.' },
             { icon: '★', title: 'Αξιολογήσεις', desc: 'Πραγματικές κριτικές από οικογένειες.' },
-            { icon: '💶', title: '€19 — Όχι €700', desc: 'Τα γραφεία παίρνουν 1 μισθό. Το Kydo €19.' },
+            { icon: '💶', title: 'από €1.99', desc: 'Ξεκλείδωσε στοιχεία επικοινωνίας. Όχι πακέτα €700.' },
           ].map(f => (
-            <div key={f.title} style={{
-              background: 'var(--gray-l)', borderRadius: 'var(--r)',
-              padding: '1.5rem', transition: 'all .2s', cursor: 'default',
-            }}>
+            <div key={f.title} style={{ background: 'var(--gray-l)', borderRadius: 'var(--r)', padding: '1.5rem' }}>
               <div style={{ fontSize: '1.8rem', marginBottom: '.8rem' }}>{f.icon}</div>
               <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px' }}>{f.title}</h3>
               <p style={{ fontSize: '13px', color: 'var(--gray)', lineHeight: 1.6 }}>{f.desc}</p>
@@ -99,14 +96,12 @@ export default function HomePage() {
       {/* How it works */}
       <div style={{ background: 'var(--gray-l)', padding: '4rem 2rem' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, textAlign: 'center', marginBottom: '.5rem', letterSpacing: '-.5px' }}>
-            Πώς λειτουργεί
-          </h2>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, textAlign: 'center', marginBottom: '.5rem', letterSpacing: '-.5px' }}>Πώς λειτουργεί</h2>
           <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2.5rem' }}>
             {[
               { n: '1', title: 'Αναζήτησε', desc: 'Περιοχή, απόσταση, εξειδίκευση, ωράριο.' },
               { n: '2', title: 'Διάβασε', desc: 'Αξιολογήσεις + Kydo Verified badge.' },
-              { n: '3', title: 'Unlock €19', desc: 'Ξεκλείδωσε τα στοιχεία των καλύτερων.' },
+              { n: '3', title: 'Unlock από €1.99', desc: 'Ξεκλείδωσε τα στοιχεία επικοινωνίας.' },
               { n: '4', title: 'Αξιολόγησε', desc: 'Βοήθα την επόμενη οικογένεια.' },
             ].map(s => (
               <div key={s.n} style={{
@@ -115,10 +110,9 @@ export default function HomePage() {
                 textAlign: 'center', boxShadow: '0 1px 8px rgba(0,0,0,.06)',
               }}>
                 <div style={{
-                  width: '36px', height: '36px', borderRadius: '50%',
-                  background: 'var(--teal)', color: '#fff', fontWeight: 800,
-                  fontSize: '14px', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', margin: '0 auto 12px',
+                  width: '36px', height: '36px', borderRadius: '50%', background: 'var(--teal)',
+                  color: '#fff', fontWeight: 800, fontSize: '14px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px',
                 }}>{s.n}</div>
                 <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '5px' }}>{s.title}</h4>
                 <p style={{ fontSize: '12px', color: 'var(--gray)', lineHeight: 1.5 }}>{s.desc}</p>
@@ -128,33 +122,63 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Pricing strip */}
+      <div style={{ padding: '3rem 2rem', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '.5rem', letterSpacing: '-.5px' }}>Απλές τιμές</h2>
+        <p style={{ color: 'var(--gray)', fontSize: '14px', marginBottom: '2rem' }}>Πλήρωσε μόνο για αυτό που χρειάζεσαι</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1rem' }}>
+          {[
+            { label: 'Επισκέπτης', price: '€2.49', desc: 'ανά unlock' },
+            { label: 'Εγγεγραμμένος', price: '€1.99', desc: 'ανά unlock', highlight: true },
+            { label: 'Εβδομαδιαίο', price: '€9.99', desc: '7 ημέρες' },
+            { label: 'Μηνιαίο', price: '€19.99', desc: 'απεριόριστα unlocks' },
+          ].map(p => (
+            <div key={p.label} style={{
+              background: p.highlight ? 'var(--teal-l)' : 'var(--gray-l)',
+              border: p.highlight ? '2px solid var(--teal)' : '1px solid var(--gray-m)',
+              borderRadius: 'var(--r)', padding: '1.5rem',
+            }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--gray)', marginBottom: '8px' }}>{p.label}</div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 800, color: p.highlight ? 'var(--teal)' : 'var(--text)' }}>{p.price}</div>
+              <div style={{ fontSize: '12px', color: 'var(--gray)', marginTop: '4px' }}>{p.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* CTA */}
       <div style={{ background: 'var(--teal)', color: '#fff', padding: '4rem 2rem', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '.8rem', letterSpacing: '-.5px' }}>
-          Kydo — Φροντίδα με Απόδειξη
-        </h2>
-        <p style={{ opacity: .85, marginBottom: '1.5rem', fontSize: '15px' }}>
-          500+ Kydo Verified επαγγελματίες σε Αθήνα και κύρια αστικά κέντρα.
-        </p>
-        <button onClick={() => router.push('/search')} style={{
-          background: '#fff', color: 'var(--teal)', padding: '14px 32px',
-          borderRadius: '24px', fontWeight: 700, fontSize: '15px',
-          cursor: 'pointer', border: 'none',
-        }}>
-          Ξεκίνα δωρεάν
-        </button>
+        <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '.8rem', letterSpacing: '-.5px' }}>Kydo — Φροντίδα με Απόδειξη</h2>
+        <p style={{ opacity: .85, marginBottom: '1.5rem', fontSize: '15px' }}>Επαγγελματίες σε Αθήνα και κύρια αστικά κέντρα.</p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button onClick={() => router.push('/search')} style={{
+            background: '#fff', color: 'var(--teal)', padding: '14px 32px',
+            borderRadius: '24px', fontWeight: 700, fontSize: '15px', cursor: 'pointer', border: 'none',
+          }}>Ξεκίνα δωρεάν</button>
+          <button onClick={openRegisterAsPro} style={{
+            background: 'transparent', color: '#fff', padding: '14px 32px',
+            borderRadius: '24px', fontWeight: 700, fontSize: '15px',
+            cursor: 'pointer', border: '2px solid rgba(255,255,255,.6)',
+          }}>Είμαι επαγγελματίας</button>
+        </div>
       </div>
 
       {/* Footer */}
       <footer style={{ background: '#111', color: '#888', padding: '2rem', textAlign: 'center', fontSize: '12px', lineHeight: 2 }}>
-        <strong style={{ color: '#fff', fontSize: '15px', fontWeight: 800, display: 'block', marginBottom: '.3rem', letterSpacing: '-.5px' }}>
-          kydo.
-        </strong>
+        <strong style={{ color: '#fff', fontSize: '15px', fontWeight: 800, display: 'block', marginBottom: '.3rem', letterSpacing: '-.5px' }}>kydo.</strong>
         από το «κήδομαι» — φροντίζω · kydo.gr · info@kydo.gr<br />
         <a href="/terms" style={{ color: '#aaa', textDecoration: 'underline' }}>Όροι Χρήσης</a>
         {' · '}
         <a href="/privacy" style={{ color: '#aaa', textDecoration: 'underline' }}>Πολιτική Απορρήτου</a>
       </footer>
+
+      {showRegister && (
+        <RegisterModal
+          initialRole={registerRole}
+          onClose={() => setShowRegister(false)}
+          onSwitchToLogin={() => setShowRegister(false)}
+        />
+      )}
     </>
   )
 }

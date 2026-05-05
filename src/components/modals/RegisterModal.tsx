@@ -8,11 +8,12 @@ import Turnstile from 'react-turnstile'
 interface Props {
   onClose: () => void
   onSwitchToLogin: () => void
+  initialRole?: 'family' | 'pro'
 }
 
-export default function RegisterModal({ onClose, onSwitchToLogin }: Props) {
+export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 'family' }: Props) {
   const sb = createClient()
-  const [role, setRole] = useState<'family' | 'pro'>('family')
+  const [role, setRole] = useState<'family' | 'pro'>(initialRole)
   const [fname, setFname] = useState('')
   const [lname, setLname] = useState('')
   const [email, setEmail] = useState('')
