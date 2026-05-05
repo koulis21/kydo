@@ -4,14 +4,12 @@ import { createClient } from '@supabase/supabase-js'
 const LOCK_ATTEMPTS = 5
 const LOCK_MINUTES = 15
 
-// Server-side rate limiter για login attempts
-// Χρησιμοποιεί τον πίνακα login_attempts στη Supabase (service role key)
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export async function POST(req: NextRequest) {
+  // Δημιουργία client εδώ (runtime) ώστε να μην σπάσει το build αν λείπει το env var
+  const sb = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
   const { action, email } = await req.json()
   if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 })
 

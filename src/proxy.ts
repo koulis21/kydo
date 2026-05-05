@@ -26,21 +26,17 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await sb.auth.getUser()
   const path = request.nextUrl.pathname
 
-  // Αν δεν είναι logged in, πήγαινε homepage
   if (!user) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
-  // Έλεγξε role από profiles για σωστό redirect
   const { data: profile } = await sb.from('profiles').select('role').eq('id', user.id).single()
   const role = profile?.role
 
-  // Family → μόνο /dashboard
   if (path.startsWith('/prodash') && role !== 'professional') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // Professional → μόνο /prodash
   if (path.startsWith('/dashboard') && role !== 'family') {
     return NextResponse.redirect(new URL('/prodash', request.url))
   }
