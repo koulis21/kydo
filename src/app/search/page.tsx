@@ -39,7 +39,7 @@ export default function SearchPage() {
   async function loadPros() {
     const sb = createClient()
     const { data } = await sb.from('professionals')
-      .select('*,profiles!inner(full_name,area,phone)')
+      .select('*,profiles!inner(full_name,area)')
       .not('category', 'is', null).neq('category', '')
       .order('is_featured', { ascending: false })
       .order('rating', { ascending: false })

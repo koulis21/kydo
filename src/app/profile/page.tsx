@@ -57,7 +57,7 @@ function ProfileContent() {
     }
 
     const { data: proData } = await sb.from('professionals')
-      .select('*,profiles!inner(full_name,area,phone)')
+      .select('*,profiles!inner(full_name,area)')
       .eq('id', id)
       .single()
 
@@ -69,14 +69,14 @@ function ProfileContent() {
         initials: getInitials((proData as any).profiles.full_name),
         days: parseDays(proData.available_days || []),
       })
-      // Τηλέφωνο μόνο αν ξεκλείδωτο
+      // Phone μόνο μέσω server-side API που ελέγχει unlocks
       if (session?.user) {
-        const { data: ul } = await sb.from('unlocks')
-          .select('id')
-          .eq('family_id', session.user.id)
-          .eq('professional_id', id)
-          .maybeSingle()
-        if (ul) setProPhone((proData as any).profiles.phone || null)
+        const res = await fetch(`/api/contact?id=${id}`)
+        if (res.ok) {
+          const data = await res.json()
+          setProPhone(data.phone || null)
+          setIsUnlocked(true)
+        }
       }
     }
 
