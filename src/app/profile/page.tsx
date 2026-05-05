@@ -17,6 +17,8 @@ function ProfileContent() {
   const router = useRouter()
   const params = useSearchParams()
   const id = params.get('id')
+  const sessionId = params.get('session_id') // Stripe success redirect
+  const paid = params.get('paid')
   const sb = createClient()
 
   const [pro, setPro] = useState<ProFull | null>(null)
@@ -26,6 +28,7 @@ function ProfileContent() {
   const [userReview, setUserReview] = useState<any>(null)
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [proPhone, setProPhone] = useState<string | null>(null)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [stars, setStars] = useState(0)
   const [comment, setComment] = useState('')
   const [reviewMsg, setReviewMsg] = useState('')
@@ -39,21 +42,14 @@ function ProfileContent() {
 
   async function loadAll() {
     const { data: { session } } = await sb.auth.getSession()
-    setUser(session?.user ?? null)
+    const currentUser = session?.user ?? null
+    setUser(currentUser)
 
-    if (session?.user) {
-      const { data: profile } = await sb.from('profiles').select('role').eq('id', session.user.id).single()
+    if (currentUser) {
+      const { data: profile } = await sb.from('profiles').select('role').eq('id', currentUser.id).single()
       setUserRole(profile?.role || 'family')
-      const { data: ur } = await sb.from('reviews').select('*').eq('professional_id', id).eq('family_id', session.user.id).maybeSingle()
+      const { data: ur } = await sb.from('reviews').select('*').eq('professional_id', id).eq('family_id', currentUser.id).maybeSingle()
       setUserReview(ur)
-
-      // Έλεγξε αν έχει ήδη ξεκλειδώσει αυτόν τον επαγγελματία
-      const { data: unlock } = await sb.from('unlocks')
-        .select('id')
-        .eq('family_id', session.user.id)
-        .eq('professional_id', id)
-        .maybeSingle()
-      setIsUnlocked(!!unlock)
     }
 
     const { data: proData } = await sb.from('professionals')
@@ -69,8 +65,19 @@ function ProfileContent() {
         initials: getInitials((proData as any).profiles.full_name),
         days: parseDays(proData.available_days || []),
       })
-      // Phone μόνο μέσω server-side API που ελέγχει unlocks
-      if (session?.user) {
+
+      // Μετά από Stripe redirect: verify session_id για άμεση εμφάνιση phone
+      if (paid === '1' && sessionId) {
+        const vRes = await fetch(`/api/checkout/verify?session_id=${sessionId}`)
+        if (vRes.ok) {
+          const vData = await vRes.json()
+          setProPhone(vData.phone || null)
+          setIsUnlocked(true)
+          // Καθάρισε params από URL χωρίς reload
+          window.history.replaceState({}, '', `/profile?id=${id}`)
+        }
+      } else if (currentUser) {
+        // Logged-in, έλεγξε DB για unlock (προηγούμενη πληρωμή)
         const res = await fetch(`/api/contact?id=${id}`)
         if (res.ok) {
           const data = await res.json()
@@ -87,6 +94,27 @@ function ProfileContent() {
       .limit(10)
     setReviews(rvs || [])
     setLoading(false)
+  }
+
+  async function doUnlock() {
+    setCheckoutLoading(true)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ professional_id: id, professional_name: pro?.name }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('Σφάλμα κατά την εκκίνηση της πληρωμής.')
+        setCheckoutLoading(false)
+      }
+    } catch {
+      alert('Σφάλμα σύνδεσης.')
+      setCheckoutLoading(false)
+    }
   }
 
   async function submitReview() {
@@ -159,10 +187,17 @@ function ProfileContent() {
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#999', filter: 'blur(4px)', userSelect: 'none', letterSpacing: '2px' }}>69X XXX XXXX</div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray)', marginBottom: '10px' }}>Συνδεθείτε ή εγγραφείτε για να δείτε τα στοιχεία επικοινωνίας.</div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--gray)', marginBottom: '10px' }}>Συνδεθείτε για να πληρώσετε €1.99 ή ξεκλειδώστε τώρα ως επισκέπτης για €2.49.</div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button className="btn btn-p" style={{ fontSize: '13px', padding: '8px 18px' }} onClick={() => router.push('/')}>
-                  Εγγραφή / Σύνδεση
+                  Σύνδεση / Εγγραφή (€1.99)
+                </button>
+                <button
+                  onClick={doUnlock}
+                  disabled={checkoutLoading}
+                  style={{ padding: '8px 18px', borderRadius: 'var(--rs)', border: '1.5px solid var(--gray-m)', fontSize: '13px', fontWeight: 600, cursor: checkoutLoading ? 'not-allowed' : 'pointer', background: '#fff', color: 'var(--text)', opacity: checkoutLoading ? .7 : 1 }}
+                >
+                  {checkoutLoading ? 'Ανακατεύθυνση...' : '🔓 Επισκέπτης €2.49'}
                 </button>
               </div>
             </div>
@@ -174,14 +209,13 @@ function ProfileContent() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button onClick={() => alert('Unlock €1.99 — Stripe coming soon')} style={{ padding: '10px 20px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: 'pointer', background: 'var(--teal)', color: '#fff' }}>
-                  🔓 Ξεκλείδωσε €1.99
+                <button
+                  onClick={doUnlock}
+                  disabled={checkoutLoading}
+                  style={{ padding: '10px 20px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: checkoutLoading ? 'not-allowed' : 'pointer', background: 'var(--teal)', color: '#fff', opacity: checkoutLoading ? .7 : 1, display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  {checkoutLoading ? <><div className="spinner" />Ανακατεύθυνση...</> : '🔓 Ξεκλείδωσε €1.99'}
                 </button>
-                {pro.is_express && (
-                  <button onClick={() => alert('Express €44 — Stripe coming soon')} style={{ padding: '10px 20px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: 'pointer', background: 'var(--blue)', color: '#fff' }}>
-                    ⚡ Express €44
-                  </button>
-                )}
               </div>
             </div>
           ) : null}
