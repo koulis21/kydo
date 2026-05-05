@@ -16,7 +16,16 @@ export default function TermsPage() {
         <li>Απαγορεύονται ψευδείς λογαριασμοί.</li>
       </ul>
       <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '1.5rem 0 .5rem' }}>4. Πληρωμές</h2>
-      <p style={{ fontSize: '14px', color: '#444', lineHeight: 1.8 }}>Χρέωση €19 για ξεκλείδωμα στοιχείων. Μη επιστρεπτέα.</p>
+      <p style={{ fontSize: '14px', color: '#444', lineHeight: 1.8 }}>
+        Η πλατφόρμα χρεώνει για την αποκάλυψη στοιχείων επικοινωνίας επαγγελματιών:
+      </p>
+      <ul style={{ fontSize: '14px', color: '#444', lineHeight: 1.8, paddingLeft: '1.3rem' }}>
+        <li>€1.99 ανά unlock για εγγεγραμμένους χρήστες</li>
+        <li>€2.49 ανά unlock για επισκέπτες</li>
+        <li>€9.99 εβδομαδιαία συνδρομή</li>
+        <li>€19.99 μηνιαία συνδρομή με απεριόριστα unlocks</li>
+      </ul>
+      <p style={{ fontSize: '14px', color: '#444', lineHeight: 1.8 }}>Οι χρεώσεις είναι μη επιστρεπτέες.</p>
       <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '1.5rem 0 .5rem' }}>5. Επικοινωνία</h2>
       <p style={{ fontSize: '14px', color: '#444', lineHeight: 1.8 }}><strong>info@kydo.gr</strong></p>
     </div>
