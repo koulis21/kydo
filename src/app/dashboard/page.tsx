@@ -74,10 +74,16 @@ export default function DashboardPage() {
       ) : (
         <div onClick={() => router.push('/upgrade')} style={{ background: 'linear-gradient(135deg, #1e3a5f, #2a5080)', color: '#fff', borderRadius: 'var(--r)', padding: '1.2rem 1.4rem', marginBottom: '1.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '2px' }}>💎 Απεριόριστη πρόσβαση</div>
-            <div style={{ fontSize: '13px', opacity: .9 }}>€19.99/μήνα ή €9.99/εβδομάδα — απεριόριστα στοιχεία επικοινωνίας</div>
+            <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '2px' }}>
+              {favorites > 0 ? `🔒 ${favorites} αγαπημέν${favorites === 1 ? 'ος' : 'οι'} κλειδωμέν${favorites === 1 ? 'ος' : 'οι'}` : '💎 Απεριόριστη πρόσβαση'}
+            </div>
+            <div style={{ fontSize: '13px', opacity: .9 }}>
+              {favorites > 0
+                ? `Με συνδρομή €19.99/μήνα δες όλα τα τηλέφωνα · ή €1.99 ανά pro (${favorites}× = €${(favorites * 1.99).toFixed(2)})`
+                : '€19.99/μήνα ή €9.99/εβδομάδα — απεριόριστα στοιχεία επικοινωνίας'}
+            </div>
           </div>
-          <button style={{ padding: '10px 18px', background: '#fff', color: '#1e3a5f', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+          <button style={{ padding: '10px 18px', background: '#fff', color: '#1e3a5f', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
             Δες πλάνα →
           </button>
         </div>

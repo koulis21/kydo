@@ -26,6 +26,8 @@ export default function FavoritesPage() {
   const router = useRouter()
   const [favs, setFavs] = useState<FavCard[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasActiveSub, setHasActiveSub] = useState(false)
+  const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const sb = createClient()
@@ -57,9 +59,28 @@ export default function FavoritesPage() {
         }
       })
       setFavs(cards)
+
+      // Active subscription check
+      const { data: sub } = await sb.from('subscriptions')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .in('tier', ['family_weekly', 'family_monthly'])
+        .eq('status', 'active')
+        .gt('current_period_end', new Date().toISOString())
+        .maybeSingle()
+      setHasActiveSub(!!sub)
+
+      // Permanent unlocks (per-€1.99) for these favorites
+      const { data: unlocks } = await sb.from('unlocks')
+        .select('professional_id')
+        .eq('family_id', session.user.id)
+      setUnlockedIds(new Set((unlocks || []).map((u: any) => u.professional_id)))
+
       setLoading(false)
     })
   }, [])
+
+  const lockedCount = hasActiveSub ? 0 : favs.filter(f => !unlockedIds.has(f.id)).length
 
   async function removeFavorite(e: React.MouseEvent, proId: string) {
     e.stopPropagation()
@@ -85,6 +106,49 @@ export default function FavoritesPage() {
       <div style={{ fontSize: '14px', color: 'var(--gray)', marginBottom: '1.5rem' }}>
         {loading ? 'Φόρτωση...' : favs.length === 0 ? 'Δεν έχεις αγαπημένους ακόμα' : `${favs.length} επαγγελματία${favs.length === 1 ? 'ς' : 'ες'}`}
       </div>
+
+      {!loading && lockedCount > 0 && (
+        <div onClick={() => router.push('/upgrade')} style={{
+          background: 'linear-gradient(135deg, #1e3a5f, #2a5080)',
+          color: '#fff',
+          borderRadius: 'var(--r)',
+          padding: '1.2rem 1.4rem',
+          marginBottom: '1.5rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          flexWrap: 'wrap',
+        }}>
+          <div>
+            <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '4px' }}>
+              🔒 {lockedCount} αγαπημέν{lockedCount === 1 ? 'ος' : 'οι'} με κρυμμένα στοιχεία
+            </div>
+            <div style={{ fontSize: '13px', opacity: .9, lineHeight: 1.5 }}>
+              Με συνδρομή <strong>€19.99/μήνα</strong> δες όλα τα τηλέφωνα · Διαφορετικά €1.99 ανά επαγγελματία ({lockedCount}× = €{(lockedCount * 1.99).toFixed(2)})
+            </div>
+          </div>
+          <button style={{ padding: '10px 18px', background: '#fff', color: '#1e3a5f', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            Πάρε συνδρομή →
+          </button>
+        </div>
+      )}
+
+      {!loading && hasActiveSub && favs.length > 0 && (
+        <div style={{
+          background: 'var(--teal-l)',
+          border: '1px solid #b8e8d8',
+          borderRadius: 'var(--r)',
+          padding: '.9rem 1.2rem',
+          marginBottom: '1.5rem',
+          fontSize: '13px',
+          color: 'var(--teal)',
+          fontWeight: 600,
+        }}>
+          ✓ Έχεις ενεργή συνδρομή — όλα τα τηλέφωνα είναι ορατά
+        </div>
+      )}
 
       {!loading && favs.length === 0 && (
         <div style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '3rem 2rem', textAlign: 'center' }}>
