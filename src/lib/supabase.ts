@@ -12,7 +12,6 @@ export type Profile = {
   id: string
   full_name: string
   role: 'family' | 'professional'
-  phone?: string
   area?: string
   deleted_at?: string
 }
@@ -40,7 +39,6 @@ export type Professional = {
   profiles?: {
     full_name: string
     area?: string
-    phone?: string
   }
 }
 

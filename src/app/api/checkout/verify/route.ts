@@ -28,12 +28,12 @@ export async function GET(req: NextRequest) {
   const { professional_id } = session.metadata || {}
   if (!professional_id) return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
 
-  // Επέστρεψε phone
-  const { data: profile } = await sbAdmin
-    .from('profiles')
+  // Επέστρεψε phone από profile_phones (secured table)
+  const { data: phoneRecord } = await sbAdmin
+    .from('profile_phones')
     .select('phone')
     .eq('id', professional_id)
     .single()
 
-  return NextResponse.json({ phone: profile?.phone || null, professional_id })
+  return NextResponse.json({ phone: phoneRecord?.phone || null, professional_id })
 }
