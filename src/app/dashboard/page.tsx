@@ -49,18 +49,21 @@ export default function DashboardPage() {
 
       {/* Subscription card */}
       {activeSub ? (
-        <div style={{ background: 'linear-gradient(135deg, #0e7c5c, #14a373)', color: '#fff', borderRadius: 'var(--r)', padding: '1.4rem 1.6rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ background: activeSub.cancel_at_period_end ? 'linear-gradient(135deg, #c08a00, #d9a32d)' : 'linear-gradient(135deg, #0e7c5c, #14a373)', color: '#fff', borderRadius: 'var(--r)', padding: '1.4rem 1.6rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontSize: '12px', fontWeight: 700, opacity: .85, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '4px' }}>Ενεργή συνδρομή</div>
+            <div style={{ fontSize: '12px', fontWeight: 700, opacity: .85, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '4px' }}>
+              {activeSub.cancel_at_period_end ? '⚠️ Συνδρομή λήγει' : '✓ Ενεργή συνδρομή'}
+            </div>
             <div style={{ fontSize: '16px', fontWeight: 800, marginBottom: '4px' }}>
               {TIERS[activeSub.tier as SubscriptionTier]?.label || activeSub.tier}
             </div>
             <div style={{ fontSize: '13px', opacity: .9 }}>
-              Λήξη: {new Date(activeSub.current_period_end).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })}
-              {activeSub.cancel_at_period_end && ' · Αυτόματη ανανέωση: ❌'}
+              {activeSub.cancel_at_period_end
+                ? `Δεν θα ανανεωθεί · Λήγει: ${new Date(activeSub.current_period_end).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })}`
+                : `Επόμενη ανανέωση: ${new Date(activeSub.current_period_end).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })}`}
             </div>
           </div>
-          <button onClick={() => router.push('/upgrade')} style={{ padding: '10px 18px', background: '#fff', color: '#0e7c5c', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+          <button onClick={() => router.push('/upgrade')} style={{ padding: '10px 18px', background: '#fff', color: activeSub.cancel_at_period_end ? '#c08a00' : '#0e7c5c', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
             Διαχείριση →
           </button>
         </div>
