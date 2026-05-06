@@ -184,6 +184,12 @@ export default function ProDashPage() {
       cpr_expiry: cprExpiry || null,
       experience_breakdown: expBreakdown,
       has_criminal_check: hasCriminal,
+      // Phase 1B file paths — must be included so upsert doesn't wipe them.
+      // The upload components write these immediately on file selection.
+      photo_url: photoUrl || null,
+      cv_path: cvPath || null,
+      diploma_path: diplomaPath || null,
+      cpr_cert_path: cprPath || null,
     })
 
     if (error) { setMsg('Σφάλμα: ' + error.message); setMsgType('error') }
