@@ -50,7 +50,10 @@ export async function POST(req: NextRequest) {
     await sbAdmin.from('profiles').update({ stripe_customer_id: customerId }).eq('id', user.id)
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `https://${req.headers.get('host')}`
+  // Use the request's origin so the redirect lands on the same domain
+  // the user is browsing (kydo.gr in production, vercel preview in PRs).
+  // Falls back to host header for non-CORS requests.
+  const baseUrl = req.headers.get('origin') || `https://${req.headers.get('host')}`
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',

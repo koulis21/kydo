@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   const isGuest = !user
   const priceInCents = isGuest ? 249 : 199 // €2.49 guest / €1.99 logged in
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `https://${req.headers.get('host')}`
+  const baseUrl = req.headers.get('origin') || `https://${req.headers.get('host')}`
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',

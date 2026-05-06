@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No billing customer' }, { status: 404 })
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `https://${req.headers.get('host')}`
+  const baseUrl = req.headers.get('origin') || `https://${req.headers.get('host')}`
 
   const portal = await stripe.billingPortal.sessions.create({
     customer: profile.stripe_customer_id,

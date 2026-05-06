@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import PlacesInput from '@/components/PlacesInput'
+import { TIERS, type SubscriptionTier } from '@/lib/stripe-config'
 
 const SPECS = ['Άνοια / Alzheimer', 'Parkinson', 'Παραπληγικοί', 'Μετεγχειρητική', 'Παιδιά με ΑΝ', 'Διαβήτης', 'CPR / Πρώτες βοήθειες', 'Φροντίδα ηλικιωμένων']
 const DAYS = ['Δε', 'Τρ', 'Τε', 'Πε', 'Πα', 'Σα', 'Κυ']
@@ -36,6 +37,7 @@ export default function ProDashPage() {
   const [selExtras, setSelExtras] = useState<string[]>([])
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState<'error' | 'success'>('error')
+  const [activeSub, setActiveSub] = useState<any>(null)
 
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {
@@ -51,6 +53,14 @@ export default function ProDashPage() {
       // Phone από ξεχωριστό πίνακα με RLS
       const { data: phoneData } = await sb.from('profile_phones').select('phone').eq('id', session.user.id).maybeSingle()
       setPhone(phoneData?.phone?.replace('+30', '') || '')
+
+      const { data: sub } = await sb.from('subscriptions')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('status', 'active')
+        .gt('current_period_end', new Date().toISOString())
+        .maybeSingle()
+      setActiveSub(sub)
       const { data: pro } = await sb.from('professionals').select('*').eq('id', session.user.id).single()
       if (pro) {
         setCat(pro.category || '')
@@ -152,27 +162,45 @@ export default function ProDashPage() {
         👋 Συμπλήρωσε το προφίλ σου για να εμφανιστείς στην αναζήτηση.
       </div>
 
-      <div onClick={() => router.push('/upgrade')} style={{
-        background: 'linear-gradient(135deg, #1e3a5f, #2a5080)',
-        color: '#fff',
-        borderRadius: 'var(--r)',
-        padding: '1.2rem 1.4rem',
-        marginBottom: '1.5rem',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '12px',
-        flexWrap: 'wrap',
-      }}>
-        <div>
-          <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '2px' }}>⚡ Αναβάθμιση σε Pro</div>
-          <div style={{ fontSize: '13px', opacity: .9 }}>Express badge, top placement στις αναζητήσεις, analytics — από €12.99/μήνα</div>
+      {activeSub ? (
+        <div style={{ background: 'linear-gradient(135deg, #0e7c5c, #14a373)', color: '#fff', borderRadius: 'var(--r)', padding: '1.4rem 1.6rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: '12px', fontWeight: 700, opacity: .85, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '4px' }}>✓ Ενεργή Pro συνδρομή</div>
+            <div style={{ fontSize: '16px', fontWeight: 800, marginBottom: '4px' }}>
+              {TIERS[activeSub.tier as SubscriptionTier]?.label || activeSub.tier}
+            </div>
+            <div style={{ fontSize: '13px', opacity: .9 }}>
+              Λήξη: {new Date(activeSub.current_period_end).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {activeSub.cancel_at_period_end && ' · Αυτόματη ανανέωση: ❌'}
+            </div>
+          </div>
+          <button onClick={() => router.push('/upgrade')} style={{ padding: '10px 18px', background: '#fff', color: '#0e7c5c', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+            Διαχείριση →
+          </button>
         </div>
-        <button style={{ padding: '10px 18px', background: '#fff', color: '#1e3a5f', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
-          Δες πλάνα →
-        </button>
-      </div>
+      ) : (
+        <div onClick={() => router.push('/upgrade')} style={{
+          background: 'linear-gradient(135deg, #1e3a5f, #2a5080)',
+          color: '#fff',
+          borderRadius: 'var(--r)',
+          padding: '1.2rem 1.4rem',
+          marginBottom: '1.5rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          flexWrap: 'wrap',
+        }}>
+          <div>
+            <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '2px' }}>⚡ Αναβάθμιση σε Pro</div>
+            <div style={{ fontSize: '13px', opacity: .9 }}>Express badge, top placement στις αναζητήσεις, analytics — από €12.99/μήνα</div>
+          </div>
+          <button style={{ padding: '10px 18px', background: '#fff', color: '#1e3a5f', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+            Δες πλάνα →
+          </button>
+        </div>
+      )}
 
       <div style={{ background: 'var(--amber-l)', border: '1px solid #e8c97a', borderRadius: 'var(--rs)', padding: '.9rem 1.2rem', marginBottom: '1rem', fontSize: '13px', color: 'var(--amber)' }}>
         ℹ️ Τα πεδία με <span style={{ color: 'var(--red)', fontWeight: 700 }}>✱</span> είναι <strong>υποχρεωτικά</strong>.
