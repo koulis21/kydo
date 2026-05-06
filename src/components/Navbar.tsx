@@ -94,6 +94,16 @@ export default function Navbar() {
               <Link href="/search" style={{ fontSize: '14px', color: 'var(--text)', padding: '8px 12px', borderRadius: '24px', fontWeight: 500, textDecoration: 'none' }}>
                 Αναζήτηση
               </Link>
+              {user && profile?.role === 'professional' && (
+                <Link href="/jobs" style={{ fontSize: '14px', color: 'var(--text)', padding: '8px 12px', borderRadius: '24px', fontWeight: 500, textDecoration: 'none' }}>
+                  📋 Αγγελίες
+                </Link>
+              )}
+              {user && profile?.role === 'family' && (
+                <Link href="/post-job" style={{ fontSize: '14px', color: 'var(--text)', padding: '8px 12px', borderRadius: '24px', fontWeight: 500, textDecoration: 'none' }}>
+                  + Αγγελία
+                </Link>
+              )}
               {user && (
                 <span onClick={goDash} style={{ fontSize: '14px', color: 'var(--text)', cursor: 'pointer', padding: '8px 12px', borderRadius: '24px', fontWeight: 500 }}>
                   Πίνακας

@@ -217,8 +217,30 @@ export default function ProDashPage() {
     <div style={{ maxWidth: '680px', margin: '0 auto', padding: '2rem 1.5rem' }}>
       <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem', letterSpacing: '-.5px' }}>Προφίλ Επαγγελματία</h1>
 
-      <div style={{ background: 'var(--teal-l)', borderRadius: 'var(--r)', padding: '1.2rem', marginBottom: '1.5rem', fontSize: '14px', color: 'var(--teal)', border: '1px solid #b8e8d8' }}>
+      <div style={{ background: 'var(--teal-l)', borderRadius: 'var(--r)', padding: '1.2rem', marginBottom: '1rem', fontSize: '14px', color: 'var(--teal)', border: '1px solid #b8e8d8' }}>
         👋 Συμπλήρωσε το προφίλ σου για να εμφανιστείς στην αναζήτηση.
+      </div>
+
+      <div onClick={() => router.push('/jobs')} style={{
+        background: '#fff',
+        border: '1.5px solid var(--teal)',
+        borderRadius: 'var(--r)',
+        padding: '1.2rem 1.4rem',
+        marginBottom: '1.5rem',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '12px',
+        flexWrap: 'wrap',
+      }}>
+        <div>
+          <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '2px', color: 'var(--teal)' }}>📋 Δες αγγελίες οικογενειών</div>
+          <div style={{ fontSize: '13px', color: 'var(--gray)' }}>Ξεκλείδωσε στοιχεία επικοινωνίας με €1.99 ή δωρεάν με Pro συνδρομή</div>
+        </div>
+        <button style={{ padding: '10px 18px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+          Browse →
+        </button>
       </div>
 
       {activeSub ? (

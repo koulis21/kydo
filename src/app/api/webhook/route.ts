@@ -54,9 +54,34 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     return
   }
 
-  // Payment mode (per-unlock) — preserve existing logic
+  // Payment mode — distinguish per-pro unlock vs job unlock via metadata.kind
   if (session.payment_status !== 'paid') return
-  const { professional_id, family_id, is_guest } = session.metadata || {}
+  const meta = session.metadata || {}
+
+  if (meta.kind === 'job_unlock') {
+    const { job_id, professional_id } = meta
+    if (!job_id || !professional_id) return
+
+    const { data: existing } = await sbAdmin
+      .from('job_unlocks')
+      .select('id')
+      .eq('job_id', job_id)
+      .eq('professional_id', professional_id)
+      .maybeSingle()
+
+    if (!existing) {
+      await sbAdmin.from('job_unlocks').insert({
+        job_id,
+        professional_id,
+        stripe_session_id: session.id,
+        amount_cents: session.amount_total,
+      })
+    }
+    return
+  }
+
+  // Default: legacy per-pro unlock (family pays €1.99 for a pro's contact)
+  const { professional_id, family_id, is_guest } = meta
   if (!professional_id) return
 
   if (family_id && is_guest !== 'true') {

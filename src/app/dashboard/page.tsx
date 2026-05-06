@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [reviews, setReviews] = useState(0)
   const [favorites, setFavorites] = useState(0)
   const [activeSub, setActiveSub] = useState<any>(null)
+  const [myJobs, setMyJobs] = useState<any[]>([])
 
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {
@@ -37,6 +38,13 @@ export default function DashboardPage() {
         .gt('current_period_end', new Date().toISOString())
         .maybeSingle()
       setActiveSub(sub)
+
+      const { data: jobs } = await sb.from('job_postings')
+        .select('id, title, status, is_urgent, created_at, expires_at')
+        .eq('family_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(10)
+      setMyJobs(jobs || [])
     })
   }, [])
 
@@ -109,11 +117,47 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* My job postings */}
+      <div style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '1.2rem', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '.8rem', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.4px' }}>📋 Οι αγγελίες μου</div>
+          <button onClick={() => router.push('/post-job')} style={{ padding: '8px 16px', borderRadius: 'var(--rs)', background: 'var(--teal)', color: '#fff', border: 'none', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+            + Νέα αγγελία
+          </button>
+        </div>
+        {myJobs.length === 0 ? (
+          <div style={{ fontSize: '13px', color: 'var(--gray)', padding: '1rem 0' }}>
+            Δεν έχεις δημιουργήσει αγγελίες. Δημοσίευσε μία και άσε τους επαγγελματίες να σε βρουν.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {myJobs.map(j => (
+              <div key={j.id} onClick={() => router.push(`/jobs/${j.id}`)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 12px', borderRadius: 'var(--rs)', border: '1px solid var(--gray-m)', cursor: 'pointer', background: '#fff' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{j.title}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--gray)' }}>
+                    {new Date(j.created_at).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' })}
+                    {j.is_urgent && ' · 🚨 Επείγον'}
+                  </div>
+                </div>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '4px 9px', borderRadius: '10px', whiteSpace: 'nowrap',
+                  background: j.status === 'open' ? 'var(--teal-l)' : 'var(--gray-l)',
+                  color: j.status === 'open' ? 'var(--teal)' : 'var(--gray)',
+                }}>
+                  {j.status === 'open' ? 'ΑΝΟΙΧΤΗ' : j.status === 'filled' ? '✓ ΚΑΛΥΦΘΗΚΕ' : 'ΚΛΕΙΣΤΗ'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Quick actions */}
       <div style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '1.2rem' }}>
         <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: '.8rem' }}>Γρήγορες ενέργειες</div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button className="btn btn-p" onClick={() => router.push('/search')}>Νέα αναζήτηση</button>
+          <button onClick={() => router.push('/post-job')} style={{ padding: '10px 20px', borderRadius: '24px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', background: 'transparent', color: 'var(--teal)', border: '1.5px solid var(--teal)' }}>+ Δημοσίευση αγγελίας</button>
           <button onClick={() => router.push('/search')} style={{ padding: '10px 20px', borderRadius: '24px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', background: 'transparent', color: '#185fa5', border: '1.5px solid #185fa5' }}>⚡ Express</button>
         </div>
       </div>
