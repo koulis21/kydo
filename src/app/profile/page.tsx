@@ -4,6 +4,8 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { strToColor, getInitials, parseDays, DAYS, maskName } from '@/lib/auth'
+import VerificationPanel from '@/components/VerificationPanel'
+import { computeVerification } from '@/lib/verification'
 import type { Professional, Review } from '@/lib/supabase'
 
 type ProFull = Professional & {
@@ -198,9 +200,13 @@ function ProfileContent() {
             </svg>
           </button>
         )}
-        <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: pro.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 800, color: '#fff', flexShrink: 0, boxShadow: '0 4px 16px rgba(0,0,0,.15)' }}>
-          {pro.initials}
-        </div>
+        {pro.photo_url ? (
+          <img src={pro.photo_url} alt="" style={{ width: '90px', height: '90px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 16px rgba(0,0,0,.15)' }} />
+        ) : (
+          <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: pro.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 800, color: '#fff', flexShrink: 0, boxShadow: '0 4px 16px rgba(0,0,0,.15)' }}>
+            {pro.initials}
+          </div>
+        )}
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px' }}>
             {isUnlocked ? pro.name : maskName(pro.name)}
@@ -299,15 +305,38 @@ function ProfileContent() {
         </div>
       </div>
 
+      {/* Verification panel */}
+      <div style={{ marginBottom: '1.2rem' }}>
+        <VerificationPanel
+          state={computeVerification({
+            pro,
+            hasPhone: true,
+            emailConfirmed: true,
+            bioLen: pro.bio?.length || 0,
+          })}
+          variant="full"
+        />
+      </div>
+
       {/* Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem', marginBottom: '1.2rem' }}>
         <div style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '1.2rem' }}>
           <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '.8rem' }}>Εξειδικεύσεις</div>
-          {pro.specializations?.length ? pro.specializations.map((s: string) => (
-            <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '14px' }}>
-              <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--teal2)', flexShrink: 0 }} />{s}
-            </div>
-          )) : <div style={{ fontSize: '13px', color: 'var(--gray)' }}>Δεν έχουν οριστεί</div>}
+          {pro.specializations?.length ? pro.specializations.map((s: string) => {
+            const years = pro.experience_breakdown?.[s]
+            return (
+              <div key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px', fontSize: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                  <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--teal2)', flexShrink: 0 }} />{s}
+                </div>
+                {years && years > 0 && (
+                  <span style={{ fontSize: '12px', color: 'var(--teal)', fontWeight: 700, background: 'var(--teal-l)', padding: '2px 8px', borderRadius: '10px', whiteSpace: 'nowrap' }}>
+                    {years} έτ{years === 1 ? 'ος' : 'η'}
+                  </span>
+                )}
+              </div>
+            )
+          }) : <div style={{ fontSize: '13px', color: 'var(--gray)' }}>Δεν έχουν οριστεί</div>}
         </div>
 
         <div style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '1.2rem' }}>

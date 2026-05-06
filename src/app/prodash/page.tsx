@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import PlacesInput from '@/components/PlacesInput'
+import PhotoUpload from '@/components/PhotoUpload'
+import DocumentUpload from '@/components/DocumentUpload'
+import VerificationPanel from '@/components/VerificationPanel'
 import { TIERS, type SubscriptionTier } from '@/lib/stripe-config'
+import { computeVerification } from '@/lib/verification'
+import type { Professional } from '@/lib/supabase'
 
 const SPECS = ['Άνοια / Alzheimer', 'Parkinson', 'Παραπληγικοί', 'Μετεγχειρητική', 'Παιδιά με ΑΝ', 'Διαβήτης', 'CPR / Πρώτες βοήθειες', 'Φροντίδα ηλικιωμένων']
 const DAYS = ['Δε', 'Τρ', 'Τε', 'Πε', 'Πα', 'Σα', 'Κυ']
@@ -38,6 +43,13 @@ export default function ProDashPage() {
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState<'error' | 'success'>('error')
   const [activeSub, setActiveSub] = useState<any>(null)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [cvPath, setCvPath] = useState<string | null>(null)
+  const [diplomaPath, setDiplomaPath] = useState<string | null>(null)
+  const [cprPath, setCprPath] = useState<string | null>(null)
+  const [cprExpiry, setCprExpiry] = useState<string>('')
+  const [expBreakdown, setExpBreakdown] = useState<Record<string, number>>({})
+  const [hasCriminal, setHasCriminal] = useState(false)
 
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {
@@ -80,12 +92,56 @@ export default function ProDashPage() {
         setSelSpecs(pro.specializations || [])
         setSelExtras(pro.extras || [])
         setBio(pro.bio || '')
+        setPhotoUrl(pro.photo_url || null)
+        setCvPath(pro.cv_path || null)
+        setDiplomaPath(pro.diploma_path || null)
+        setCprPath(pro.cpr_cert_path || null)
+        setCprExpiry(pro.cpr_expiry || '')
+        setExpBreakdown(pro.experience_breakdown || {})
+        setHasCriminal(pro.has_criminal_check || false)
       }
     })
   }, [])
 
   function toggleItem(item: string, list: string[], setList: (v: string[]) => void) {
     setList(list.includes(item) ? list.filter(x => x !== item) : [...list, item])
+  }
+
+  // Live verification state (recomputes when local fields change without saving)
+  const verificationState = computeVerification({
+    pro: {
+      id: user?.id || '',
+      category: cat,
+      specializations: selSpecs,
+      experience_years: parseInt(exp) || 0,
+      hourly_rate: parseFloat(rate) || 0,
+      bio,
+      area,
+      available_days: selDays,
+      is_express: isExpress,
+      is_verified: false,
+      is_featured: false,
+      has_criminal_check: hasCriminal,
+      rating: 0,
+      total_reviews: 0,
+      registry_number: registry,
+      photo_url: photoUrl || undefined,
+      cv_path: cvPath || undefined,
+      diploma_path: diplomaPath || undefined,
+      cpr_cert_path: cprPath || undefined,
+      cpr_expiry: cprExpiry || undefined,
+    } as Professional,
+    hasPhone: phone.length === 10,
+    emailConfirmed: !!user?.email_confirmed_at,
+    bioLen: bio.length,
+  })
+
+  function setExpYears(spec: string, years: number) {
+    setExpBreakdown(prev => {
+      const next = { ...prev }
+      if (years <= 0) delete next[spec]; else next[spec] = years
+      return next
+    })
   }
 
   async function savePro() {
@@ -125,6 +181,9 @@ export default function ProDashPage() {
       registry_number: registry,
       is_express: isExpress,
       extras: selExtras,
+      cpr_expiry: cprExpiry || null,
+      experience_breakdown: expBreakdown,
+      has_criminal_check: hasCriminal,
     })
 
     if (error) { setMsg('Σφάλμα: ' + error.message); setMsgType('error') }
@@ -205,9 +264,23 @@ export default function ProDashPage() {
         </div>
       )}
 
+      <div style={{ marginBottom: '1rem' }}>
+        <VerificationPanel state={verificationState} variant="full" />
+      </div>
+
       <div style={{ background: 'var(--amber-l)', border: '1px solid #e8c97a', borderRadius: 'var(--rs)', padding: '.9rem 1.2rem', marginBottom: '1rem', fontSize: '13px', color: 'var(--amber)' }}>
         ℹ️ Τα πεδία με <span style={{ color: 'var(--red)', fontWeight: 700 }}>✱</span> είναι <strong>υποχρεωτικά</strong>.
       </div>
+
+      {user && block('📷 Φωτογραφία προφίλ', (
+        <PhotoUpload
+          userId={user.id}
+          currentUrl={photoUrl}
+          initials={(fname[0] || '') + (lname[0] || '')}
+          fallbackColor="#888"
+          onUpdate={setPhotoUrl}
+        />
+      ))}
 
       {block('👤 Βασικά στοιχεία', <>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -221,6 +294,9 @@ export default function ProDashPage() {
         </div>
         {field('Σύντομη περιγραφή')}
         <textarea className="form-input" rows={3} placeholder="Πείτε μας λίγα λόγια για εσάς..." value={bio} onChange={e => setBio(e.target.value)} style={{ resize: 'vertical' }} />
+        <div style={{ fontSize: '11px', color: bio.length >= 50 ? 'var(--teal)' : 'var(--gray)', marginTop: '4px' }}>
+          {bio.length}/50 χαρακτήρες {bio.length >= 50 && '✓'}
+        </div>
       </>)}
 
       {block('👩‍⚕️ Επαγγελματικά στοιχεία', <>
@@ -301,8 +377,38 @@ export default function ProDashPage() {
       </>)}
 
       {block('🎯 Εξειδικεύσεις', <>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
-          {SPECS.map(s => chip(s, selSpecs, setSelSpecs, true))}
+        <div style={{ fontSize: '12px', color: 'var(--gray)', marginBottom: '10px' }}>
+          Επίλεξε τις εξειδικεύσεις σου και πρόσθεσε χρόνια εμπειρίας ανά τομέα.
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+          {SPECS.map(s => {
+            const selected = selSpecs.includes(s)
+            return (
+              <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: 'var(--rs)', border: `1.5px solid ${selected ? 'var(--teal)' : 'var(--gray-m)'}`, background: selected ? 'var(--teal-l)' : '#fff' }}>
+                <input
+                  type="checkbox"
+                  checked={selected}
+                  onChange={() => toggleItem(s, selSpecs, setSelSpecs)}
+                  style={{ width: '18px', height: '18px', accentColor: 'var(--teal)', cursor: 'pointer', flexShrink: 0 }}
+                />
+                <span style={{ flex: 1, fontSize: '13px', fontWeight: 500 }}>{s}</span>
+                {selected && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input
+                      type="number"
+                      min={0}
+                      max={50}
+                      placeholder="0"
+                      value={expBreakdown[s] || ''}
+                      onChange={e => setExpYears(s, parseInt(e.target.value) || 0)}
+                      style={{ width: '60px', padding: '6px 8px', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '13px', textAlign: 'center', outline: 'none' }}
+                    />
+                    <span style={{ fontSize: '11px', color: 'var(--gray)', whiteSpace: 'nowrap' }}>έτη</span>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </>)}
 
@@ -310,6 +416,56 @@ export default function ProDashPage() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
           {EXTRAS.map(e => chip(e, selExtras, setSelExtras, true))}
         </div>
+      </>)}
+
+      {user && block('📄 Έγγραφα & Πιστοποιήσεις', <>
+        <div style={{ fontSize: '12px', color: 'var(--gray)', marginBottom: '12px' }}>
+          Τα αρχεία είναι ιδιωτικά — μόνο εσύ τα βλέπεις. Η ύπαρξή τους εμφανίζεται στο επίπεδο επαλήθευσης.
+        </div>
+        <DocumentUpload
+          userId={user.id}
+          field="cv_path"
+          filename="cv.pdf"
+          label="Βιογραφικό (CV)"
+          hint="PDF, μέγιστο 5MB"
+          currentPath={cvPath}
+          onUpdate={setCvPath}
+        />
+        <DocumentUpload
+          userId={user.id}
+          field="diploma_path"
+          filename="diploma.pdf"
+          label="Πτυχίο / Πιστοποιητικό"
+          hint="Νοσηλευτικής, ΤΕΙ, ΙΕΚ — PDF ή φωτογραφία"
+          currentPath={diplomaPath}
+          onUpdate={setDiplomaPath}
+        />
+        <DocumentUpload
+          userId={user.id}
+          field="cpr_cert_path"
+          filename="cpr.pdf"
+          label="Α' Βοήθειες / CPR"
+          hint="Πιστοποιητικό CPR/πρώτων βοηθειών"
+          currentPath={cprPath}
+          onUpdate={setCprPath}
+        />
+        {cprPath && (
+          <div style={{ marginTop: '6px' }}>
+            {field('Ημερομηνία λήξης πιστοποιητικού CPR')}
+            <input type="date" className="form-input" value={cprExpiry} onChange={e => setCprExpiry(e.target.value)} />
+            <div style={{ fontSize: '11px', color: 'var(--gray)', marginTop: '4px' }}>
+              Μετά τη λήξη το checkpoint γίνεται ανενεργό — χρειάζεται ανανέωση.
+            </div>
+          </div>
+        )}
+
+        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '14px', padding: '10px 12px', borderRadius: 'var(--rs)', border: `1.5px solid ${hasCriminal ? 'var(--teal)' : 'var(--gray-m)'}`, background: hasCriminal ? 'var(--teal-l)' : '#fff', cursor: 'pointer' }}>
+          <input type="checkbox" checked={hasCriminal} onChange={e => setHasCriminal(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'var(--teal)' }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '14px', fontWeight: 600 }}>Έχω καθαρό ποινικό μητρώο</div>
+            <div style={{ fontSize: '12px', color: 'var(--gray)', marginTop: '2px' }}>Δηλώνω ότι μπορώ να προσκομίσω αντίγραφο εφόσον ζητηθεί.</div>
+          </div>
+        </label>
       </>)}
 
       {msg && <div className={`msg ${msgType === 'error' ? 'msg-error' : 'msg-success'}`} style={{ marginBottom: '1rem' }}>{msg}</div>}

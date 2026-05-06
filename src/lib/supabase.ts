@@ -36,6 +36,13 @@ export type Professional = {
   rating: number
   total_reviews: number
   registry_number?: string
+  // Phase 1B
+  photo_url?: string
+  cv_path?: string
+  diploma_path?: string
+  cpr_cert_path?: string
+  cpr_expiry?: string
+  experience_breakdown?: Record<string, number>
   profiles?: {
     full_name: string
     area?: string

@@ -20,6 +20,7 @@ type FavCard = {
   is_featured: boolean
   specializations: string[]
   days: number[]
+  photo_url?: string
 }
 
 export default function FavoritesPage() {
@@ -56,6 +57,7 @@ export default function FavoritesPage() {
           is_featured: p.is_featured,
           specializations: p.specializations || [],
           days: parseDays(p.available_days || []),
+          photo_url: p.photo_url || undefined,
         }
       })
       setFavs(cards)
@@ -177,7 +179,11 @@ export default function FavoritesPage() {
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
                 </button>
-                <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 800, color: '#fff', border: '3px solid #fff', boxShadow: '0 2px 10px rgba(0,0,0,.15)' }}>{p.initials}</div>
+                {p.photo_url ? (
+                  <img src={p.photo_url} alt="" style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #fff', boxShadow: '0 2px 10px rgba(0,0,0,.15)' }} />
+                ) : (
+                  <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 800, color: '#fff', border: '3px solid #fff', boxShadow: '0 2px 10px rgba(0,0,0,.15)' }}>{p.initials}</div>
+                )}
               </div>
               <div style={{ padding: '1rem' }}>
                 <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '2px' }}>{maskName(p.name)}</div>
