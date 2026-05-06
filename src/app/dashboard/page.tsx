@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const [name, setName] = useState('')
   const [unlocks, setUnlocks] = useState(0)
   const [reviews, setReviews] = useState(0)
+  const [favorites, setFavorites] = useState(0)
   const [activeSub, setActiveSub] = useState<any>(null)
 
   useEffect(() => {
@@ -25,6 +26,9 @@ export default function DashboardPage() {
 
       const { count: rc } = await sb.from('reviews').select('*', { count: 'exact', head: true }).eq('family_id', session.user.id)
       setReviews(rc || 0)
+
+      const { count: fc } = await sb.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id)
+      setFavorites(fc || 0)
 
       const { data: sub } = await sb.from('subscriptions')
         .select('*')
@@ -82,14 +86,19 @@ export default function DashboardPage() {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Unlocks', val: unlocks, note: 'Επαφές ξεκλειδωμένες' },
-          { label: 'Αξιολογήσεις', val: reviews, note: 'Έχετε δώσει' },
-          { label: 'Express', val: 0, note: 'Ιστορικό' },
+          { label: 'Unlocks', val: unlocks, note: 'Επαφές ξεκλειδωμένες', href: null },
+          { label: '❤️ Αγαπημένοι', val: favorites, note: favorites > 0 ? 'Δες τους' : 'Αποθήκευσε pros', href: '/favorites' },
+          { label: 'Αξιολογήσεις', val: reviews, note: 'Έχετε δώσει', href: null },
+          { label: 'Express', val: 0, note: 'Ιστορικό', href: null },
         ].map(s => (
-          <div key={s.label} style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '1.2rem' }}>
+          <div
+            key={s.label}
+            onClick={s.href ? () => router.push(s.href!) : undefined}
+            style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '1.2rem', cursor: s.href ? 'pointer' : 'default' }}
+          >
             <div style={{ fontSize: '12px', color: 'var(--gray)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.3px' }}>{s.label}</div>
             <div style={{ fontSize: '2rem', fontWeight: 800, margin: '.3rem 0' }}>{s.val}</div>
-            <div style={{ fontSize: '12px', color: 'var(--teal)', fontWeight: 500 }}>{s.note}</div>
+            <div style={{ fontSize: '12px', color: 'var(--teal)', fontWeight: 500 }}>{s.note}{s.href && ' →'}</div>
           </div>
         ))}
       </div>

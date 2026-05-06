@@ -20,6 +20,7 @@ export default function SearchPage() {
   const [allPros, setAllPros] = useState<ProCard[]>([])
   const [filtered, setFiltered] = useState<ProCard[]>([])
   const [loading, setLoading] = useState(true)
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
   const [area, setArea] = useState('')
   const [areaLat, setAreaLat] = useState<number | null>(null)
   const [areaLng, setAreaLng] = useState<number | null>(null)
@@ -54,6 +55,39 @@ export default function SearchPage() {
         distFromSearch: null,
       }))
     setAllPros(pros); setFiltered(pros); setLoading(false)
+
+    // Load this user's favorites if logged in (RLS returns own rows only)
+    const { data: favs } = await sb.from('favorites').select('professional_id')
+    if (favs) setFavoriteIds(new Set(favs.map((f: any) => f.professional_id)))
+  }
+
+  async function toggleFavorite(e: React.MouseEvent, proId: string) {
+    e.stopPropagation()
+    const isFav = favoriteIds.has(proId)
+    // Optimistic update
+    setFavoriteIds(prev => {
+      const next = new Set(prev)
+      if (isFav) next.delete(proId); else next.add(proId)
+      return next
+    })
+    try {
+      if (isFav) {
+        await fetch(`/api/favorites?professional_id=${proId}`, { method: 'DELETE' })
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ professional_id: proId }),
+        })
+      }
+    } catch {
+      // Roll back on error
+      setFavoriteIds(prev => {
+        const next = new Set(prev)
+        if (isFav) next.add(proId); else next.delete(proId)
+        return next
+      })
+    }
   }
 
   const applyFilters = useCallback(() => {
@@ -174,6 +208,30 @@ export default function SearchPage() {
                   <div style={{ height: '140px', background: 'linear-gradient(135deg,#f0faf6,#e0f4ec)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                     {p.is_express && <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#fff', color: 'var(--teal)', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px', boxShadow: '0 1px 6px rgba(0,0,0,.1)' }}>⚡ Express</div>}
                     {p.is_featured && <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--blue)', color: '#fff', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px' }}>★ Top</div>}
+                    <button
+                      onClick={(e) => toggleFavorite(e, p.id)}
+                      title={favoriteIds.has(p.id) ? 'Αφαίρεση από αγαπημένα' : 'Προσθήκη στα αγαπημένα'}
+                      style={{
+                        position: 'absolute',
+                        bottom: '10px',
+                        right: '10px',
+                        width: '34px',
+                        height: '34px',
+                        borderRadius: '50%',
+                        background: '#fff',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 1px 6px rgba(0,0,0,.15)',
+                        padding: 0,
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill={favoriteIds.has(p.id) ? '#e63946' : 'none'} stroke={favoriteIds.has(p.id) ? '#e63946' : '#666'} strokeWidth="2.2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </button>
                     <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 800, color: '#fff', border: '3px solid #fff', boxShadow: '0 2px 10px rgba(0,0,0,.15)' }}>{p.initials}</div>
                   </div>
                   <div style={{ padding: '1rem' }}>

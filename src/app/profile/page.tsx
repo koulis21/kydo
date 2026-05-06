@@ -29,6 +29,7 @@ function ProfileContent() {
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [proPhone, setProPhone] = useState<string | null>(null)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
   const [stars, setStars] = useState(0)
   const [comment, setComment] = useState('')
   const [reviewMsg, setReviewMsg] = useState('')
@@ -55,6 +56,8 @@ function ProfileContent() {
       setUserRole(profile?.role || 'family')
       const { data: ur } = await sb.from('reviews').select('*').eq('professional_id', id).eq('family_id', currentUser.id).maybeSingle()
       setUserReview(ur)
+      const { data: fav } = await sb.from('favorites').select('professional_id').eq('professional_id', id).maybeSingle()
+      setIsFavorite(!!fav)
     }
 
     const { data: proData } = await sb.from('professionals')
@@ -99,6 +102,25 @@ function ProfileContent() {
       .limit(10)
     setReviews(rvs || [])
     setLoading(false)
+  }
+
+  async function toggleFavorite() {
+    if (!user) { router.push('/'); return }
+    const wasFav = isFavorite
+    setIsFavorite(!wasFav)
+    try {
+      if (wasFav) {
+        await fetch(`/api/favorites?professional_id=${id}`, { method: 'DELETE' })
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ professional_id: id }),
+        })
+      }
+    } catch {
+      setIsFavorite(wasFav)
+    }
   }
 
   async function doUnlock() {
@@ -149,7 +171,33 @@ function ProfileContent() {
       </div>
 
       {/* Hero */}
-      <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', background: 'var(--gray-l)', borderRadius: 'var(--r)', padding: '1.5rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', background: 'var(--gray-l)', borderRadius: 'var(--r)', padding: '1.5rem', marginBottom: '1.5rem', position: 'relative' }}>
+        {user && userRole === 'family' && (
+          <button
+            onClick={toggleFavorite}
+            title={isFavorite ? 'Αφαίρεση από αγαπημένα' : 'Προσθήκη στα αγαπημένα'}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: '#fff',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 1px 8px rgba(0,0,0,.12)',
+              padding: 0,
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite ? '#e63946' : 'none'} stroke={isFavorite ? '#e63946' : '#666'} strokeWidth="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        )}
         <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: pro.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 800, color: '#fff', flexShrink: 0, boxShadow: '0 4px 16px rgba(0,0,0,.15)' }}>
           {pro.initials}
         </div>
