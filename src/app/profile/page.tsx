@@ -206,6 +206,24 @@ function ProfileContent() {
                 </button>
               </div>
             </div>
+          ) : userRole === 'professional' ? (
+            <div onClick={() => router.push('/upgrade')} style={{
+              background: 'linear-gradient(135deg, #1e3a5f, #2a5080)',
+              color: '#fff',
+              borderRadius: 'var(--rs)',
+              padding: '1rem 1.2rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+            }}>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '2px' }}>⚡ Ξεχώρισε από τους συναδέλφους</div>
+                <div style={{ fontSize: '12px', opacity: .85 }}>Pro tier — κορυφαία θέση στις αναζητήσεις των οικογενειών</div>
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap' }}>Από €12.99 →</span>
+            </div>
           ) : userRole === 'family' ? (
             <div style={{ border: '1.5px dashed var(--gray-m)', borderRadius: 'var(--rs)', padding: '1rem 1.2rem' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '8px' }}>Στοιχεία επικοινωνίας</div>
