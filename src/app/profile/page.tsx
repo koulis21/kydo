@@ -38,6 +38,11 @@ function ProfileContent() {
   useEffect(() => {
     if (!id) { router.push('/search'); return }
     loadAll()
+
+    // Reset stuck loading state if user navigates back from Stripe via bfcache
+    const onShow = (e: PageTransitionEvent) => { if (e.persisted) setCheckoutLoading(false) }
+    window.addEventListener('pageshow', onShow)
+    return () => window.removeEventListener('pageshow', onShow)
   }, [id])
 
   async function loadAll() {
@@ -201,6 +206,24 @@ function ProfileContent() {
                 </button>
               </div>
             </div>
+          ) : userRole === 'professional' ? (
+            <div onClick={() => router.push('/upgrade')} style={{
+              background: 'linear-gradient(135deg, #1e3a5f, #2a5080)',
+              color: '#fff',
+              borderRadius: 'var(--rs)',
+              padding: '1rem 1.2rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+            }}>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '2px' }}>⚡ Ξεχώρισε από τους συναδέλφους</div>
+                <div style={{ fontSize: '12px', opacity: .85 }}>Pro tier — κορυφαία θέση στις αναζητήσεις των οικογενειών</div>
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap' }}>Από €12.99 →</span>
+            </div>
           ) : userRole === 'family' ? (
             <div style={{ border: '1.5px dashed var(--gray-m)', borderRadius: 'var(--rs)', padding: '1rem 1.2rem' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '8px' }}>Στοιχεία επικοινωνίας</div>
@@ -208,13 +231,19 @@ function ProfileContent() {
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#999', filter: 'blur(4px)', userSelect: 'none', letterSpacing: '2px' }}>69X XXX XXXX</div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button
                   onClick={doUnlock}
                   disabled={checkoutLoading}
                   style={{ padding: '10px 20px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: checkoutLoading ? 'not-allowed' : 'pointer', background: 'var(--teal)', color: '#fff', opacity: checkoutLoading ? .7 : 1, display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
                   {checkoutLoading ? <><div className="spinner" />Ανακατεύθυνση...</> : '🔓 Ξεκλείδωσε €1.99'}
+                </button>
+                <button
+                  onClick={() => router.push('/upgrade')}
+                  style={{ padding: '10px 18px', borderRadius: 'var(--rs)', border: '1.5px solid var(--teal)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', background: '#fff', color: 'var(--teal)' }}
+                >
+                  ή €19.99/μήνα για unlimited →
                 </button>
               </div>
             </div>

@@ -23,15 +23,26 @@ export async function GET(req: NextRequest) {
   const { data: { user } } = await sb.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Έλεγξε αν υπάρχει unlock για αυτόν τον χρήστη + επαγγελματία
-  const { data: unlock } = await sbAdmin
-    .from('unlocks')
+  // Active family subscription → bypass unlock check
+  const { data: activeSub } = await sbAdmin
+    .from('subscriptions')
     .select('id')
-    .eq('family_id', user.id)
-    .eq('professional_id', professionalId)
+    .eq('user_id', user.id)
+    .in('tier', ['family_weekly', 'family_monthly'])
+    .eq('status', 'active')
+    .gt('current_period_end', new Date().toISOString())
     .maybeSingle()
 
-  if (!unlock) return NextResponse.json({ error: 'Not unlocked' }, { status: 403 })
+  if (!activeSub) {
+    const { data: unlock } = await sbAdmin
+      .from('unlocks')
+      .select('id')
+      .eq('family_id', user.id)
+      .eq('professional_id', professionalId)
+      .maybeSingle()
+
+    if (!unlock) return NextResponse.json({ error: 'Not unlocked' }, { status: 403 })
+  }
 
   // Επέστρεψε phone μόνο αν υπάρχει unlock (από profile_phones)
   const { data: phoneRecord } = await sbAdmin

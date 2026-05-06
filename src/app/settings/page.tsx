@@ -122,6 +122,13 @@ export default function SettingsPage() {
         </div>
       ))}
 
+      {block('💳 Συνδρομή & χρεώσεις', (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '14px', color: 'var(--gray)' }}>Διαχείριση συνδρομής, μέθοδος πληρωμής, ιστορικό</span>
+          <button onClick={() => router.push('/upgrade')} style={{ padding: '11px 20px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>Συνδρομή →</button>
+        </div>
+      ))}
+
       {/* Danger zone */}
       <div style={{ background: '#fff', border: '1px solid #f5c6c2', borderRadius: 'var(--r)', marginBottom: '1rem', overflow: 'hidden' }}>
         <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: '.5px', padding: '.9rem 1.3rem', borderBottom: '1px solid #f5c6c2', background: '#fff8f7' }}>🗑️ Επικίνδυνη ζώνη</div>

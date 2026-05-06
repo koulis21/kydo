@@ -152,6 +152,28 @@ export default function ProDashPage() {
         👋 Συμπλήρωσε το προφίλ σου για να εμφανιστείς στην αναζήτηση.
       </div>
 
+      <div onClick={() => router.push('/upgrade')} style={{
+        background: 'linear-gradient(135deg, #1e3a5f, #2a5080)',
+        color: '#fff',
+        borderRadius: 'var(--r)',
+        padding: '1.2rem 1.4rem',
+        marginBottom: '1.5rem',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '12px',
+        flexWrap: 'wrap',
+      }}>
+        <div>
+          <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '2px' }}>⚡ Αναβάθμιση σε Pro</div>
+          <div style={{ fontSize: '13px', opacity: .9 }}>Express badge, top placement στις αναζητήσεις, analytics — από €12.99/μήνα</div>
+        </div>
+        <button style={{ padding: '10px 18px', background: '#fff', color: '#1e3a5f', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+          Δες πλάνα →
+        </button>
+      </div>
+
       <div style={{ background: 'var(--amber-l)', border: '1px solid #e8c97a', borderRadius: 'var(--rs)', padding: '.9rem 1.2rem', marginBottom: '1rem', fontSize: '13px', color: 'var(--amber)' }}>
         ℹ️ Τα πεδία με <span style={{ color: 'var(--red)', fontWeight: 700 }}>✱</span> είναι <strong>υποχρεωτικά</strong>.
       </div>
