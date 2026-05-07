@@ -8,6 +8,14 @@ import type { Profile } from '@/lib/supabase'
 import LoginModal from '@/components/modals/LoginModal'
 import RegisterModal from '@/components/modals/RegisterModal'
 
+const OAUTH_ERRORS: Record<string, string> = {
+  already_family:       'Αυτός ο λογαριασμός Google υπάρχει ήδη ως Οικογένεια. Συνδέσου κανονικά.',
+  already_professional: 'Αυτός ο λογαριασμός Google υπάρχει ήδη ως Επαγγελματίας. Συνδέσου κανονικά.',
+  account_deleted:      'Αυτός ο λογαριασμός έχει διαγραφεί.',
+  exchange_failed:      'Σφάλμα σύνδεσης Google. Δοκίμασε ξανά.',
+  profile_create:       'Σφάλμα δημιουργίας προφίλ. Επικοινώνησε με την υποστήριξη.',
+}
+
 // Separate component to safely use useSearchParams inside Suspense
 function LoginAutoOpen({ onOpen }: { onOpen: () => void }) {
   const searchParams = useSearchParams()
@@ -15,6 +23,38 @@ function LoginAutoOpen({ onOpen }: { onOpen: () => void }) {
     if (searchParams.get('login') === '1') onOpen()
   }, [searchParams])
   return null
+}
+
+function OAuthErrorBanner() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [msg, setMsg] = useState('')
+
+  useEffect(() => {
+    const err = searchParams.get('oauth_error')
+    if (err) {
+      setMsg(OAUTH_ERRORS[err] || 'Σφάλμα σύνδεσης Google.')
+      // Clean URL
+      const url = new URL(window.location.href)
+      url.searchParams.delete('oauth_error')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [searchParams])
+
+  if (!msg) return null
+
+  return (
+    <div style={{
+      position: 'fixed', top: '70px', left: '50%', transform: 'translateX(-50%)',
+      background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5',
+      borderRadius: '10px', padding: '12px 20px', fontSize: '14px', fontWeight: 600,
+      zIndex: 400, display: 'flex', alignItems: 'center', gap: '12px',
+      boxShadow: '0 4px 16px rgba(0,0,0,.12)', maxWidth: '90vw',
+    }}>
+      ⚠️ {msg}
+      <button onClick={() => setMsg('')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#991b1b', padding: 0 }}>✕</button>
+    </div>
+  )
 }
 
 export default function Navbar() {
@@ -195,6 +235,7 @@ export default function Navbar() {
 
       <Suspense fallback={null}>
         <LoginAutoOpen onOpen={() => setShowLogin(true)} />
+        <OAuthErrorBanner />
       </Suspense>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }} />}
       {showRegister && <RegisterModal onClose={() => setShowRegister(false)} onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true) }} />}

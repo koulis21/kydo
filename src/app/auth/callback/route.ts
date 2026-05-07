@@ -50,13 +50,16 @@ export async function GET(request: NextRequest) {
   let role: 'family' | 'professional'
 
   if (existing?.role) {
-    // If user explicitly chose 'professional' during registration, update role
+    // Account already exists — if role mismatch, show error
     if (roleParam === 'professional' && existing.role !== 'professional') {
-      await sb.from('profiles').update({ role: 'professional' }).eq('id', userId)
-      role = 'professional'
-    } else {
-      role = existing.role as 'family' | 'professional'
+      await sb.auth.signOut()
+      return NextResponse.redirect(new URL('/?oauth_error=already_family', origin))
     }
+    if (roleParam === 'family' && existing.role !== 'family') {
+      await sb.auth.signOut()
+      return NextResponse.redirect(new URL('/?oauth_error=already_professional', origin))
+    }
+    role = existing.role as 'family' | 'professional'
   } else {
     role = roleParam === 'professional' ? 'professional' : 'family'
     const fullName =
