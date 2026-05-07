@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     // Create professionals row for new pro accounts
     if (role === 'professional') {
-      await sb.from('professionals').insert({ id: userId }).throwOnError().catch(() => {})
+      await sb.from('professionals').insert({ id: userId })
     }
   }
 
