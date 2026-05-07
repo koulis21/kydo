@@ -23,7 +23,7 @@ export default function AdminVerificationsPage() {
   const [notes, setNotes] = useState<Record<string, string>>({})
   const [msg, setMsg] = useState<Record<string, string>>({})
 
-  const adminEmails = ['info@kydo.gr', 'kydocare@outlook.com', 'koulis1990@gmail.com']
+  const adminEmails = ['info@kydo.gr', 'kydocare@outlook.com', 'koulis1990@gmail.com', 'koulis1990@live.com']
 
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     // Admin check
     const adminEmail = process.env.ADMIN_EMAIL || 'info@kydo.gr'
-    if (user.email !== adminEmail && user.email !== 'kydocare@outlook.com' && user.email !== 'koulis1990@gmail.com') {
+    if (user.email !== adminEmail && user.email !== 'kydocare@outlook.com' && user.email !== 'koulis1990@gmail.com' && user.email !== 'koulis1990@live.com') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
