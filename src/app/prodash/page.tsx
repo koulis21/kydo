@@ -324,21 +324,13 @@ export default function ProDashPage() {
       <div style={{ marginBottom: '1rem' }}>
         <VerificationPanel state={verificationState} variant="full" />
         {/* Verification request button */}
-        {verificationStatus === 'none' && (
-          <div style={{ marginTop: '10px', padding: '1rem', background: verificationState.percent >= 30 ? 'var(--teal-l)' : 'var(--gray-l)', border: `1px solid ${verificationState.percent >= 30 ? '#b8e8d8' : 'var(--gray-m)'}`, borderRadius: 'var(--rs)' }}>
+        {verificationStatus === 'none' && verificationState.percent >= 50 && (
+          <div style={{ marginTop: '10px', padding: '1rem', background: 'var(--teal-l)', border: '1px solid #b8e8d8', borderRadius: 'var(--rs)' }}>
             <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '4px' }}>🏅 Αίτημα Kydo Verified</div>
-            {verificationState.percent >= 30 ? (
-              <>
-                <div style={{ fontSize: '13px', color: 'var(--gray)', marginBottom: '10px' }}>Έχετε συμπληρώσει αρκετά στοιχεία. Υποβάλετε αίτημα επαλήθευσης για να αποκτήσετε το Verified badge.</div>
-                <button onClick={requestVerification} disabled={verifLoading} style={{ padding: '9px 18px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
-                  {verifLoading ? 'Υποβολή...' : '✓ Αίτημα επαλήθευσης'}
-                </button>
-              </>
-            ) : (
-              <div style={{ fontSize: '13px', color: 'var(--gray)' }}>
-                Συμπλήρωσε τουλάχιστον <strong>3/10 checkpoints</strong> για να υποβάλεις αίτημα. Τώρα: {verificationState.done}/10.
-              </div>
-            )}
+            <div style={{ fontSize: '13px', color: 'var(--gray)', marginBottom: '10px' }}>Έχετε συμπληρώσει αρκετά στοιχεία. Υποβάλετε αίτημα επαλήθευσης για να αποκτήσετε το Verified badge.</div>
+            <button onClick={requestVerification} disabled={verifLoading} style={{ padding: '9px 18px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+              {verifLoading ? 'Υποβολή...' : '✓ Αίτημα επαλήθευσης'}
+            </button>
             {verifMsg && <div style={{ marginTop: '8px', fontSize: '13px' }}>{verifMsg}</div>}
           </div>
         )}
