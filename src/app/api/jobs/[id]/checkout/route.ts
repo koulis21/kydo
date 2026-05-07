@@ -76,7 +76,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
   const baseUrl = req.headers.get('origin') || `https://${req.headers.get('host')}`
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
-    automatic_payment_methods: { enabled: true },
     line_items: [{
       price_data: {
         currency: 'eur',
