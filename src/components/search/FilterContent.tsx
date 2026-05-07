@@ -64,9 +64,15 @@ export default function FilterContent({
         {label('Κατηγορία')}
         <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '14px', outline: 'none' }}>
           <option value="">Όλες</option>
-          <option>Νοσοκόμος/α</option><option>Αποκλειστική</option>
-          <option>Οικιακή βοηθός</option><option>Φυσιοθεραπευτής</option>
-          <option>Εργοθεραπευτής</option><option>Βοηθός Ασθενών</option>
+          <option>Αποκλειστική / Νοσοκόμα</option>
+          <option>Φυσιοθεραπευτής/τρια</option>
+          <option>Εργοθεραπευτής/τρια</option>
+          <option>Οικιακή Βοηθός</option>
+          <option>Βοηθός Ασθενών</option>
+          <option>Λογοθεραπευτής/τρια</option>
+          <option>Μαία</option>
+          <option>Ψυχολόγος</option>
+          <option>Διαγνωστικές εξετάσεις</option>
         </select>
       </div>
 

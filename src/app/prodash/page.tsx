@@ -333,9 +333,13 @@ export default function ProDashPage() {
           <option value="">Επιλέξτε...</option>
           <option>Αποκλειστική / Νοσοκόμα</option>
           <option>Φυσιοθεραπευτής/τρια</option>
+          <option>Εργοθεραπευτής/τρια</option>
           <option>Οικιακή Βοηθός</option>
           <option>Βοηθός Ασθενών</option>
-          <option>Εργοθεραπευτής/τρια</option>
+          <option>Λογοθεραπευτής/τρια</option>
+          <option>Μαία</option>
+          <option>Ψυχολόγος</option>
+          <option>Διαγνωστικές εξετάσεις</option>
         </select>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
           <div>{field('Χρόνια εμπειρίας')}<input className="form-input" type="number" min={0} max={50} placeholder="π.χ. 5" value={exp} onChange={e => setExp(e.target.value)} /></div>
