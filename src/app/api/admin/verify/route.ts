@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     // Admin check
-    const { data: profile } = await sbAdmin.from('profiles').select('is_admin').eq('id', user.id).single()
-    if (!profile?.is_admin) {
+    const { data: profile } = await sbAdmin.from('profiles').select('admin_role').eq('id', user.id).single()
+    if (!profile?.admin_role) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

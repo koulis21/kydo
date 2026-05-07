@@ -26,8 +26,8 @@ export default function AdminVerificationsPage() {
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/'); return }
-      const { data: profile } = await sb.from('profiles').select('is_admin').eq('id', session.user.id).single()
-      if (!profile?.is_admin) { router.push('/'); return }
+      const { data: profile } = await sb.from('profiles').select('admin_role').eq('id', session.user.id).single()
+      if (!profile?.admin_role) { router.push('/'); return }
       const { data } = await sb
         .from('professionals')
         .select('id, category, registry_number, diploma_path, cv_path, cpr_cert_path, verification_requested_at, profiles(full_name)')
