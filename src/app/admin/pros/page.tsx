@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 type Pro = {
   id: string
@@ -20,6 +21,7 @@ const statusLabel: Record<string, { label: string; bg: string; color: string }> 
 }
 
 export default function AdminProsPage() {
+  const router = useRouter()
   const [pros, setPros] = useState<Pro[]>([])
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState('')
@@ -84,7 +86,7 @@ export default function AdminProsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                {['Όνομα', 'Κατηγορία', 'Πόλη', 'Εγγραφή', 'Επαλήθευση'].map(h => (
+                {['Όνομα', 'Κατηγορία', 'Πόλη', 'Εγγραφή', 'Επαλήθευση', ''].map(h => (
                   <th key={h} style={{ padding: '11px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
@@ -102,6 +104,14 @@ export default function AdminProsPage() {
                       <span style={{ fontSize: '12px', padding: '3px 9px', borderRadius: '20px', fontWeight: 600, background: s.bg, color: s.color }}>
                         {s.label}
                       </span>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <button
+                        onClick={() => router.push(`/admin/pros/${pro.id}`)}
+                        style={{ padding: '6px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 600, color: '#475569' }}
+                      >
+                        ✏️ Επεξεργασία
+                      </button>
                     </td>
                   </tr>
                 )
