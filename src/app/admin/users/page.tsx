@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 type User = {
   id: string
@@ -13,6 +14,7 @@ type User = {
 }
 
 export default function AdminUsersPage() {
+  const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -145,18 +147,24 @@ export default function AdminUsersPage() {
                     ) : (
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button
+                          onClick={() => router.push(`/admin/users/${u.id}`)}
+                          style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#fff', color: '#475569', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
                           onClick={() => resetPassword(u.id)}
                           title="Αποστολή email επαναφοράς κωδικού"
                           style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#fff', color: '#0d9488', cursor: 'pointer', fontWeight: 600 }}
                         >
-                          🔑 Reset pwd
+                          🔑 Reset
                         </button>
                         <button
                           onClick={() => setConfirmDelete(u.id)}
                           title="Διαγραφή χρήστη"
                           style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '6px', border: '1px solid #fca5a5', background: '#fff', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}
                         >
-                          🗑 Διαγραφή
+                          🗑
                         </button>
                       </div>
                     )}

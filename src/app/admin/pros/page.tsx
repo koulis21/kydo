@@ -13,6 +13,7 @@ type Pro = {
   profiles: { full_name: string; city: string } | { full_name: string; city: string }[]
 }
 
+
 const statusLabel: Record<string, { label: string; bg: string; color: string }> = {
   none:     { label: 'Καμία',     bg: '#f1f5f9', color: '#64748b' },
   pending:  { label: 'Εκκρεμεί', bg: '#fef3c7', color: '#92400e' },
@@ -26,6 +27,37 @@ export default function AdminProsPage() {
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState('')
   const [count, setCount] = useState(0)
+  const [actionMsg, setActionMsg] = useState<Record<string, string>>({})
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+
+  async function resetPassword(proId: string) {
+    setActionMsg(m => ({ ...m, [proId]: '⏳' }))
+    const res = await fetch('/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: proId, action: 'reset_password' }),
+    })
+    const json = await res.json()
+    setActionMsg(m => ({ ...m, [proId]: json.ok ? '✅ Εστάλη!' : '❌ ' + json.error }))
+    setTimeout(() => setActionMsg(m => ({ ...m, [proId]: '' })), 4000)
+  }
+
+  async function deletePro(proId: string) {
+    setActionMsg(m => ({ ...m, [proId]: '⏳' }))
+    setConfirmDelete(null)
+    const res = await fetch('/api/admin/users', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: proId }),
+    })
+    const json = await res.json()
+    if (json.ok) {
+      setPros(p => p.filter(x => x.id !== proId))
+    } else {
+      setActionMsg(m => ({ ...m, [proId]: '❌ ' + json.error }))
+      setTimeout(() => setActionMsg(m => ({ ...m, [proId]: '' })), 4000)
+    }
+  }
 
   async function load() {
     setLoading(true)
@@ -54,6 +86,26 @@ export default function AdminProsPage() {
 
   return (
     <div style={{ padding: '2rem' }}>
+      {confirmDelete && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', borderRadius: '12px', padding: '2rem', maxWidth: '380px', width: '90%', textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⚠️</div>
+            <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '8px' }}>Διαγραφή επαγγελματία;</div>
+            <div style={{ color: '#64748b', fontSize: '14px', marginBottom: '1.5rem' }}>
+              Αυτή η ενέργεια είναι μη αναστρέψιμη. Ο χρήστης και όλα τα δεδομένα του θα διαγραφούν οριστικά.
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button onClick={() => setConfirmDelete(null)} style={{ padding: '9px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', fontSize: '14px', cursor: 'pointer' }}>
+                Ακύρωση
+              </button>
+              <button onClick={() => deletePro(confirmDelete)} style={{ padding: '9px 20px', borderRadius: '8px', border: 'none', background: '#dc2626', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>
+                Ναι, διαγραφή
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ marginBottom: '1.5rem' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
           🩺 Επαγγελματίες <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>({count})</span>
@@ -106,12 +158,30 @@ export default function AdminProsPage() {
                       </span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <button
-                        onClick={() => router.push(`/admin/pros/${pro.id}`)}
-                        style={{ padding: '6px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 600, color: '#475569' }}
-                      >
-                        ✏️ Επεξεργασία
-                      </button>
+                      {actionMsg[pro.id] ? (
+                        <span style={{ fontSize: '13px', fontWeight: 600 }}>{actionMsg[pro.id]}</span>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button
+                            onClick={() => router.push(`/admin/pros/${pro.id}`)}
+                            style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#fff', color: '#475569', cursor: 'pointer', fontWeight: 600 }}
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            onClick={() => resetPassword(pro.id)}
+                            style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#fff', color: '#0d9488', cursor: 'pointer', fontWeight: 600 }}
+                          >
+                            🔑 Reset
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(pro.id)}
+                            style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '6px', border: '1px solid #fca5a5', background: '#fff', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}
+                          >
+                            🗑
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 )
