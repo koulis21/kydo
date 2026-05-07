@@ -48,6 +48,9 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
   const [loading, setLoading] = useState(false)
   const [captchaToken, setCaptchaToken] = useState('')
 
+  // Facebook login disabled until Business Verification is complete
+  const FACEBOOK_ENABLED = false
+
   async function doOAuth(provider: 'google' | 'facebook') {
     setLoading(true)
     setMsg('')
@@ -177,6 +180,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
             </svg>
             <span>Συνέχεια με Google</span>
           </button>
+          {FACEBOOK_ENABLED && (
           <button
             type="button"
             onClick={() => doOAuth('facebook')}
@@ -193,6 +197,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
             </svg>
             <span>Συνέχεια με Facebook</span>
           </button>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 1rem' }}>

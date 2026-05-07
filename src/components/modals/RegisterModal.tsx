@@ -32,6 +32,9 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
   const pwNum = /[0-9]/.test(pass)
   const pwSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass)
 
+  // Facebook login disabled until Business Verification is complete
+  const FACEBOOK_ENABLED = false
+
   async function doOAuth(provider: 'google' | 'facebook') {
     setLoading(true)
     setMsg('')
@@ -175,6 +178,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
             </svg>
             <span>Συνέχεια με Google</span>
           </button>
+          {FACEBOOK_ENABLED && (
           <button
             type="button"
             onClick={() => doOAuth('facebook')}
@@ -191,6 +195,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
             </svg>
             <span>Συνέχεια με Facebook</span>
           </button>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 1rem' }}>
