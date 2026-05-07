@@ -139,7 +139,8 @@ export default function SettingsPage() {
           </button>
           {showDelete && (
             <div style={{ background: '#fff8f7', border: '1px solid #f5c6c2', borderRadius: 'var(--rs)', padding: '1rem', marginTop: '.8rem' }}>
-              <p style={{ fontSize: '13px', color: 'var(--red)', marginBottom: '.8rem', lineHeight: 1.5 }}>⚠️ Πληκτρολογήστε <strong>ΔΙΑΓΡΑΦΗ</strong> για επιβεβαίωση:</p>
+              <p style={{ fontSize: '13px', color: 'var(--red)', marginBottom: '.4rem', lineHeight: 1.5 }}>⚠️ Πληκτρολογήστε <strong>ΔΙΑΓΡΑΦΗ</strong> για επιβεβαίωση:</p>
+              <p style={{ fontSize: '12px', color: 'var(--gray)', marginBottom: '.8rem', lineHeight: 1.5 }}>Ο λογαριασμός θα απενεργοποιηθεί αμέσως και θα διαγραφεί <strong>οριστικά σε 30 ημέρες</strong> (GDPR). Για ανάκληση επικοινώνησε με info@kydo.gr.</p>
               <input className="form-input" placeholder="ΔΙΑΓΡΑΦΗ" value={deleteInput} onChange={e => setDeleteInput(e.target.value)} />
               <div style={{ display: 'flex', gap: '8px', marginTop: '.8rem' }}>
                 <button onClick={doDelete} style={{ padding: '10px 18px', background: 'var(--red)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>Μόνιμη διαγραφή</button>

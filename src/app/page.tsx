@@ -19,7 +19,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero */}
-      <div style={{ padding: '5rem 2rem 4rem', textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>
+      <div className="hero-padding" style={{ padding: '5rem 2rem 4rem', textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '6px',
           background: 'var(--teal-l)', color: 'var(--teal)',
@@ -32,7 +32,7 @@ export default function HomePage() {
           Kydo Verified · Φροντίδα με Απόδειξη
         </div>
 
-        <h1 style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.15, marginBottom: '1.2rem', letterSpacing: '-1px' }}>
+        <h1 className="hero-title" style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.15, marginBottom: '1.2rem', letterSpacing: '-1px' }}>
           Βρες τον κατάλληλο άνθρωπο για{' '}
           <span style={{ color: 'var(--teal)' }}>τους δικούς σου</span>
         </h1>
@@ -41,7 +41,7 @@ export default function HomePage() {
           Η πρώτη πλατφόρμα στην Ελλάδα με 100% επαληθευμένους επαγγελματίες κατ' οίκον φροντίδας.
         </p>
 
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div className="hero-btns" style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => router.push('/search')} style={{
             background: 'var(--teal)', color: '#fff', padding: '14px 28px',
             borderRadius: '24px', fontWeight: 700, fontSize: '15px', cursor: 'pointer', border: 'none',
@@ -162,6 +162,15 @@ export default function HomePage() {
           }}>Είμαι επαγγελματίας</button>
         </div>
       </div>
+
+      <style>{`
+        @media(max-width:640px){
+          .hero-title { font-size: 2rem !important; }
+          .hero-padding { padding: 3rem 1.2rem 2.5rem !important; }
+          .hero-btns { flex-direction: column !important; align-items: stretch !important; }
+          .hero-btns button { width: 100% !important; }
+        }
+      `}</style>
 
       {/* Footer */}
       <footer style={{ background: '#111', color: '#888', padding: '2rem', textAlign: 'center', fontSize: '12px', lineHeight: 2 }}>

@@ -173,7 +173,7 @@ function ProfileContent() {
       </div>
 
       {/* Hero */}
-      <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', background: 'var(--gray-l)', borderRadius: 'var(--r)', padding: '1.5rem', marginBottom: '1.5rem', position: 'relative' }}>
+      <div className="profile-hero" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', background: 'var(--gray-l)', borderRadius: 'var(--r)', padding: '1.5rem', marginBottom: '1.5rem', position: 'relative' }}>
         {user && userRole === 'family' && (
           <button
             onClick={toggleFavorite}
@@ -217,13 +217,13 @@ function ProfileContent() {
             {pro.experience_years > 0 && ` · ${pro.experience_years} χρ.`}
             {pro.area && ` · 📍 ${pro.area}`}
           </div>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
+          <div className="profile-hero-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
             {pro.is_verified && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--teal-l)', color: 'var(--teal)' }}>✓ Kydo Verified</span>}
             {pro.has_criminal_check && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--blue-l)', color: 'var(--blue)' }}>Ποινικό μητρώο</span>}
             {pro.experience_years > 0 && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--amber-l)', color: 'var(--amber)' }}>{pro.experience_years} χρ.</span>}
             {pro.is_express && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--blue-l)', color: 'var(--blue)' }}>⚡ Express</span>}
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '12px' }}>
+          <div className="profile-hero-specs" style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '12px' }}>
             {pro.specializations?.map((t: string) => (
               <span key={t} style={{ fontSize: '11px', background: 'var(--gray-m)', color: 'var(--gray)', padding: '3px 9px', borderRadius: '10px', fontWeight: 500 }}>{t}</span>
             ))}
@@ -247,7 +247,7 @@ function ProfileContent() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
               <div style={{ fontSize: '12px', color: 'var(--gray)', marginBottom: '10px' }}>Συνδεθείτε για να πληρώσετε €1.99 ή ξεκλειδώστε τώρα ως επισκέπτης για €2.49.</div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div className="profile-contact-btns" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button className="btn btn-p" style={{ fontSize: '13px', padding: '8px 18px' }} onClick={() => router.push('/')}>
                   Σύνδεση / Εγγραφή (€1.99)
                 </button>
@@ -285,7 +285,7 @@ function ProfileContent() {
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#999', filter: 'blur(4px)', userSelect: 'none', letterSpacing: '2px' }}>69X XXX XXXX</div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="profile-contact-btns" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button
                   onClick={doUnlock}
                   disabled={checkoutLoading}
@@ -318,8 +318,18 @@ function ProfileContent() {
         />
       </div>
 
+      {/* Bio section */}
+      <div style={{ background: '#fff', border: `1px ${pro.bio ? 'solid' : 'dashed'} var(--gray-m)`, borderRadius: 'var(--r)', padding: '1.2rem', marginBottom: '1.2rem' }}>
+        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '.8rem' }}>Σύντομη παρουσίαση</div>
+        {pro.bio ? (
+          <p style={{ fontSize: '14px', lineHeight: 1.8, color: 'var(--text)', margin: 0, whiteSpace: 'pre-wrap' }}>{pro.bio}</p>
+        ) : (
+          <p style={{ fontSize: '14px', color: '#aaa', margin: 0, fontStyle: 'italic' }}>Ο επαγγελματίας δεν έχει προσθέσει παρουσίαση ακόμα.</p>
+        )}
+      </div>
+
       {/* Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem', marginBottom: '1.2rem' }}>
+      <div className="profile-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem', marginBottom: '1.2rem' }}>
         <div style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '1.2rem' }}>
           <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '.8rem' }}>Εξειδικεύσεις</div>
           {pro.specializations?.length ? pro.specializations.map((s: string) => {
@@ -348,7 +358,6 @@ function ProfileContent() {
           </div>
           {pro.area && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', marginBottom: '6px' }}><div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--teal2)' }} />📍 {pro.area}</div>}
           {pro.time_from && pro.time_to && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', marginBottom: '6px' }}><div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--teal2)' }} />🕐 {pro.time_from} – {pro.time_to}</div>}
-          {pro.bio && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}><div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--teal2)' }} />📝 {pro.bio}</div>}
         </div>
       </div>
 
@@ -389,7 +398,16 @@ function ProfileContent() {
         )}
       </div>
 
-      <style>{`@media(max-width:768px){.profile-grid{grid-template-columns:1fr!important}}`}</style>
+      <style>{`
+        @media(max-width:640px){
+          .profile-grid { grid-template-columns: 1fr !important; }
+          .profile-hero { flex-direction: column !important; align-items: center !important; text-align: center !important; }
+          .profile-hero-info { align-items: center !important; }
+          .profile-hero-badges { justify-content: center !important; }
+          .profile-hero-specs { justify-content: center !important; }
+          .profile-contact-btns { flex-direction: column !important; }
+        }
+      `}</style>
     </div>
   )
 }
