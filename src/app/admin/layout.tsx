@@ -32,6 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/pros', label: '🩺 Επαγγελματίες' },
     { href: '/admin/verifications', label: '🔍 Επαλήθευση' },
     { href: '/admin/subscriptions', label: '💳 Συνδρομές' },
+    { href: '/admin/categories', label: '🏷️ Κατηγορίες' },
     { href: '/admin/team', label: '🛡️ Ομάδα' },
   ]
 

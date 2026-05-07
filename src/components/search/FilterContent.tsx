@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import PlacesInput from '@/components/PlacesInput'
 import { DAYS } from '@/lib/auth'
 
@@ -35,6 +36,13 @@ export default function FilterContent({
   minExp, setMinExp, maxPrice, setMaxPrice,
   wantExpress, setWantExpress, wantVerified, setWantVerified,
 }: Props) {
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([])
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(d => setCategories((d.data || []).filter((c: any) => c.active)))
+  }, [])
 
   const label = (text: string) => (
     <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.5px', marginBottom: '.7rem' }}>{text}</div>
@@ -64,15 +72,7 @@ export default function FilterContent({
         {label('Κατηγορία')}
         <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '14px', outline: 'none' }}>
           <option value="">Όλες</option>
-          <option>Αποκλειστική / Νοσοκόμα</option>
-          <option>Φυσιοθεραπευτής/τρια</option>
-          <option>Εργοθεραπευτής/τρια</option>
-          <option>Οικιακή Βοηθός</option>
-          <option>Βοηθός Ασθενών</option>
-          <option>Λογοθεραπευτής/τρια</option>
-          <option>Μαία</option>
-          <option>Ψυχολόγος</option>
-          <option>Διαγνωστικές εξετάσεις</option>
+          {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
         </select>
       </div>
 
