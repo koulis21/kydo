@@ -5,9 +5,14 @@ import Link from 'next/link'
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     if (!localStorage.getItem('kydo_cookie')) setVisible(true)
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   function accept(all: boolean) {
@@ -19,11 +24,11 @@ export default function CookieBanner() {
 
   return (
     <div style={{
-      position: 'fixed', bottom: 0, left: 0, right: 0,
+      position: 'fixed', bottom: isMobile ? '64px' : 0, left: 0, right: 0,
       background: 'var(--text)', color: '#fff',
       padding: '1rem 1.5rem', display: 'flex',
       alignItems: 'center', justifyContent: 'space-between',
-      gap: '1rem', zIndex: 1000, flexWrap: 'wrap', fontSize: '13px'
+      gap: '1rem', zIndex: 10000, flexWrap: 'wrap', fontSize: '13px'
     }}>
       <span>
         Χρησιμοποιούμε cookies για τη λειτουργία του site.{' '}

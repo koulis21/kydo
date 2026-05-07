@@ -50,7 +50,13 @@ export async function GET(request: NextRequest) {
   let role: 'family' | 'professional'
 
   if (existing?.role) {
-    role = existing.role as 'family' | 'professional'
+    // If user explicitly chose 'professional' during registration, update role
+    if (roleParam === 'professional' && existing.role !== 'professional') {
+      await sb.from('profiles').update({ role: 'professional' }).eq('id', userId)
+      role = 'professional'
+    } else {
+      role = existing.role as 'family' | 'professional'
+    }
   } else {
     role = roleParam === 'professional' ? 'professional' : 'family'
     const fullName =
@@ -67,6 +73,11 @@ export async function GET(request: NextRequest) {
     })
     if (insertError) {
       return NextResponse.redirect(new URL('/?oauth_error=profile_create', origin))
+    }
+
+    // Create professionals row for new pro accounts
+    if (role === 'professional') {
+      await sb.from('professionals').insert({ id: userId }).throwOnError().catch(() => {})
     }
   }
 
