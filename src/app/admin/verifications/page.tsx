@@ -12,7 +12,7 @@ type PendingPro = {
   cv_path?: string
   cpr_cert_path?: string
   verification_requested_at: string
-  profiles?: { full_name: string }
+  profiles?: { full_name: string }[]
 }
 
 export default function AdminVerificationsPage() {
@@ -74,7 +74,7 @@ export default function AdminVerificationsPage() {
           <div key={pro.id} style={{ background: '#fff', border: '1px solid var(--gray-m)', borderRadius: 'var(--r)', padding: '1.2rem', marginBottom: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '16px' }}>{pro.profiles?.full_name || '—'}</div>
+                <div style={{ fontWeight: 700, fontSize: '16px' }}>{Array.isArray(pro.profiles) ? pro.profiles[0]?.full_name : (pro.profiles as any)?.full_name || '—'}</div>
                 <div style={{ fontSize: '13px', color: 'var(--gray)' }}>{pro.category}</div>
                 {pro.registry_number && <div style={{ fontSize: '12px', color: 'var(--gray)' }}>Μητρώο: {pro.registry_number}</div>}
               </div>
