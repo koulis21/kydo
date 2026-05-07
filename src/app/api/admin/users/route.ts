@@ -49,22 +49,16 @@ export async function DELETE(req: NextRequest) {
     const { user_id } = await req.json()
     if (!user_id) return NextResponse.json({ error: 'Missing user_id' }, { status: 400 })
 
-    // Delete related records in order (FK constraints)
-    const tables = [
-      'reviews',
-      'unlocks',
-      'job_applications',
-      'jobs',
-      'subscriptions',
-      'professionals',
-      'profile_phones',
-      'profiles',
-    ]
-    for (const table of tables) {
-      await sbAdmin.from(table).delete().eq('id', user_id).throwOnError().catch(() => {})
-      // Also try user_id FK (subscriptions, unlocks, jobs etc.)
-      await sbAdmin.from(table).delete().eq('user_id', user_id).throwOnError().catch(() => {})
-    }
+    // Delete related records in order (FK constraints) — ignore errors per table
+    await sbAdmin.from('reviews').delete().or(`reviewer_id.eq.${user_id},reviewee_id.eq.${user_id}`)
+    await sbAdmin.from('unlocks').delete().eq('user_id', user_id)
+    await sbAdmin.from('job_applications').delete().eq('pro_id', user_id)
+    await sbAdmin.from('job_applications').delete().eq('user_id', user_id)
+    await sbAdmin.from('jobs').delete().eq('user_id', user_id)
+    await sbAdmin.from('subscriptions').delete().eq('user_id', user_id)
+    await sbAdmin.from('professionals').delete().eq('id', user_id)
+    await sbAdmin.from('profile_phones').delete().eq('id', user_id)
+    await sbAdmin.from('profiles').delete().eq('id', user_id)
 
     const { error } = await sbAdmin.auth.admin.deleteUser(user_id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
