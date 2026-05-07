@@ -49,16 +49,9 @@ export async function DELETE(req: NextRequest) {
     const { user_id } = await req.json()
     if (!user_id) return NextResponse.json({ error: 'Missing user_id' }, { status: 400 })
 
-    // Delete related records in order (FK constraints) — ignore errors per table
-    await sbAdmin.from('reviews').delete().or(`reviewer_id.eq.${user_id},reviewee_id.eq.${user_id}`)
-    await sbAdmin.from('unlocks').delete().eq('user_id', user_id)
-    await sbAdmin.from('job_applications').delete().eq('pro_id', user_id)
-    await sbAdmin.from('job_applications').delete().eq('user_id', user_id)
-    await sbAdmin.from('jobs').delete().eq('user_id', user_id)
-    await sbAdmin.from('subscriptions').delete().eq('user_id', user_id)
-    await sbAdmin.from('professionals').delete().eq('id', user_id)
-    await sbAdmin.from('profile_phones').delete().eq('id', user_id)
-    await sbAdmin.from('profiles').delete().eq('id', user_id)
+    // Clean up all related records via DB function (SECURITY DEFINER bypasses RLS)
+    const { error: rpcError } = await sbAdmin.rpc('admin_delete_user', { user_uuid: user_id })
+    if (rpcError) return NextResponse.json({ error: rpcError.message }, { status: 500 })
 
     const { error } = await sbAdmin.auth.admin.deleteUser(user_id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
