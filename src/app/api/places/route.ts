@@ -1,6 +1,35 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(request: Request) {
+// In-memory rate limiter — resets per serverless instance lifecycle
+// For production-grade limiting across all instances, use Upstash Redis
+const rlMap = new Map<string, { count: number; resetAt: number }>()
+
+function getIP(req: NextRequest): string {
+  return (
+    req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+    req.headers.get('x-real-ip') ||
+    'unknown'
+  )
+}
+
+function allow(ip: string, limit: number): boolean {
+  const now = Date.now()
+  const entry = rlMap.get(ip)
+  if (!entry || now > entry.resetAt) {
+    rlMap.set(ip, { count: 1, resetAt: now + 60_000 })
+    return true
+  }
+  if (entry.count >= limit) return false
+  entry.count++
+  return true
+}
+
+export async function POST(request: NextRequest) {
+  const ip = getIP(request)
+  if (!allow(ip, 20)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const { input } = await request.json()
 
   if (!input || input.length < 2) {
@@ -24,7 +53,12 @@ export async function POST(request: Request) {
   return NextResponse.json({ suggestions: data.suggestions || [] })
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  const ip = getIP(request)
+  if (!allow(ip, 10)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const { searchParams } = new URL(request.url)
   const placeId = searchParams.get('placeId')
 
