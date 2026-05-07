@@ -43,6 +43,11 @@ export type Professional = {
   cpr_cert_path?: string
   cpr_expiry?: string
   experience_breakdown?: Record<string, number>
+  // Verification workflow
+  verification_status?: 'none' | 'pending' | 'approved' | 'rejected'
+  verification_requested_at?: string
+  verified_at?: string
+  verification_notes?: string
   profiles?: {
     full_name: string
     area?: string

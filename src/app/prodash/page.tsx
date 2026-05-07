@@ -50,6 +50,9 @@ export default function ProDashPage() {
   const [cprExpiry, setCprExpiry] = useState<string>('')
   const [expBreakdown, setExpBreakdown] = useState<Record<string, number>>({})
   const [hasCriminal, setHasCriminal] = useState(false)
+  const [verificationStatus, setVerificationStatus] = useState<string>('none')
+  const [verifMsg, setVerifMsg] = useState('')
+  const [verifLoading, setVerifLoading] = useState(false)
 
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {
@@ -99,9 +102,28 @@ export default function ProDashPage() {
         setCprExpiry(pro.cpr_expiry || '')
         setExpBreakdown(pro.experience_breakdown || {})
         setHasCriminal(pro.has_criminal_check || false)
+        setVerificationStatus(pro.verification_status || 'none')
       }
     })
   }, [])
+
+  async function requestVerification() {
+    setVerifLoading(true)
+    setVerifMsg('')
+    try {
+      const res = await fetch('/api/verification/request', { method: 'POST' })
+      const json = await res.json()
+      if (json.ok) {
+        setVerificationStatus('pending')
+        setVerifMsg('✅ Το αίτημα υποβλήθηκε! Θα ενημερωθείτε με email.')
+      } else {
+        setVerifMsg('❌ ' + json.error)
+      }
+    } catch {
+      setVerifMsg('❌ Σφάλμα σύνδεσης')
+    }
+    setVerifLoading(false)
+  }
 
   function toggleItem(item: string, list: string[], setList: (v: string[]) => void) {
     setList(list.includes(item) ? list.filter(x => x !== item) : [...list, item])
@@ -294,6 +316,35 @@ export default function ProDashPage() {
 
       <div style={{ marginBottom: '1rem' }}>
         <VerificationPanel state={verificationState} variant="full" />
+        {/* Verification request button */}
+        {verificationStatus === 'none' && verificationState.percent >= 50 && (
+          <div style={{ marginTop: '10px', padding: '1rem', background: 'var(--teal-l)', border: '1px solid #b8e8d8', borderRadius: 'var(--rs)' }}>
+            <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '4px' }}>🏅 Αίτημα Kydo Verified</div>
+            <div style={{ fontSize: '13px', color: 'var(--gray)', marginBottom: '10px' }}>Έχετε συμπληρώσει αρκετά στοιχεία. Υποβάλετε αίτημα επαλήθευσης για να αποκτήσετε το Verified badge.</div>
+            <button onClick={requestVerification} disabled={verifLoading} style={{ padding: '9px 18px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+              {verifLoading ? 'Υποβολή...' : '✓ Αίτημα επαλήθευσης'}
+            </button>
+            {verifMsg && <div style={{ marginTop: '8px', fontSize: '13px' }}>{verifMsg}</div>}
+          </div>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ marginTop: '10px', padding: '1rem', background: '#fffbeb', border: '1px solid #e8c97a', borderRadius: 'var(--rs)', fontSize: '13px', color: '#92400e' }}>
+            ⏳ <strong>Αίτημα σε εξέλιξη</strong> — Θα ενημερωθείτε με email μόλις αξιολογηθεί.
+          </div>
+        )}
+        {verificationStatus === 'approved' && (
+          <div style={{ marginTop: '10px', padding: '1rem', background: 'var(--teal-l)', border: '1px solid #b8e8d8', borderRadius: 'var(--rs)', fontSize: '13px', color: 'var(--teal)', fontWeight: 700 }}>
+            ✅ Επαληθευμένος επαγγελματίας
+          </div>
+        )}
+        {verificationStatus === 'rejected' && (
+          <div style={{ marginTop: '10px', padding: '1rem', background: '#fff8f7', border: '1px solid #f5c6c2', borderRadius: 'var(--rs)', fontSize: '13px', color: 'var(--red)' }}>
+            ❌ Το αίτημα απορρίφθηκε. Ανεβάστε πρόσθετα έγγραφα και υποβάλετε ξανά.
+            <button onClick={requestVerification} disabled={verifLoading} style={{ display: 'block', marginTop: '8px', padding: '8px 16px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+              Νέο αίτημα
+            </button>
+          </div>
+        )}
       </div>
 
       <div style={{ background: 'var(--amber-l)', border: '1px solid #e8c97a', borderRadius: 'var(--rs)', padding: '.9rem 1.2rem', marginBottom: '1rem', fontSize: '13px', color: 'var(--amber)' }}>
