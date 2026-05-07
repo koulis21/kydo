@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
@@ -8,9 +8,17 @@ import type { Profile } from '@/lib/supabase'
 import LoginModal from '@/components/modals/LoginModal'
 import RegisterModal from '@/components/modals/RegisterModal'
 
+// Separate component to safely use useSearchParams inside Suspense
+function LoginAutoOpen({ onOpen }: { onOpen: () => void }) {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    if (searchParams.get('login') === '1') onOpen()
+  }, [searchParams])
+  return null
+}
+
 export default function Navbar() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const sb = createClient()
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -20,10 +28,6 @@ export default function Navbar() {
   const [isMobile, setIsMobile] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  // Auto-open login modal if ?login=1 in URL
-  useEffect(() => {
-    if (searchParams.get('login') === '1') setShowLogin(true)
-  }, [searchParams])
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768)
@@ -189,6 +193,9 @@ export default function Navbar() {
         </div>
       </nav>
 
+      <Suspense fallback={null}>
+        <LoginAutoOpen onOpen={() => setShowLogin(true)} />
+      </Suspense>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }} />}
       {showRegister && <RegisterModal onClose={() => setShowRegister(false)} onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true) }} />}
     </>
