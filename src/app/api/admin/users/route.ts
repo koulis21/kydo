@@ -49,6 +49,23 @@ export async function DELETE(req: NextRequest) {
     const { user_id } = await req.json()
     if (!user_id) return NextResponse.json({ error: 'Missing user_id' }, { status: 400 })
 
+    // Delete related records in order (FK constraints)
+    const tables = [
+      'reviews',
+      'unlocks',
+      'job_applications',
+      'jobs',
+      'subscriptions',
+      'professionals',
+      'profile_phones',
+      'profiles',
+    ]
+    for (const table of tables) {
+      await sbAdmin.from(table).delete().eq('id', user_id).throwOnError().catch(() => {})
+      // Also try user_id FK (subscriptions, unlocks, jobs etc.)
+      await sbAdmin.from(table).delete().eq('user_id', user_id).throwOnError().catch(() => {})
+    }
+
     const { error } = await sbAdmin.auth.admin.deleteUser(user_id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
