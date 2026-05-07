@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f6e56"/>
+      <stop offset="100%" stop-color="#1d9e75"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+      <feOffset dx="0" dy="6" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.18"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
+
+  <!-- Subtle inner highlight -->
+  <rect x="40" y="40" width="944" height="944" rx="200" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+
+  <!-- Heart shape -->
+  <g filter="url(#shadow)">
+    <path d="M512 800
+             C 512 800, 192 600, 192 388
+             C 192 288, 272 208, 372 208
+             C 442 208, 498 246, 512 300
+             C 526 246, 582 208, 652 208
+             C 752 208, 832 288, 832 388
+             C 832 600, 512 800, 512 800 Z"
+          fill="#ffffff"/>
+  </g>
+
+  <!-- Medical cross inside the heart -->
+  <g fill="#0f6e56">
+    <rect x="468" y="346" width="88" height="280" rx="14"/>
+    <rect x="372" y="442" width="280" height="88" rx="14"/>
+  </g>
+</svg>

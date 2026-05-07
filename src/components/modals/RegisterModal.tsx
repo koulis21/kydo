@@ -32,6 +32,23 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
   const pwNum = /[0-9]/.test(pass)
   const pwSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass)
 
+  async function doOAuth(provider: 'google' | 'facebook') {
+    setLoading(true)
+    setMsg('')
+    const supabaseRole = role === 'pro' ? 'professional' : 'family'
+    const { error } = await sb.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?role=${supabaseRole}`,
+      },
+    })
+    if (error) {
+      setMsg('Σφάλμα: ' + error.message)
+      setMsgType('error')
+      setLoading(false)
+    }
+  }
+
   async function doRegister() {
     if (!fname || !lname || !email || !pass) {
       setMsg('Συμπληρώστε όλα τα υποχρεωτικά πεδία.'); setMsgType('error'); return
@@ -135,6 +152,51 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
               <p style={{ fontSize: '12px', color: 'var(--gray)', marginTop: '3px' }}>{sub}</p>
             </div>
           ))}
+        </div>
+
+        {/* OAuth providers */}
+        <div style={{ display: 'grid', gap: '10px', marginBottom: '1rem' }}>
+          <button
+            type="button"
+            onClick={() => doOAuth('google')}
+            disabled={loading}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+              padding: '12px', borderRadius: 'var(--rs)', border: '1.5px solid var(--gray-m)',
+              background: '#fff', cursor: 'pointer', fontSize: '14px', fontWeight: 600,
+              color: 'var(--text)',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"/>
+              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/>
+              <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.6 39.5 16.3 44 24 44z"/>
+              <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2C41.1 36 44 30.5 44 24c0-1.2-.1-2.4-.4-3.5z"/>
+            </svg>
+            <span>Συνέχεια με Google</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => doOAuth('facebook')}
+            disabled={loading}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+              padding: '12px', borderRadius: 'var(--rs)', border: '1.5px solid #1877F2',
+              background: '#1877F2', cursor: 'pointer', fontSize: '14px', fontWeight: 600,
+              color: '#fff',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+              <path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.408.593 24 1.325 24H12.82V14.706h-3.13v-3.622h3.13V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.464.099 2.795.143v3.24h-1.918c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.592 1.323-1.324V1.325C24 .593 23.408 0 22.675 0z"/>
+            </svg>
+            <span>Συνέχεια με Facebook</span>
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 1rem' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--gray-m)' }} />
+          <span style={{ fontSize: '12px', color: 'var(--gray)' }}>ή με email</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--gray-m)' }} />
         </div>
 
         {/* Name */}
