@@ -75,7 +75,7 @@ export default function HomePage() {
       <div style={{ padding: '4rem 2rem', maxWidth: '1100px', margin: '0 auto' }}>
         <h2 style={{ fontSize: '1.8rem', fontWeight: 800, textAlign: 'center', marginBottom: '.5rem', letterSpacing: '-.5px' }}>Γιατί Kydo;</h2>
         <p style={{ textAlign: 'center', color: 'var(--gray)', fontSize: '14px', marginBottom: '3rem' }}>Το TripAdvisor της κατ' οίκον φροντίδας</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: '1.5rem' }}>
           {[
             { icon: '✓', title: 'Kydo Verified', desc: 'Επαλήθευση ταυτότητας, πτυχίων και ποινικού μητρώου.' },
             { icon: '📍', title: 'Τοποθεσία & Απόσταση', desc: 'Αναζήτηση με βάση περιοχή και μέγιστη απόσταση.' },

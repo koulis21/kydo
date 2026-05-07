@@ -28,7 +28,7 @@ function JobDetailContent({ id }: { id: string }) {
 
   async function loadAll() {
     const { data: { session } } = await sb.auth.getSession()
-    if (!session) { router.push('/'); return }
+    if (!session) { router.push(`/?login=1&redirect=/jobs/${id}`); return }
     setUser(session.user)
     const { data: profile } = await sb.from('profiles').select('role').eq('id', session.user.id).single()
     setRole(profile?.role || '')

@@ -28,7 +28,7 @@ export default function JobsListingPage() {
 
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { router.push('/'); return }
+      if (!session) { router.push('/?login=1&redirect=/jobs'); return }
 
       const res = await fetch('/api/jobs')
       const data = await res.json()

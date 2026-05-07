@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import type { Profile } from '@/lib/supabase'
@@ -10,6 +10,7 @@ import RegisterModal from '@/components/modals/RegisterModal'
 
 export default function Navbar() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const sb = createClient()
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -18,6 +19,11 @@ export default function Navbar() {
   const [showRegister, setShowRegister] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // Auto-open login modal if ?login=1 in URL
+  useEffect(() => {
+    if (searchParams.get('login') === '1') setShowLogin(true)
+  }, [searchParams])
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768)

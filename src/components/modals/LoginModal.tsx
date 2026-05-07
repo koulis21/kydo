@@ -120,7 +120,8 @@ export default function LoginModal({ onClose, onSwitchToRegister }: Props) {
       await clearLock(email)
       onClose()
       const role = profile?.role || data.user.user_metadata?.role
-      router.push(role === 'professional' ? '/prodash' : '/dashboard')
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect')
+      router.push(redirectTo || (role === 'professional' ? '/prodash' : '/dashboard'))
     } catch (e: any) {
       setMsg('Σφάλμα: ' + e.message)
       setMsgType('error')

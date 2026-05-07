@@ -29,7 +29,7 @@ export default function PostJobPage() {
 
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { router.push('/'); return }
+      if (!session) { router.push('/?login=1&redirect=/post-job'); return }
       setUser(session.user)
       const { data: profile } = await sb.from('profiles').select('role,area').eq('id', session.user.id).single()
       if (profile?.role !== 'family') { router.push('/'); return }

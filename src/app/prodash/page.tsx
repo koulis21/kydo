@@ -63,7 +63,7 @@ export default function ProDashPage() {
 
   useEffect(() => {
     sb.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { router.push('/'); return }
+      if (!session) { router.push('/?login=1&redirect=/prodash'); return }
       setUser(session.user)
       const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single()
       if (profile?.full_name) {
