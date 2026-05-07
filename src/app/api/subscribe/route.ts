@@ -11,6 +11,7 @@ const sbAdmin = createClient(
 )
 
 export async function POST(req: NextRequest) {
+  try {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
   const { tier } = await req.json() as { tier: SubscriptionTier }
@@ -67,4 +68,8 @@ export async function POST(req: NextRequest) {
   })
 
   return NextResponse.json({ url: session.url })
+  } catch (e: any) {
+    console.error('Subscribe error:', e.message)
+    return NextResponse.json({ error: e.message }, { status: 500 })
+  }
 }
