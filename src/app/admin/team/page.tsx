@@ -12,7 +12,7 @@ type TeamMember = {
 export default function AdminTeamPage() {
   const [team, setTeam] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(true)
-  const [newUserId, setNewUserId] = useState('')
+  const [newEmail, setNewEmail] = useState('')
   const [newRole, setNewRole] = useState<'mod' | 'admin' | 'super_admin'>('mod')
   const [msg, setMsg] = useState('')
   const [saving, setSaving] = useState(false)
@@ -46,9 +46,24 @@ export default function AdminTeamPage() {
   }
 
   async function addMember() {
-    if (!newUserId.trim()) return
-    await updateRole(newUserId.trim(), newRole)
-    setNewUserId('')
+    if (!newEmail.trim()) return
+    setSaving(true)
+    setMsg('')
+    const res = await fetch('/api/admin/team', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: newEmail.trim(), admin_role: newRole }),
+    })
+    const json = await res.json()
+    if (json.ok) {
+      setMsg('✅ Προστέθηκε!')
+      setNewEmail('')
+      load()
+    } else {
+      setMsg('❌ ' + json.error)
+    }
+    setSaving(false)
+    setTimeout(() => setMsg(''), 4000)
   }
 
   const roleColors: Record<string, { bg: string; color: string }> = {
@@ -129,14 +144,16 @@ export default function AdminTeamPage() {
       <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '1.5rem' }}>
         <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '1rem', color: '#0f172a' }}>Προσθήκη μέλους</h3>
         <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '1rem' }}>
-          Βάλε το User ID (UUID) από τον πίνακα profiles της Supabase.
+          Βάλε το email του χρήστη που θέλεις να προσθέσεις.
         </p>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <input
-            placeholder="User UUID (από Supabase profiles)"
-            value={newUserId}
-            onChange={e => setNewUserId(e.target.value)}
-            style={{ padding: '9px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '13px', flex: 1, minWidth: '280px', outline: 'none', fontFamily: 'monospace' }}
+            type="email"
+            placeholder="email@example.com"
+            value={newEmail}
+            onChange={e => setNewEmail(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addMember()}
+            style={{ padding: '9px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', flex: 1, minWidth: '280px', outline: 'none' }}
           />
           <select
             value={newRole}
@@ -149,7 +166,7 @@ export default function AdminTeamPage() {
           </select>
           <button
             onClick={addMember}
-            disabled={saving || !newUserId.trim()}
+            disabled={saving || !newEmail.trim()}
             style={{ padding: '9px 18px', background: '#0d9488', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
           >
             Προσθήκη
