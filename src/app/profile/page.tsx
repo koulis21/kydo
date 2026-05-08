@@ -221,6 +221,9 @@ function ProfileContent() {
             {pro.is_verified && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--teal-l)', color: 'var(--teal)' }}>✓ Kydo Verified</span>}
             {pro.has_criminal_check && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--blue-l)', color: 'var(--blue)' }}>Ποινικό μητρώο</span>}
             {pro.experience_years > 0 && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--amber-l)', color: 'var(--amber)' }}>{pro.experience_years} χρ.</span>}
+            {(pro as any).gender === 'male' && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: '#eff6ff', color: '#3b82f6' }}>♂ Άνδρας</span>}
+            {(pro as any).gender === 'female' && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: '#fdf2f8', color: '#ec4899' }}>♀ Γυναίκα</span>}
+            {(pro as any).gender === 'other' && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--gray-l)', color: 'var(--gray)' }}>⊕ Άλλο</span>}
             {pro.is_express && <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600, background: 'var(--blue-l)', color: 'var(--blue)' }}>⚡ Express</span>}
           </div>
           <div className="profile-hero-specs" style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '12px' }}>
