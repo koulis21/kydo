@@ -50,6 +50,7 @@ export default function ProDashPage() {
   const [cprPath, setCprPath] = useState<string | null>(null)
   const [cprExpiry, setCprExpiry] = useState<string>('')
   const [expBreakdown, setExpBreakdown] = useState<Record<string, number>>({})
+  const [gender, setGender] = useState('')
   const [hasCriminal, setHasCriminal] = useState(false)
   const [verificationStatus, setVerificationStatus] = useState<string>('none')
   const [verifMsg, setVerifMsg] = useState('')
@@ -108,6 +109,7 @@ export default function ProDashPage() {
         setCprPath(pro.cpr_cert_path || null)
         setCprExpiry(pro.cpr_expiry || '')
         setExpBreakdown(pro.experience_breakdown || {})
+        setGender(pro.gender || '')
         setHasCriminal(pro.has_criminal_check || false)
         setVerificationStatus(pro.verification_status || 'none')
       }
@@ -193,6 +195,7 @@ export default function ProDashPage() {
 
     const { error } = await sb.from('professionals').upsert({
       id: user.id,
+      gender: gender || null,
       category: cat,
       specializations: selSpecs,
       experience_years: parseInt(exp) || 0,
@@ -377,6 +380,18 @@ export default function ProDashPage() {
         <div style={{ display: 'flex', gap: '8px' }}>
           <input value="+30" readOnly style={{ width: '70px', padding: '12px 10px', border: '1.5px solid var(--gray-m)', borderRadius: 'var(--rs)', fontSize: '15px', background: 'var(--gray-l)', textAlign: 'center', fontWeight: 600, outline: 'none' }} />
           <input className="form-input" placeholder="6912345678" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, ''))} />
+        </div>
+        {field('Φύλο')}
+        <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+          {[{ value: 'male', label: '♂ Άνδρας' }, { value: 'female', label: '♀ Γυναίκα' }, { value: 'other', label: '⊕ Άλλο' }].map(({ value, label }) => (
+            <div key={value} onClick={() => setGender(g => g === value ? '' : value)} style={{
+              padding: '8px 16px', borderRadius: '24px', fontSize: '13px', cursor: 'pointer', fontWeight: 500,
+              border: `1.5px solid ${gender === value ? 'var(--teal)' : 'var(--gray-m)'}`,
+              background: gender === value ? 'var(--teal)' : '#fff',
+              color: gender === value ? '#fff' : 'var(--text)',
+              transition: 'all .15s',
+            }}>{label}</div>
+          ))}
         </div>
         {field('Σύντομη περιγραφή')}
         <textarea className="form-input" rows={3} placeholder="Πείτε μας λίγα λόγια για εσάς..." value={bio} onChange={e => setBio(e.target.value)} style={{ resize: 'vertical' }} />

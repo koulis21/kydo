@@ -29,6 +29,7 @@ export default function AdminProEditPage() {
   const [area, setArea] = useState('')
   const [maxDist, setMaxDist] = useState('10')
   const [bio, setBio] = useState('')
+  const [gender, setGender] = useState('')
   const [isVerified, setIsVerified] = useState(false)
   const [verificationStatus, setVerificationStatus] = useState('none')
   const [isExpress, setIsExpress] = useState(false)
@@ -53,6 +54,7 @@ export default function AdminProEditPage() {
         setArea(pro?.area || profile?.area || '')
         setMaxDist(pro?.max_distance?.toString() || '10')
         setBio(pro?.bio || '')
+        setGender(pro?.gender || '')
         setIsVerified(pro?.is_verified || false)
         setVerificationStatus(pro?.verification_status || 'none')
         setIsExpress(pro?.is_express || false)
@@ -68,6 +70,7 @@ export default function AdminProEditPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         full_name: fullName, city, phone,
+        gender: gender || null,
         category, experience_years: expYears, hourly_rate: hourlyRate,
         registry_number: registryNumber, area, max_distance: maxDist,
         bio, is_verified: isVerified, verification_status: verificationStatus,
@@ -169,6 +172,15 @@ export default function AdminProEditPage() {
 
       {block('🩺 Επαγγελματικά στοιχεία', (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {field('Φύλο', (
+            <select value={gender} onChange={e => setGender(e.target.value)}
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }}>
+              <option value="">— Επιλέξτε —</option>
+              <option value="male">♂ Άνδρας</option>
+              <option value="female">♀ Γυναίκα</option>
+              <option value="other">⊕ Άλλο</option>
+            </select>
+          ))}
           {field('Κατηγορία', (
             <select value={category} onChange={e => setCategory(e.target.value)}
               style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }}>

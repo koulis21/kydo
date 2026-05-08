@@ -46,6 +46,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const {
       full_name, city, phone,
+      gender,
       category, experience_years, hourly_rate, registry_number,
       area, max_distance, bio, is_verified, verification_status, is_express,
     } = body
@@ -68,6 +69,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { error } = await sbAdmin
       .from('professionals')
       .update({
+        gender: gender || null,
         category,
         experience_years: experience_years ? parseInt(experience_years) : null,
         hourly_rate: hourly_rate ? parseFloat(hourly_rate) : null,
