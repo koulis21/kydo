@@ -250,16 +250,19 @@ function ProfileContent() {
               <div style={{ fontSize: '12px', color: 'var(--teal)', marginTop: '4px' }}>✓ Επαφή ξεκλειδωμένη</div>
             </div>
           ) : !user ? (
-            <div style={{ border: '1.5px dashed var(--gray-m)', borderRadius: 'var(--rs)', padding: '1rem 1.2rem' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '8px' }}>Στοιχεία επικοινωνίας</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            <div style={{ border: '1.5px solid var(--teal)', borderRadius: 'var(--rs)', padding: '1rem 1.2rem', background: 'var(--teal-l)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#999', filter: 'blur(4px)', userSelect: 'none', letterSpacing: '2px' }}>69X XXX XXXX</div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray)', marginBottom: '10px' }}>Συνδεθείτε για να πληρώσετε €1.99 ή ξεκλειδώστε τώρα ως επισκέπτης για €2.49.</div>
+              {/* Free unlock promo */}
+              <div style={{ background: '#fff', border: '1px solid #b8e8d8', borderRadius: 'var(--rs)', padding: '10px 12px', marginBottom: '10px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--teal)', marginBottom: '2px' }}>🎁 1 δωρεάν ξεκλείδωμα με εγγραφή!</div>
+                <div style={{ fontSize: '12px', color: 'var(--gray)' }}>Εγγραφείτε δωρεάν και αποκτήστε αμέσως πρόσβαση στα στοιχεία επικοινωνίας αυτού του επαγγελματία — χωρίς χρέωση.</div>
+              </div>
               <div className="profile-contact-btns" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button className="btn btn-p" style={{ fontSize: '13px', padding: '8px 18px' }} onClick={() => router.push('/')}>
-                  Σύνδεση / Εγγραφή (€1.99)
+                  🎁 Εγγραφή — 1ο unlock δωρεάν
                 </button>
                 <button
                   onClick={doUnlock}

@@ -34,6 +34,12 @@ export default function SearchPage() {
   const [wantVerified, setWantVerified] = useState(false)
   const [sort, setSort] = useState('rating')
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const sb = createClient()
+    sb.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session))
+  }, [])
 
   useEffect(() => { loadPros() }, [])
 
@@ -185,6 +191,30 @@ export default function SearchPage() {
 
         {/* Results */}
         <div style={{ padding: '1.5rem', overflowY: 'auto' }}>
+          {/* Free unlock promo για μη logged-in */}
+          {isLoggedIn === false && (
+            <div onClick={() => router.push('/')} style={{
+              background: 'linear-gradient(135deg, var(--teal-l), #e0f4ec)',
+              border: '1.5px solid var(--teal)',
+              borderRadius: 'var(--r)',
+              padding: '1rem 1.2rem',
+              marginBottom: '1.2rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              flexWrap: 'wrap',
+            }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--teal)', marginBottom: '2px' }}>🎁 Εγγραφή δωρεάν → 1 δωρεάν ξεκλείδωμα!</div>
+                <div style={{ fontSize: '12px', color: 'var(--gray)' }}>Βρες τον επαγγελματία που θέλεις και αποκτήσε τα στοιχεία επικοινωνίας του χωρίς χρέωση — μόνο για νέα μέλη.</div>
+              </div>
+              <button style={{ padding: '9px 18px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                Εγγραφή →
+              </button>
+            </div>
+          )}
+
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '8px' }}>
             <div style={{ fontSize: '15px', fontWeight: 700 }}>
               {loading ? 'Φόρτωση...' : `${filtered.length} επαγγελματία${filtered.length === 1 ? 'ς' : 'ες'}`}

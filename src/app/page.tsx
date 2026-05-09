@@ -129,7 +129,7 @@ export default function HomePage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1rem' }}>
           {[
             { label: 'Επισκέπτης', price: '€2.49', desc: 'ανά unlock' },
-            { label: 'Εγγεγραμμένος', price: '€1.99', desc: 'ανά unlock', highlight: true },
+            { label: 'Νέο μέλος', price: '🎁 ΔΩΡΕΑΝ', desc: '1ο unlock δωρεάν · μετά €1.99', highlight: true },
             { label: 'Εβδομαδιαίο', price: '€9.99', desc: '7 ημέρες' },
             { label: 'Μηνιαίο', price: '€19.99', desc: 'απεριόριστα unlocks' },
           ].map(p => (
@@ -139,7 +139,7 @@ export default function HomePage() {
               borderRadius: 'var(--r)', padding: '1.5rem',
             }}>
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--gray)', marginBottom: '8px' }}>{p.label}</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 800, color: p.highlight ? 'var(--teal)' : 'var(--text)' }}>{p.price}</div>
+              <div style={{ fontSize: p.highlight ? '1.3rem' : '1.8rem', fontWeight: 800, color: p.highlight ? 'var(--teal)' : 'var(--text)' }}>{p.price}</div>
               <div style={{ fontSize: '12px', color: 'var(--gray)', marginTop: '4px' }}>{p.desc}</div>
             </div>
           ))}
