@@ -247,7 +247,7 @@ function ProfileContent() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6.29 6.29l.95-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                 {proPhone}
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--teal)', marginTop: '4px' }}>✓ Επαφή ξεκλειδωμένη</div>
+              <div style={{ fontSize: '12px', color: 'var(--teal)', marginTop: '4px' }}>✓ Επαφή αποκτήθηκε</div>
             </div>
           ) : !user ? (
             <div style={{ border: '1.5px solid var(--teal)', borderRadius: 'var(--rs)', padding: '1rem 1.2rem', background: 'var(--teal-l)' }}>
@@ -257,19 +257,19 @@ function ProfileContent() {
               </div>
               {/* Free unlock promo */}
               <div style={{ background: '#fff', border: '1px solid #b8e8d8', borderRadius: 'var(--rs)', padding: '10px 12px', marginBottom: '10px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--teal)', marginBottom: '2px' }}>🎁 1 δωρεάν ξεκλείδωμα με εγγραφή!</div>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--teal)', marginBottom: '2px' }}>🎁 1η επαφή δωρεάν με εγγραφή!</div>
                 <div style={{ fontSize: '12px', color: 'var(--gray)' }}>Εγγραφείτε δωρεάν και αποκτήστε αμέσως πρόσβαση στα στοιχεία επικοινωνίας αυτού του επαγγελματία — χωρίς χρέωση.</div>
               </div>
               <div className="profile-contact-btns" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button className="btn btn-p" style={{ fontSize: '13px', padding: '8px 18px' }} onClick={() => router.push('/')}>
-                  🎁 Εγγραφή — 1ο unlock δωρεάν
+                  🎁 Εγγραφή — 1η επαφή δωρεάν
                 </button>
                 <button
                   onClick={doUnlock}
                   disabled={checkoutLoading}
                   style={{ padding: '8px 18px', borderRadius: 'var(--rs)', border: '1.5px solid var(--gray-m)', fontSize: '13px', fontWeight: 600, cursor: checkoutLoading ? 'not-allowed' : 'pointer', background: '#fff', color: 'var(--text)', opacity: checkoutLoading ? .7 : 1 }}
                 >
-                  {checkoutLoading ? 'Ανακατεύθυνση...' : '🔓 Επισκέπτης €2.49'}
+                  {checkoutLoading ? 'Ανακατεύθυνση...' : '🔓 Επαφή ως επισκέπτης €2.49'}
                 </button>
               </div>
             </div>
@@ -304,13 +304,13 @@ function ProfileContent() {
                   disabled={checkoutLoading}
                   style={{ padding: '10px 20px', borderRadius: 'var(--rs)', border: 'none', fontSize: '14px', fontWeight: 700, cursor: checkoutLoading ? 'not-allowed' : 'pointer', background: 'var(--teal)', color: '#fff', opacity: checkoutLoading ? .7 : 1, display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  {checkoutLoading ? <><div className="spinner" />Ανακατεύθυνση...</> : '🔓 Ξεκλείδωσε €1.99'}
+                  {checkoutLoading ? <><div className="spinner" />Ανακατεύθυνση...</> : '🔓 Αποκτήστε επαφή €1.99'}
                 </button>
                 <button
                   onClick={() => router.push('/upgrade')}
                   style={{ padding: '10px 18px', borderRadius: 'var(--rs)', border: '1.5px solid var(--teal)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', background: '#fff', color: 'var(--teal)' }}
                 >
-                  ή €19.99/μήνα για unlimited →
+                  ή €19.99/μήνα απεριόριστα →
                 </button>
               </div>
             </div>

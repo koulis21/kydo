@@ -274,7 +274,7 @@ export default function ProDashPage() {
       }}>
         <div>
           <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '2px', color: 'var(--teal)' }}>📋 Δες αγγελίες οικογενειών</div>
-          <div style={{ fontSize: '13px', color: 'var(--gray)' }}>Ξεκλείδωσε στοιχεία επικοινωνίας με €1.99 ή δωρεάν με Pro συνδρομή</div>
+          <div style={{ fontSize: '13px', color: 'var(--gray)' }}>Αποκτήστε στοιχεία επικοινωνίας οικογενειών με €1.99 ή δωρεάν με Pro συνδρομή</div>
         </div>
         <button style={{ padding: '10px 18px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
           Browse →

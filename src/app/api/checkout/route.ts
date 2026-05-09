@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
         currency: 'eur',
         unit_amount: priceInCents,
         product_data: {
-          name: `Kydo Unlock — ${professional_name || 'Επαγγελματίας'}`,
+          name: `Kydo Επαφή — ${professional_name || 'Επαγγελματίας'}`,
           description: 'Πρόσβαση σε στοιχεία επικοινωνίας',
         },
       },

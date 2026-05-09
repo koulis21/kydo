@@ -206,7 +206,7 @@ export default function SearchPage() {
               flexWrap: 'wrap',
             }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--teal)', marginBottom: '2px' }}>🎁 Εγγραφή δωρεάν → 1 δωρεάν ξεκλείδωμα!</div>
+                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--teal)', marginBottom: '2px' }}>🎁 Εγγραφή δωρεάν → 1η επαφή δωρεάν!</div>
                 <div style={{ fontSize: '12px', color: 'var(--gray)' }}>Βρες τον επαγγελματία που θέλεις και αποκτήσε τα στοιχεία επικοινωνίας του χωρίς χρέωση — μόνο για νέα μέλη.</div>
               </div>
               <button style={{ padding: '9px 18px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>

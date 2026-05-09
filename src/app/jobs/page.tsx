@@ -103,7 +103,7 @@ export default function JobsListingPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
                   {j.is_urgent && <span style={{ fontSize: '10px', fontWeight: 800, color: '#fff', background: 'var(--red)', padding: '3px 8px', borderRadius: '10px', letterSpacing: '.4px' }}>🚨 ΕΠΕΙΓΟΝ</span>}
                   <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.4px' }}>{j.category}</span>
-                  {isUnlocked && <span style={{ fontSize: '10px', fontWeight: 800, color: 'var(--teal)', background: 'var(--teal-l)', padding: '3px 8px', borderRadius: '10px', letterSpacing: '.4px' }}>✓ ΞΕΚΛΕΙΔΩΜΕΝΗ</span>}
+                  {isUnlocked && <span style={{ fontSize: '10px', fontWeight: 800, color: 'var(--teal)', background: 'var(--teal-l)', padding: '3px 8px', borderRadius: '10px', letterSpacing: '.4px' }}>✓ ΕΠΑΦΗ ΑΠΟΚΤΗΘΗΚΕ</span>}
                 </div>
                 <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '6px' }}>{j.title}</div>
                 {j.patient_info && <div style={{ fontSize: '13px', color: 'var(--gray)', marginBottom: '6px' }}>👤 {j.patient_info}</div>}

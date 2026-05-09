@@ -100,7 +100,7 @@ export default function DashboardPage() {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Unlocks', val: unlocks, note: 'Επαφές ξεκλειδωμένες', href: null },
+          { label: 'Επαφές', val: unlocks, note: 'Επαγγελματίες επικοινωνίας', href: null },
           { label: '❤️ Αγαπημένοι', val: favorites, note: favorites > 0 ? 'Δες τους' : 'Αποθήκευσε pros', href: '/favorites' },
           { label: 'Αξιολογήσεις', val: reviews, note: 'Έχετε δώσει', href: null },
           { label: 'Express', val: 0, note: 'Ιστορικό', href: null },

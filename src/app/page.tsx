@@ -82,7 +82,7 @@ export default function HomePage() {
             { icon: '📅', title: 'Ωράριο & Ημέρες', desc: 'Φίλτρα για ημέρες, βάρδιες, διαμονή εντός.' },
             { icon: '⚡', title: 'Kydo Express', desc: 'Επείγον; Επαγγελματίας εντός 2–4 ωρών.' },
             { icon: '★', title: 'Αξιολογήσεις', desc: 'Πραγματικές κριτικές από οικογένειες.' },
-            { icon: '💶', title: 'από €1.99', desc: 'Ξεκλείδωσε στοιχεία επικοινωνίας. Όχι πακέτα €700.' },
+            { icon: '💶', title: 'από €1.99', desc: 'Αποκτήστε στοιχεία επικοινωνίας. Όχι πακέτα €700.' },
           ].map(f => (
             <div key={f.title} style={{ background: 'var(--gray-l)', borderRadius: 'var(--r)', padding: '1.5rem' }}>
               <div style={{ fontSize: '1.8rem', marginBottom: '.8rem' }}>{f.icon}</div>
@@ -101,7 +101,7 @@ export default function HomePage() {
             {[
               { n: '1', title: 'Αναζήτησε', desc: 'Περιοχή, απόσταση, εξειδίκευση, ωράριο.' },
               { n: '2', title: 'Διάβασε', desc: 'Αξιολογήσεις + Kydo Verified badge.' },
-              { n: '3', title: 'Unlock από €1.99', desc: 'Ξεκλείδωσε τα στοιχεία επικοινωνίας.' },
+              { n: '3', title: 'Επαφή από €1.99', desc: 'Αποκτήστε τα στοιχεία επικοινωνίας.' },
               { n: '4', title: 'Αξιολόγησε', desc: 'Βοήθα την επόμενη οικογένεια.' },
             ].map(s => (
               <div key={s.n} style={{
@@ -128,10 +128,10 @@ export default function HomePage() {
         <p style={{ color: 'var(--gray)', fontSize: '14px', marginBottom: '2rem' }}>Πλήρωσε μόνο για αυτό που χρειάζεσαι</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1rem' }}>
           {[
-            { label: 'Επισκέπτης', price: '€2.49', desc: 'ανά unlock' },
-            { label: 'Νέο μέλος', price: '🎁 ΔΩΡΕΑΝ', desc: '1ο unlock δωρεάν · μετά €1.99', highlight: true },
+            { label: 'Επισκέπτης', price: '€2.49', desc: 'ανά επαφή' },
+            { label: 'Νέο μέλος', price: '🎁 ΔΩΡΕΑΝ', desc: '1η επαφή δωρεάν · μετά €1.99', highlight: true },
             { label: 'Εβδομαδιαίο', price: '€9.99', desc: '7 ημέρες' },
-            { label: 'Μηνιαίο', price: '€19.99', desc: 'απεριόριστα unlocks' },
+            { label: 'Μηνιαίο', price: '€19.99', desc: 'απεριόριστες επαφές' },
           ].map(p => (
             <div key={p.label} style={{
               background: p.highlight ? 'var(--teal-l)' : 'var(--gray-l)',

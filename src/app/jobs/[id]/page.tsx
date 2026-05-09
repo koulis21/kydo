@@ -185,10 +185,10 @@ function JobDetailContent({ id }: { id: string }) {
             <div style={{ border: '1.5px dashed var(--gray-m)', borderRadius: 'var(--rs)', padding: '1.2rem 1.4rem' }}>
               <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: '8px' }}>🔒 Στοιχεία επικοινωνίας</div>
               <div style={{ fontSize: '14px', color: 'var(--gray)', marginBottom: '12px', lineHeight: 1.5 }}>
-                Ξεκλείδωσε για να επικοινωνήσεις απευθείας με την οικογένεια. Pro συνδρομητές: <strong>δωρεάν</strong>.
+                Αποκτήστε επαφή για να επικοινωνήσετε απευθείας με την οικογένεια. Pro συνδρομητές: <strong>δωρεάν</strong>.
               </div>
               <button onClick={unlockJob} disabled={busy} style={{ padding: '12px 22px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '14px', fontWeight: 700, cursor: busy ? 'not-allowed' : 'pointer' }}>
-                {busy ? 'Ανακατεύθυνση...' : '🔓 Ξεκλείδωσε €1.99'}
+                {busy ? 'Ανακατεύθυνση...' : '🔓 Αποκτήστε επαφή €1.99'}
               </button>
               {error && <div className="msg msg-error" style={{ marginTop: '10px', fontSize: '13px' }}>{error}</div>}
             </div>
