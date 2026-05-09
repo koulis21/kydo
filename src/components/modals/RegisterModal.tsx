@@ -25,6 +25,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState<'error' | 'success'>('error')
   const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
 
   // PW rules
   const pwLen = pass.length >= 8
@@ -96,9 +97,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
         setMsg('⚠️ Αυτό το email χρησιμοποιείται ήδη.'); setMsgType('error')
         setLoading(false); return
       }
-      setMsg('✓ Ο λογαριασμός δημιουργήθηκε! Ελέγξτε το email σας.')
-      setMsgType('success')
-      setTimeout(() => onClose(), 3000)
+      setDone(true)
     } catch (e: any) {
       setMsg('Σφάλμα: ' + e.message); setMsgType('error')
       setLoading(false)
@@ -131,6 +130,24 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
           background: 'var(--gray-l)', border: 'none', width: '32px',
           height: '32px', borderRadius: '50%', fontSize: '16px', cursor: 'pointer',
         }}>✕</button>
+
+        {done ? (
+          <div style={{ textAlign: 'center', padding: '1rem 0 1.5rem' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📧</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '10px' }}>Ελέγξε το email σου!</div>
+            <div style={{ fontSize: '14px', color: 'var(--gray)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+              Σου στείλαμε email επιβεβαίωσης.<br />
+              Κάνε κλικ στον σύνδεσμο για να ενεργοποιηθεί ο λογαριασμός σου.<br />
+              <span style={{ fontSize: '12px' }}>Αν δεν το βλέπεις, έλεγξε τα spam / junk.</span>
+            </div>
+            <button
+              onClick={onClose}
+              style={{ padding: '12px 32px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: 'var(--rs)', fontSize: '15px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              Κλείσιμο
+            </button>
+          </div>
+        ) : (<>
 
         <div style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '1.5rem' }}>
           Εγγραφή στο Kydo
@@ -282,6 +299,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin, initialRole = 
             cursor: 'pointer', fontSize: '13px', fontWeight: 600, textDecoration: 'underline',
           }}>Συνδεθείτε</button>
         </div>
+        </>)}
       </div>
     </div>
   )

@@ -14,6 +14,7 @@ const OAUTH_ERRORS: Record<string, string> = {
   account_deleted:      'Αυτός ο λογαριασμός έχει διαγραφεί.',
   exchange_failed:      'Σφάλμα σύνδεσης Google. Δοκίμασε ξανά.',
   profile_create:       'Σφάλμα δημιουργίας προφίλ. Επικοινώνησε με την υποστήριξη.',
+  email_unconfirmed:    '📧 Επιβεβαίωσε το email σου για να συνδεθείς. Έλεγξε τα εισερχόμενά σου.',
 }
 
 // Separate component to safely use useSearchParams inside Suspense
@@ -77,13 +78,33 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    sb.auth.getSession().then(({ data: { session } }) => {
-      if (session) { setUser(session.user); loadProfile(session.user.id) }
+    sb.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        // Αν έχει εγγραφεί με email αλλά δεν έχει επιβεβαιώσει → αποσύνδεση
+        const provider = session.user.app_metadata?.provider
+        if (provider === 'email' && !session.user.email_confirmed_at) {
+          await sb.auth.signOut()
+          router.push('/?oauth_error=email_unconfirmed')
+          return
+        }
+        setUser(session.user)
+        loadProfile(session.user.id)
+      }
     })
-    const { data: { subscription } } = sb.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) loadProfile(session.user.id)
-      else setProfile(null)
+    const { data: { subscription } } = sb.auth.onAuthStateChange(async (_e, session) => {
+      if (session?.user) {
+        const provider = session.user.app_metadata?.provider
+        if (provider === 'email' && !session.user.email_confirmed_at) {
+          await sb.auth.signOut()
+          router.push('/?oauth_error=email_unconfirmed')
+          return
+        }
+        setUser(session.user)
+        loadProfile(session.user.id)
+      } else {
+        setUser(null)
+        setProfile(null)
+      }
     })
     return () => subscription.unsubscribe()
   }, [])

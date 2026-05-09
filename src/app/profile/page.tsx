@@ -134,6 +134,13 @@ function ProfileContent() {
         body: JSON.stringify({ professional_id: id, professional_name: pro?.name }),
       })
       const data = await res.json()
+      if (data.free) {
+        // Δωρεάν ξεκλείδωμα — δεν χρειάζεται Stripe
+        setProPhone(data.phone || null)
+        setIsUnlocked(true)
+        setCheckoutLoading(false)
+        return
+      }
       if (data.url) {
         window.location.href = data.url
       } else {
