@@ -10,37 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      - name: Create database backup
+      - name: Export tables via REST API
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_URL: https://kqdovhgryckstdnnkpvb.supabase.co
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
           DATE=$(date +%Y%m%d_%H%M)
-          FILENAME="kydo_backup_${DATE}.sql"
+          DIR="kydo_backup_${DATE}"
+          mkdir -p "$DIR"
 
-          echo "📦 Creating backup: $FILENAME"
-          supabase db dump --db-url "$SUPABASE_DB_URL" -f "$FILENAME"
+          TABLES=(profiles professionals profile_phones unlocks subscriptions reviews job_postings favorites categories)
 
-          SIZE=$(du -sh "$FILENAME" | cut -f1)
-          echo "✅ Backup complete — size: $SIZE"
-          echo "BACKUP_FILE=$FILENAME" >> $GITHUB_ENV
-          echo "BACKUP_SIZE=$SIZE" >> $GITHUB_ENV
+          for TABLE in "${TABLES[@]}"; do
+            curl -s \
+              -H "apikey: $SUPABASE_SERVICE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_SERVICE_KEY" \
+              "$SUPABASE_URL/rest/v1/$TABLE?select=*" \
+              -o "$DIR/$TABLE.json"
+            COUNT=$(cat "$DIR/$TABLE.json" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "?")
+            echo "✅ $TABLE — $COUNT rows"
+          done
+
+          TOTAL=$(du -sh "$DIR" | cut -f1)
+          echo "📦 Total backup size: $TOTAL"
+          echo "BACKUP_DIR=$DIR" >> $GITHUB_ENV
 
       - name: Upload backup artifact
         uses: actions/upload-artifact@v4
         with:
-          name: kydo-db-backup-${{ github.run_id }}
-          path: "*.sql"
+          name: kydo-backup-${{ github.run_id }}
+          path: kydo_backup_*/
           retention-days: 30
 
       - name: Summary
         run: |
           echo "## 🗄️ Kydo Database Backup" >> $GITHUB_STEP_SUMMARY
-          echo "- **File:** \`$BACKUP_FILE\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Size:** $BACKUP_SIZE" >> $GITHUB_STEP_SUMMARY
+          echo "- **Directory:** \`$BACKUP_DIR\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tables:** profiles, professionals, unlocks, subscriptions, reviews, job_postings, favorites, categories" >> $GITHUB_STEP_SUMMARY
           echo "- **Retention:** 30 days" >> $GITHUB_STEP_SUMMARY
