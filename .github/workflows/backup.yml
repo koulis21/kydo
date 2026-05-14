@@ -18,14 +18,13 @@ jobs:
       - name: Create database backup
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           DATE=$(date +%Y%m%d_%H%M)
           FILENAME="kydo_backup_${DATE}.sql"
 
           echo "📦 Creating backup: $FILENAME"
-          supabase db dump \
-            --project-id kqdovhgryckstdnnkpvb \
-            -f "$FILENAME"
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f "$FILENAME"
 
           SIZE=$(du -sh "$FILENAME" | cut -f1)
           echo "✅ Backup complete — size: $SIZE"
